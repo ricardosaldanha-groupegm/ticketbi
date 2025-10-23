@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getCurrentUser, requireAuth } from '@/lib/auth'
 import { canEditSubticket, canDeleteSubticket } from '@/lib/rbac'
@@ -30,7 +30,7 @@ export async function GET(
       return NextResponse.json({
         id: params.id,
         titulo: 'Tarefa de desenvolvimento',
-        descricao: 'Esta é uma tarefa simulada porque o Supabase não está configurado.',
+        descricao: 'Esta Ã© uma tarefa simulada porque o Supabase nÃ£o estÃ¡ configurado.',
         estado: 'novo',
         prioridade: 1,
         urgencia: 1,
@@ -102,7 +102,7 @@ export async function PATCH(
         data_esperada: validatedData.data_esperada ?? null,
         data_conclusao: validatedData.data_conclusao ?? null,
         assignee: validatedData.assignee_bi_id
-          ? { name: 'Responsável', email: 'dev@example.com', id: validatedData.assignee_bi_id }
+          ? { name: 'ResponsÃ¡vel', email: 'dev@example.com', id: validatedData.assignee_bi_id }
           : null,
       })
     }
@@ -146,7 +146,7 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid assignee' }, { status: 400 })
       }
 
-      if (!skipPermissions && assignee.role !== 'bi' && assignee.role !== 'admin') {
+      if (!skipPermissions && (assignee as any).role !== 'bi' && (assignee as any).role !== 'admin') {
         return NextResponse.json({ error: 'Assignee must be a BI user' }, { status: 400 })
       }
     }
@@ -246,3 +246,4 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
