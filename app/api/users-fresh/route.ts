@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
     
     console.log('Raw users from Supabase:', JSON.stringify(users, null, 2))
     
-    // Add is_active field
-    const usersWithStatus = users.map(user => ({
+    // Preserve real is_active from DB; default to true if null/undefined
+    const usersWithStatus = users.map((user: any) => ({
       ...user,
-      is_active: true
+      is_active: user?.is_active ?? true,
     }))
     
     console.log('Processed users:', JSON.stringify(usersWithStatus, null, 2))

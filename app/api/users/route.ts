@@ -112,10 +112,10 @@ export async function GET(request: NextRequest) {
     
     console.log('Raw users from Supabase:', users)
     
-    // Add is_active field (assuming all users are active for now)
+    // Preserve real is_active from DB; default to true if null/undefined
     const usersWithStatus = (users as any[]).map((user: any) => ({
       ...(user as any),
-      is_active: true // TODO: Add is_active column to users table
+      is_active: (user as any)?.is_active ?? true,
     }))
     
     console.log('API returning users:', usersWithStatus) // Debug log
