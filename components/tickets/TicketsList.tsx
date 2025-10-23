@@ -155,7 +155,7 @@ if (tickets.length === 0) {
                 {statusLabels[estado] ?? estado}
               </Badge>
               <CardTitle className="text-lg">
-                {statusLabels[estado] ?? estado} ({items.length})
+                ({items.length})
               </CardTitle>
             </div>
             <CardDescription className="text-slate-400">
