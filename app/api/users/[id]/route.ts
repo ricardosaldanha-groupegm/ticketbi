@@ -152,7 +152,14 @@ export async function DELETE(
       })
     }
     
-    // Production mode - use Supabase\n    const supabase = createServerSupabaseClient()\n\n    // Identify requester\n    const requester = await getCurrentUser()\n    if (!requester) {\n      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })\n    }
+    // Production mode - use Supabase
+    const supabase = createServerSupabaseClient()
+
+    // Identify requester
+    const requester = await getCurrentUser()
+    if (!requester) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     
     // Check if user exists and get their data first
     const { data: existingUser, error: fetchError } = await supabase
@@ -168,7 +175,30 @@ export async function DELETE(
       )
     }
     
-    // Determine requester role\n    const { data: requesterRow } = await supabase.from('users').select('id, role').eq('id', requester.id).maybeSingle()\n    const requesterRole = (requesterRow as any)?.role || null\n\n    // Self-protection: admin cannot delete self\n    if (requester.id === id) {\n      return NextResponse.json({ error: 'Não pode remover a sua própria conta' }, { status: 400 })\n    }\n\n    // Only admins can delete admins\n    if ((existingUser as any).role === 'admin' && requesterRole !== 'admin') {\n      return NextResponse.json({ error: 'Apenas administradores podem remover administradores' }, { status: 403 })\n    }\n\n    // Ensure at least one admin remains\n    if ((existingUser as any).role === 'admin') {\n      const { data: admins } = await supabase.from('users').select('id').eq('role','admin')\n      const totalAdmins = (admins || []).length\n      if (totalAdmins <= 1) {\n        return NextResponse.json({ error: 'Deve existir pelo menos um administrador' }, { status: 400 })\n      }\n    }\n\n    // Delete the user
+    // Determine requester role
+    const { data: requesterRow } = await supabase.from('users').select('id, role').eq('id', requester.id).maybeSingle()
+    const requesterRole = (requesterRow as any)?.role || null
+
+    // Self-protection: admin cannot delete self
+    if (requester.id === id) {
+      return NextResponse.json({ error: 'Não pode remover a sua própria conta' }, { status: 400 })
+    }
+
+    // Only admins can delete admins
+    if ((existingUser as any).role === 'admin' && requesterRole !== 'admin') {
+      return NextResponse.json({ error: 'Apenas administradores podem remover administradores' }, { status: 403 })
+    }
+
+    // Ensure at least one admin remains
+    if ((existingUser as any).role === 'admin') {
+      const { data: admins } = await supabase.from('users').select('id').eq('role','admin')
+      const totalAdmins = (admins || []).length
+      if (totalAdmins <= 1) {
+        return NextResponse.json({ error: 'Deve existir pelo menos um administrador' }, { status: 400 })
+      }
+    }
+
+    // Delete the user
     const { error: deleteError } = await supabase
       .from('users')
       .delete()
@@ -182,7 +212,10 @@ export async function DELETE(
       )
     }
     
-    return NextResponse.json({\n      message: 'Utilizador removido com sucesso'\n    })\n    
+    return NextResponse.json({
+      message: 'Utilizador removido com sucesso'
+    })
+    
   } catch (error) {
     console.error('Error in user deletion:', error)
     return NextResponse.json(
@@ -191,6 +224,7 @@ export async function DELETE(
     )
   }
 }
+
 
 
 
