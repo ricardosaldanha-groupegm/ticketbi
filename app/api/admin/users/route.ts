@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 
@@ -7,24 +7,24 @@ export async function POST(request: NextRequest) {
     const { name, email, role } = await request.json()
 
     if (!name || !email || !role) {
-      return NextResponse.json({ error: 'Campos obrigatórios em falta' }, { status: 400 })
+      return NextResponse.json({ error: 'Campos obrigatÃ³rios em falta' }, { status: 400 })
     }
 
     const allowed = ['user', 'bi', 'admin']
     if (!allowed.includes(role)) {
-      return NextResponse.json({ error: 'Role inválido' }, { status: 400 })
+      return NextResponse.json({ error: 'Role invÃ¡lido' }, { status: 400 })
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!supabaseUrl || !serviceKey) {
-      return NextResponse.json({ error: 'Configuração Supabase em falta' }, { status: 500 })
+      return NextResponse.json({ error: 'ConfiguraÃ§Ã£o Supabase em falta' }, { status: 500 })
     }
 
-    // Auth admin client (server‑side)
+    // Auth admin client (serverâ€‘side)
     const admin = createClient(supabaseUrl, serviceKey)
 
-    // Redirect URL para a página de troca de password
+    // Redirect URL para a pÃ¡gina de troca de password
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || undefined
     const redirectTo = origin ? `${origin}/alterar-password` : undefined
 
@@ -44,15 +44,16 @@ export async function POST(request: NextRequest) {
 
     const { error: upErr } = await sb
       .from('users')
-      .upsert({ id: userId, email, name, role: dbRole }, { onConflict: 'id' })
+      .upsert(({ id: userId, email, name, role: dbRole } as any), { onConflict: 'id' })
 
     if (upErr) {
       return NextResponse.json({ error: upErr.message }, { status: 500 })
     }
 
-    return NextResponse.json({ message: 'Convite enviado. O utilizador irá definir a password.' })
+    return NextResponse.json({ message: 'Convite enviado. O utilizador irÃ¡ definir a password.' })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Erro interno' }, { status: 500 })
   }
 }
+
 
