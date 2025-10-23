@@ -160,11 +160,11 @@ export async function PATCH(
     if (validatedData.action === 'approve') {
       const { data: newUser, error: userError } = await supabase
         .from('users')
-        .insert([{
+        .insert([({
           email: (accessRequest as any).email,
           name: (accessRequest as any).name,
           role: 'requester' // Default role for new users
-        }])
+        } as any])
         .select()
         .single()
       
@@ -209,6 +209,7 @@ export async function PATCH(
     )
   }
 }
+
 
 
 
