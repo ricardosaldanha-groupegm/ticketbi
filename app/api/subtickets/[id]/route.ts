@@ -168,12 +168,12 @@ export async function PATCH(
     }
 
     // Update subticket
-    const { data: subticket, error } = await supabase
+    const { data: subticket, error } = await (supabase as any)
       .from('subtickets')
       .update({
         ...normalized,
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('id', params.id)
       .select(`
         *,
@@ -246,4 +246,5 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
 
