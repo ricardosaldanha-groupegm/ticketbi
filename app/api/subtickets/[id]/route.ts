@@ -223,11 +223,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Subticket not found' }, { status: 404 })
     }
 
-    if (!subticket.ticket) {
+    if (!((subticket as any).ticket)) {
       return NextResponse.json({ error: 'Parent ticket not found' }, { status: 404 })
     }
 
-    if (!canDeleteSubticket(user, subticket, subticket.ticket)) {
+    if (!canDeleteSubticket(user, subticket as any, (subticket as any).ticket)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -246,5 +246,6 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
 
 
