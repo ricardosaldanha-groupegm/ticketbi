@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'\nimport { getCurrentUser } from '@/lib/auth'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getCurrentUser } from '@/lib/auth'
 import { z } from 'zod'
 
 const updateUserSchema = z.object({
@@ -190,6 +191,7 @@ export async function DELETE(
     )
   }
 }
+
 
 
 
