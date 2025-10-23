@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Eye, MessageSquarePlus } from "lucide-react"
+import { Eye, Edit, MessageSquarePlus } from "lucide-react"
 import CommentsList from "./CommentsList"
 
 import { Badge } from "@/components/ui/badge"
@@ -363,7 +363,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-6">
           <div className="text-center">A carregar tarefas...</div>
         </CardContent>
@@ -373,7 +373,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
 
   return (
     <>
-      <Card>
+      <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -487,12 +487,23 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
                       <TableCell>{formatDateWithDiff(task.data_conclusao, task.data_inicio)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={handleOpen}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Ver tarefa"
+                            onClick={handleOpen}
+                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                          >
+                            <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="secondary" size="sm" onClick={() => openEdit(task.id)}>
-                            Editar
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Editar tarefa"
+                            onClick={() => openEdit(task.id)}
+                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                          >
+                            <Edit className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
