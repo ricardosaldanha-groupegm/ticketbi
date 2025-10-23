@@ -113,7 +113,11 @@ export default function UsersManagementPage() {
   const handleDeleteUser = async (userId: string) => {
     setProcessingId(userId)
     try {
-      const response = await fetch(`/api/users/${userId}`, { method: "DELETE" })
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+        // Pass requester for API auth shim (uses x-user-id)
+        headers: currentUserId ? { "x-user-id": currentUserId } : undefined,
+      })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Erro ao remover utilizador")
       toast({ title: "Sucesso", description: data.message })
