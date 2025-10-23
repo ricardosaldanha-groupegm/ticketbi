@@ -1,0 +1,9 @@
+168	                <TableRow>
+169	                  <TableHead>Assunto</TableHead>
+170	                  <TableHead>Pedido por</TableHead>
+171	                  <TableHead>Gestor</TableHead>
+172	                  <TableHead>Data do pedido</TableHead>
+173	                  <TableHead>Data conclusão esperada</TableHead>
+174	                  <TableHead>Prioridade</TableHead>
+175	                  <TableHead className="text-right">Ações</TableHead>
+176	                </TableRow>
