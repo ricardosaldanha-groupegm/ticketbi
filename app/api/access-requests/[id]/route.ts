@@ -158,7 +158,7 @@ export async function PATCH(
     
     // If approved, create the user account
     if (validatedData.action === 'approve') {
-      const { data: newUser, error: userError } = await supabase
+      const { data: newUser, error: userError } = await (supabase as any)
         .from('users')
         .insert([{
           email: (accessRequest as any).email,
@@ -209,6 +209,7 @@ export async function PATCH(
     )
   }
 }
+
 
 
 
