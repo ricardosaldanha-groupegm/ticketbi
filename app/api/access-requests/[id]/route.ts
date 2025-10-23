@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getAccessRequest, updateAccessRequest } from '@/lib/dev-storage'
 import { z } from 'zod'
@@ -28,14 +28,14 @@ export async function PATCH(
       const accessRequest = getAccessRequest(id)
       if (!accessRequest) {
         return NextResponse.json(
-          { error: 'Pedido não encontrado' },
+          { error: 'Pedido nÃ£o encontrado' },
           { status: 404 }
         )
       }
       
-      if (accessRequest.status !== 'pending') {
+      if (((accessRequest as any)?.status) !== 'pending') {
         return NextResponse.json(
-          { error: 'Este pedido já foi processado' },
+          { error: 'Este pedido jÃ¡ foi processado' },
           { status: 400 }
         )
       }
@@ -80,14 +80,14 @@ export async function PATCH(
       const accessRequest = getAccessRequest(id)
       if (!accessRequest) {
         return NextResponse.json(
-          { error: 'Pedido não encontrado' },
+          { error: 'Pedido nÃ£o encontrado' },
           { status: 404 }
         )
       }
       
-      if (accessRequest.status !== 'pending') {
+      if (((accessRequest as any)?.status) !== 'pending') {
         return NextResponse.json(
-          { error: 'Este pedido já foi processado' },
+          { error: 'Este pedido jÃ¡ foi processado' },
           { status: 400 }
         )
       }
@@ -122,14 +122,14 @@ export async function PATCH(
     
     if (fetchError || !accessRequest) {
       return NextResponse.json(
-        { error: 'Pedido não encontrado' },
+        { error: 'Pedido nÃ£o encontrado' },
         { status: 404 }
       )
     }
     
-    if (accessRequest.status !== 'pending') {
+    if (((accessRequest as any)?.status) !== 'pending') {
       return NextResponse.json(
-        { error: 'Este pedido já foi processado' },
+        { error: 'Este pedido jÃ¡ foi processado' },
         { status: 400 }
       )
     }
@@ -161,8 +161,8 @@ export async function PATCH(
       const { data: newUser, error: userError } = await supabase
         .from('users')
         .insert([{
-          email: accessRequest.email,
-          name: accessRequest.name,
+          email: (accessRequest as any).email,
+          name: (accessRequest as any).name,
           role: 'requester' // Default role for new users
         }])
         .select()
@@ -197,7 +197,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados invÃ¡lidos', details: error.errors },
         { status: 400 }
       )
     }
@@ -209,3 +209,4 @@ export async function PATCH(
     )
   }
 }
+
