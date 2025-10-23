@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
         .eq('role', 'admin')
         .limit(1)
         .maybeSingle()
-      if (adminUser?.id) createdById = adminUser.id
+      if (((adminUser as any)?.id)) createdById = (adminUser as any).id
     }
 
     // Normalize optional date field to null if empty string
@@ -165,4 +165,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }
+
 
