@@ -92,11 +92,8 @@ export default function LoginPage() {
 
       localStorage.setItem('dev-user', JSON.stringify(userInfo))
 
-      if (user.role === 'admin') {
-        router.push('/admin/access-requests')
-      } else {
-        router.push('/tickets')
-      }
+      // Após login, encaminhar sempre para a página de Tickets
+      router.push('/tickets')
     } catch (error) {
       console.error('Login error:', error)
       toast({
