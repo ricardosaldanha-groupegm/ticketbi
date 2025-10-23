@@ -277,14 +277,24 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="text-slate-400 hover:text-slate-100" onClick={() => router.push("/tickets")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Voltar"
+          className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+          onClick={() => router.push("/tickets")}
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         {!isEditing && (
-          <Button onClick={handleEdit} className="bg-amber-600 hover:bg-amber-700 text-white">
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
+          <Button
+            onClick={handleEdit}
+            variant="outline"
+            size="icon"
+            aria-label="Editar"
+            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+          >
+            <Edit className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -425,18 +435,29 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Button type="submit" disabled={isSaving} className="bg-amber-600 hover:bg-amber-700">
-                          {isSaving ? (<>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            A guardar...
-                          </>) : (<>
-                            <Save className="mr-2 h-4 w-4" />
-                            Guardar
-                          </>)}
+                        <Button
+                          type="submit"
+                          disabled={isSaving}
+                          variant="outline"
+                          size="icon"
+                          aria-label="Guardar"
+                          className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                        >
+                          {isSaving ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-transparent" />
+                          ) : (
+                            <Save className="h-4 w-4" />
+                          )}
                         </Button>
-                        <Button type="button" variant="outline" onClick={handleCancel}>
-                          <X className="mr-2 h-4 w-4" />
-                          Cancelar
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          aria-label="Cancelar"
+                          onClick={handleCancel}
+                          className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                        >
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </form>
