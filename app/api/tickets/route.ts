@@ -144,9 +144,9 @@ export async function POST(request: NextRequest) {
       created_by: createdById,
     }
 
-    const { data: ticket, error } = await supabase
+    const { data: ticket, error } = await (supabase as any)
       .from('tickets')
-      .insert([insertPayload])
+      .insert([insertPayload as any])
       .select()
       .single()
     
@@ -165,5 +165,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }
+
 
 
