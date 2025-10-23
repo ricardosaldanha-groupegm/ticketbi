@@ -119,9 +119,9 @@ export default function TicketsList() {
     return Array.from(groups.entries()).map(([estado, items]) => ({ estado, items }))
   }, [tickets])
 
-  if (loading) {
+if (loading) {
     return (
-      <Card>
+      <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-6">
           <div className="text-center">A carregar tickets...</div>
         </CardContent>
@@ -129,9 +129,9 @@ export default function TicketsList() {
     )
   }
 
-  if (tickets.length === 0) {
+if (tickets.length === 0) {
     return (
-      <Card>
+      <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle>Tickets</CardTitle>
           <CardDescription>Ainda não existem tickets registados.</CardDescription>
@@ -148,7 +148,7 @@ export default function TicketsList() {
   return (
     <div className="space-y-6">
       {groupedByEstado.map(({ estado, items }) => (
-        <Card key={estado}>
+        <Card key={estado} className="bg-slate-800 border-slate-700">
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <Badge className={statusColors[estado] ?? "bg-slate-200 text-slate-800"}>
@@ -211,7 +211,7 @@ export default function TicketsList() {
                       </TableCell>
                       <TableCell className="text-right">
                         <Link href={`/tickets/${ticket.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-700">
                             <Eye className="mr-2 h-4 w-4" />
                             Ver
                           </Button>
@@ -228,4 +228,3 @@ export default function TicketsList() {
     </div>
   )
 }
-
