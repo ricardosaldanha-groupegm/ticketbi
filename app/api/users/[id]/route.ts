@@ -87,11 +87,19 @@ export async function PATCH(
       )
     }
     
-    // Prepare update data (remove is_active for now since column doesn't exist)
+    // Prepare update data
     const updateData: any = {}
     if (validatedData.name !== undefined) updateData.name = validatedData.name
     if (validatedData.role !== undefined) updateData.role = validatedData.role
-    // Skip is_active for now: if (validatedData.is_active !== undefined) updateData.is_active = validatedData.is_active
+    if (validatedData.is_active !== undefined) updateData.is_active = validatedData.is_active
+
+    // Avoid empty payload errors
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: 'Nenhuma alteração fornecida' },
+        { status: 400 }
+      )
+    }
     
     // Update the user
     const { data: updatedUser, error: updateError } = await (supabase as any)
@@ -100,20 +108,25 @@ export async function PATCH(
       .eq('id', id)
       .select()
       .single()
-    
+
     if (updateError) {
       console.error('Error updating user:', updateError)
-      return NextResponse.json(
-        { error: 'Erro ao atualizar utilizador' },
-        { status: 500 }
-      )
+      // Provide a clearer hint if the column doesn't exist
+      const msg = (updateError as any)?.message || ''
+      if (msg.toLowerCase().includes('column') && msg.toLowerCase().includes('is_active')) {
+        return NextResponse.json(
+          { error: "A coluna 'is_active' não existe na tabela 'users'. Adicione-a para suportar ativar/desativar utilizadores." },
+          { status: 400 }
+        )
+      }
+      return NextResponse.json({ error: 'Erro ao atualizar utilizador' }, { status: 500 })
     }
-    
+
     return NextResponse.json({
       message: 'Utilizador atualizado com sucesso',
       data: {
         ...updatedUser,
-        is_active: true // Add mock is_active for frontend
+        // Mantém o valor real vindo da BD; sem forçar mock
       }
     })
     

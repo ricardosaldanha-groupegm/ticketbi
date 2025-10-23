@@ -86,7 +86,11 @@ export default function UsersManagementPage() {
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          ...(currentUserId ? { "x-user-id": currentUserId } : {}),
+        },
         body: JSON.stringify(updates),
       })
       const data = await response.json()
