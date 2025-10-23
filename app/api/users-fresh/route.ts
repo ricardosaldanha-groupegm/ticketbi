@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿export const dynamic = 'force-dynamic'\nexport const revalidate = 0\nimport { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       .from('users')
       .select('*')
       .order('created_at', { ascending: false })
-      .gte('created_at', '2020-01-01') // Force fresh query
+      
     
     if (error) {
       console.error('Error fetching users:', error)
@@ -55,3 +55,4 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
