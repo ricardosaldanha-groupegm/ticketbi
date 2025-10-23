@@ -9,7 +9,7 @@ async function resolveAuthUser(request: NextRequest) {
   const headerUserId = request.headers.get('x-user-id')
   if (headerUserId) {
     const { data, error } = await supabase
-      .from<Database['public']['Tables']['users']['Row']>('users')
+      .from('users')
       .select('*')
       .eq('id', headerUserId)
       .single()

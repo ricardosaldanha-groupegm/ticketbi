@@ -15,7 +15,7 @@ async function resolveAuthUser(
   const userId = request.headers.get('x-user-id')
   if (!userId) return null
   const { data, error } = await supabase
-    .from<Database['public']['Tables']['users']['Row']>('users')
+    .from('users')
     .select('*')
     .eq('id', userId)
     .single()
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const { data: subticket, error: subticketError } = await supabase
-      .from<Database['public']['Tables']['subtickets']['Row']>('subtickets')
+      .from('subtickets')
       .select('*')
       .eq('id', params.id)
       .single()
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const validatedData = createCommentSchema.parse(body)
 
     const { data: subticket, error: subticketError } = await supabase
-      .from<Database['public']['Tables']['subtickets']['Row']>('subtickets')
+      .from('subtickets')
       .select('*')
       .eq('id', params.id)
       .single()
