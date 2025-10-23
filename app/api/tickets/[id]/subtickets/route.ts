@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getCurrentUser } from '@/lib/auth'
 import { canReadTicket, canCreateSubticket } from '@/lib/rbac'
@@ -162,9 +162,9 @@ export async function POST(
       ticket_id: params.id,
     }
 
-    const { data: subticket, error } = await supabase
+    const { data: subticket, error } = await (supabase as any)
       .from('subtickets')
-      .insert(subticketData)
+      .insert(subticketData as any)
       .select(`
         *,
         assignee:users!subtickets_assignee_bi_id_fkey(name, email)
@@ -185,5 +185,6 @@ export async function POST(
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+
 
 
