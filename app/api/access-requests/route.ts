@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { addAccessRequest, getAllAccessRequests } from '@/lib/dev-storage'
 import { z } from 'zod'
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       
       if (existingRequest) {
         return NextResponse.json(
-          { error: 'Já existe um pedido pendente para este email' },
+          { error: 'JÃ¡ existe um pedido pendente para este email' },
           { status: 400 }
         )
       }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       addAccessRequest(newRequest)
       
       return NextResponse.json({
-        message: 'Pedido de acesso enviado com sucesso. Aguarde aprovação do administrador.',
+        message: 'Pedido de acesso enviado com sucesso. Aguarde aprovaÃ§Ã£o do administrador.',
         data: newRequest
       }, {
         headers: {
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       
       if (existingRequest) {
         return NextResponse.json(
-          { error: 'Já existe um pedido pendente para este email' },
+          { error: 'JÃ¡ existe um pedido pendente para este email' },
           { status: 400 }
         )
       }
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       addAccessRequest(newRequest)
       
       return NextResponse.json({
-        message: 'Pedido de acesso enviado com sucesso. Aguarde aprovação do administrador.',
+        message: 'Pedido de acesso enviado com sucesso. Aguarde aprovaÃ§Ã£o do administrador.',
         data: newRequest
       }, {
         headers: {
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Este email já está registado no sistema' },
+        { error: 'Este email jÃ¡ estÃ¡ registado no sistema' },
         { status: 400 }
       )
     }
@@ -137,15 +137,15 @@ export async function POST(request: NextRequest) {
     
     if (existingRequest) {
       return NextResponse.json(
-        { error: 'Já existe um pedido pendente para este email' },
+        { error: 'JÃ¡ existe um pedido pendente para este email' },
         { status: 400 }
       )
     }
     
     // Create access request
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('access_requests')
-      .insert([validatedData])
+      .insert([validatedData as any])
       .select()
       .single()
     
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
     
         return NextResponse.json({
-          message: 'Pedido de acesso enviado com sucesso. Aguarde aprovação do administrador.',
+          message: 'Pedido de acesso enviado com sucesso. Aguarde aprovaÃ§Ã£o do administrador.',
           data
         }, {
           headers: {
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados invÃ¡lidos', details: error.errors },
         { status: 400 }
       )
     }
@@ -263,3 +263,4 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
