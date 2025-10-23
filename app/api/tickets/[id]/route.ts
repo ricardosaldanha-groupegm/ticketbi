@@ -118,7 +118,7 @@ export async function PATCH(
         ...mockCurrent,
         ...validatedData,
         ...(Object.prototype.hasOwnProperty.call(body, 'gestor_id') ? { gestor_id: body.gestor_id ?? null } : {}),
-        prioridade: (validatedData.urgencia ?? mockCurrent.urgencia) * (validatedData.importancia ?? mockCurrent.importancia),
+        prioridade: (((validatedData as any) && ('urgencia' in (validatedData as any)) ? (validatedData as any).urgencia : mockCurrent.urgencia) * (((validatedData as any) && ('importancia' in (validatedData as any)) ? (validatedData as any).importancia : mockCurrent.importancia))),
         updated_at: now,
       }
       return NextResponse.json(merged)
@@ -255,6 +255,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
 
 
 
