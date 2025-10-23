@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
@@ -81,7 +81,7 @@ export async function PATCH(
     
     if (fetchError || !existingUser) {
       return NextResponse.json(
-        { error: 'Utilizador não encontrado' },
+        { error: 'Utilizador nÃ£o encontrado' },
         { status: 404 }
       )
     }
@@ -93,9 +93,9 @@ export async function PATCH(
     // Skip is_active for now: if (validatedData.is_active !== undefined) updateData.is_active = validatedData.is_active
     
     // Update the user
-    const { data: updatedUser, error: updateError } = await supabase
+    const { data: updatedUser, error: updateError } = await (supabase as any)
       .from('users')
-      .update(updateData)
+      .update((updateData as any))
       .eq('id', id)
       .select()
       .single()
@@ -119,7 +119,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados invÃ¡lidos', details: error.errors },
         { status: 400 }
       )
     }
@@ -163,7 +163,7 @@ export async function DELETE(
     
     if (fetchError || !existingUser) {
       return NextResponse.json(
-        { error: 'Utilizador não encontrado' },
+        { error: 'Utilizador nÃ£o encontrado' },
         { status: 404 }
       )
     }
@@ -171,7 +171,7 @@ export async function DELETE(
     // Don't allow deletion of admin users (safety check)
     if (existingUser.role === 'admin') {
       return NextResponse.json(
-        { error: 'Não é possível remover utilizadores administradores' },
+        { error: 'NÃ£o Ã© possÃ­vel remover utilizadores administradores' },
         { status: 400 }
       )
     }
@@ -202,3 +202,4 @@ export async function DELETE(
     )
   }
 }
+
