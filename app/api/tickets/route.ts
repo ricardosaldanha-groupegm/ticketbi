@@ -115,8 +115,8 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .maybeSingle()
 
-    if (userByName?.id) {
-      createdById = userByName.id
+    if (((userByName as any)?.id)) {
+      createdById = (userByName as any).id
     } else {
       // Fallback: pick an admin user to satisfy NOT NULL in dev
       const { data: adminUser } = await supabase
@@ -165,3 +165,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }
+
