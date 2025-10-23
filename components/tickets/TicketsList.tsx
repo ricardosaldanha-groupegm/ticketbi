@@ -154,9 +154,6 @@ if (tickets.length === 0) {
               <Badge className={statusColors[estado] ?? "bg-slate-200 text-slate-800"}>
                 {statusLabels[estado] ?? estado}
               </Badge>
-              <CardTitle className="text-lg">
-                ({items.length})
-              </CardTitle>
             </div>
             <CardDescription className="text-slate-400">
               {items.length === 1 ? "Há 1 ticket neste estado." : `Há ${items.length} tickets neste estado.`}
