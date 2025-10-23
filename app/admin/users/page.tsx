@@ -63,18 +63,6 @@ export default function UsersManagementPage() {
       }
     }
     loadMe()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setCurrentUserId(user.id)
-        const { data, error } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle()
-        if (!error) setCurrentUserRole((data as any)?.role ?? null)
-      }
-    }
-    loadMe()
   }, [])
 
   const fetchUsers = async () => {
