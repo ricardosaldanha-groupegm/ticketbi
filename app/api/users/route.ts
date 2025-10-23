@@ -113,8 +113,8 @@ export async function GET(request: NextRequest) {
     console.log('Raw users from Supabase:', users)
     
     // Add is_active field (assuming all users are active for now)
-    const usersWithStatus = users.map(user => ({
-      ...user,
+    const usersWithStatus = (users as any[]).map((user: any) => ({
+      ...(user as any),
       is_active: true // TODO: Add is_active column to users table
     }))
     
@@ -135,4 +135,5 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
 
