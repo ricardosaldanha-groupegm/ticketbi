@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import type { Database } from '@/lib/supabase'
@@ -197,7 +197,7 @@ async function resolveAuthUser(
   }
 
   const { data: dbUser, error } = await supabase
-    .from<Database['public']['Tables']['users']['Row']>('users')
+    .from('users')
     .select('*')
     .eq('id', userId)
     .single()
@@ -208,6 +208,7 @@ async function resolveAuthUser(
 
   return createAuthUser(dbUser)
 }
+
 
 
 
