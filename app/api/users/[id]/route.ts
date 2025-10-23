@@ -139,6 +139,66 @@ export async function DELETE(
 ) {
   try {
     const { id } = params
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("your-project") || supabaseKey.includes("your-")) {
+      return NextResponse.json({ message: "Utilizador removido com sucesso (modo desenvolvimento)" })
+    }
+
+    const supabase = createServerSupabaseClient()
+
+    // Identify requester (header X-User-Id or Supabase auth)
+    let requesterId: string | null = request.headers.get("x-user-id")
+    if (!requesterId) {
+      const current = await getCurrentUser()
+      requesterId = current?.id ?? null
+    }
+    if (!requesterId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Check if user exists
+    const { data: existingUser, error: fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .single()
+    if (fetchError || !existingUser) {
+      return NextResponse.json({ error: "Utilizador não encontrado" }, { status: 404 })
+    }
+
+    // Determine requester role
+    const { data: requesterRow } = await supabase.from("users").select("id, role").eq("id", requesterId).maybeSingle()
+    const requesterRole = (requesterRow as any)?.role || null
+
+    if (requesterId === id) {
+      return NextResponse.json({ error: "Não pode remover a sua própria conta" }, { status: 400 })
+    }
+    if ((existingUser as any).role === "admin" && requesterRole !== "admin") {
+      return NextResponse.json({ error: "Apenas administradores podem remover administradores" }, { status: 403 })
+    }
+    if ((existingUser as any).role === "admin") {
+      const { data: admins } = await supabase.from("users").select("id").eq("role", "admin")
+      if ((admins || []).length <= 1) {
+        return NextResponse.json({ error: "Deve existir pelo menos um administrador" }, { status: 400 })
+      }
+    }
+
+    const { error: deleteError } = await supabase.from("users").delete().eq("id", id)
+    if (deleteError) {
+      return NextResponse.json({ error: "Erro ao remover utilizador" }, { status: 500 })
+    }
+    return NextResponse.json({ message: "Utilizador removido com sucesso" })
+  } catch (error) {
+    console.error("Error in user deletion:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params
     
     // Check if Supabase is configured
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
