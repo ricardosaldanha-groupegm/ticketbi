@@ -157,6 +157,23 @@ export async function DELETE(
 
     // Identify requester (header X-User-Id or Supabase auth)\n    let requesterId: string | null = request.headers.get('x-user-id')\n    if (!requesterId) {\n      const current = await getCurrentUser()\n      requesterId = current?.id ?? null\n    }\n    if (!requesterId) {\n      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })\n    }\n    // Only admins can delete admins
     if ((existingUser as any).role === 'admin' && requesterRole !== 'admin') {
+    // Check if user exists and get their data first
+    const { data: existingUser, error: fetchError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !existingUser) {
+      return NextResponse.json(
+        { error: 'Utilizador não encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Determine requester role
+    const { data: requesterRow } = await supabase.from('users').select('id, role').eq('id', requesterId).maybeSingle()
+    const requesterRole = (requesterRow as any)?.role || null
       return NextResponse.json({ error: 'Apenas administradores podem remover administradores' }, { status: 403 })
     }
 
