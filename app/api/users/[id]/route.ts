@@ -169,7 +169,7 @@ export async function DELETE(
     }
     
     // Don't allow deletion of admin users (safety check)
-    if (existingUser.role === 'admin') {
+    if (((existingUser as any)?.role) === 'admin') {
       return NextResponse.json(
         { error: 'NÃ£o Ã© possÃ­vel remover utilizadores administradores' },
         { status: 400 }
@@ -202,4 +202,5 @@ export async function DELETE(
     )
   }
 }
+
 
