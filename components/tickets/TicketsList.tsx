@@ -211,9 +211,13 @@ if (tickets.length === 0) {
                       </TableCell>
                       <TableCell className="text-right">
                         <Link href={`/tickets/${ticket.id}`}>
-                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-700">
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Ver"
+                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                          >
+                            <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
                       </TableCell>
