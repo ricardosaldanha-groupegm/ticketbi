@@ -43,6 +43,26 @@ export default function UsersManagementPage() {
   // Carrega o utilizador autenticado e o seu role (para controlar permissões de UI)
   useEffect(() => {
     const loadMe = async () => {
+      // Prefer dev-user in localStorage for UI parity with Header
+      if (typeof window !== "undefined") {
+        const raw = localStorage.getItem("dev-user")
+        if (raw) {
+          try {
+            const dev = JSON.parse(raw)
+            setCurrentUserId(dev?.id ?? null)
+            setCurrentUserRole(dev?.role ?? null)
+            return
+          } catch {}
+        }
+      }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setCurrentUserId(user.id)
+        const { data } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle()
+        setCurrentUserRole((data as any)?.role ?? null)
+      }
+    }
+    loadMe()
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setCurrentUserId(user.id)
