@@ -137,7 +137,9 @@ export async function PATCH(
     const newStatus = validatedData.action === 'approve' ? 'approved' : 'rejected'
     
     // Update the access request (leaving approved_by as null for now since we don't have proper auth)
-    const { data: updatedRequest, error: updateError } = await (supabase as any)\n      .from('access_requests')\n      .update({
+    const { data: updatedRequest, error: updateError } = await (supabase as any)
+      .from('access_requests')
+      .update({
         status: newStatus,
         approved_by: null, // Will be null until proper Supabase Auth is implemented
         approved_at: new Date().toISOString()
@@ -207,5 +209,6 @@ export async function PATCH(
     )
   }
 }
+
 
 
