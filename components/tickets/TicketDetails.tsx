@@ -109,6 +109,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState<string>("tasks")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [taskPeople, setTaskPeople] = useState<string[]>([])
   const [currentRole, setCurrentRole] = useState<string | null>(null)
