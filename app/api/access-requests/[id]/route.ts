@@ -173,9 +173,9 @@ export async function PATCH(
         // Don't fail if user already exists
         if (userError.code !== '23505') { // 23505 is unique violation
           // Rollback the status update
-          await supabase
+          await (supabase as any)
             .from('access_requests')
-            .update({ status: 'pending' })
+            .update({ status: 'pending' } as any)
             .eq('id', id)
           
           return NextResponse.json(
@@ -209,6 +209,7 @@ export async function PATCH(
     )
   }
 }
+
 
 
 
