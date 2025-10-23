@@ -101,9 +101,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       author_id: user.id,
     }
 
-    const { data: comment, error } = await supabase
+    const { data: comment, error } = await (supabase as any)
       .from('comments')
-      .insert(commentData)
+      .insert(commentData as any)
       .select(`*, author:users!comments_author_id_fkey(name, email)`) 
       .single()
 
@@ -120,6 +120,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
 
 
 
