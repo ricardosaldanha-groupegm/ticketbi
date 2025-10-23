@@ -1,24 +1,24 @@
-'use client'
+﻿"use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { useToast } from '@/components/ui/use-toast'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import AuthenticatedLayout from '@/components/AuthenticatedLayout'
-import { Edit, Trash2, UserCheck, UserX } from 'lucide-react'
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useToast } from "@/components/ui/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import AuthenticatedLayout from "@/components/AuthenticatedLayout"
+import { Edit, Trash2, UserCheck, UserX } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 
 interface User {
   id: string
   email: string
   name: string
-  role: 'requester' | 'bi' | 'admin'
+  role: "requester" | "bi" | "admin"
   created_at: string
   is_active: boolean
 }
@@ -31,39 +31,43 @@ export default function UsersManagementPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
-  
-  const router = useRouter()
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<"requester" | "bi" | "admin" | null>(null)
+
   const { toast } = useToast()
 
   useEffect(() => {
     fetchUsers()
   }, [])
 
+  // Carrega o utilizador autenticado e o seu role (para controlar permissões de UI)
+  useEffect(() => {
+    const loadMe = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setCurrentUserId(user.id)
+        const { data, error } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle()
+        if (!error) setCurrentUserRole((data as any)?.role ?? null)
+      }
+    }
+    loadMe()
+  }, [])
+
   const fetchUsers = async () => {
     try {
-      // Use the fresh API endpoint to avoid any caching issues
-      const timestamp = Date.now()
-      console.log('Fetching users with fresh API, timestamp:', timestamp)
-      const response = await fetch(`/api/users-fresh?t=${timestamp}`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-        }
+      const response = await fetch(`/api/users-fresh?t=${Date.now()}`, {
+        headers: { "Cache-Control": "no-cache" },
       })
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao buscar utilizadores')
-      }
-
-      console.log('Fetched users from fresh API:', data.users) // Debug log
+      if (!response.ok) throw new Error(data.error || "Erro ao buscar utilizadores")
       setUsers(data.users)
-    } catch (error) {
-      console.error('Error fetching users:', error)
-      toast({
-        title: 'Erro',
-        description: 'Erro ao carregar utilizadores',
-        variant: 'destructive',
-      })
+    } catch (e) {
+      console.error(e)
+      toast({ title: "Erro", description: "Erro ao carregar utilizadores", variant: "destructive" })
     } finally {
       setIsLoading(false)
     }
@@ -71,58 +75,28 @@ export default function UsersManagementPage() {
 
   const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
     setProcessingId(userId)
-    
     try {
-      console.log('Updating user:', userId, 'with updates:', updates)
-      
       const response = await fetch(`/api/users/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-        },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
         body: JSON.stringify(updates),
       })
-
       const data = await response.json()
-      console.log('Update response:', data)
+      if (!response.ok) throw new Error(data.error || "Erro ao atualizar utilizador")
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao atualizar utilizador')
-      }
+      toast({ title: "Sucesso", description: data.message })
 
-      toast({
-        title: 'Sucesso',
-        description: data.message,
-      })
-
-      // Force immediate local state update
-      console.log('Updating local state immediately')
-      setUsers(prevUsers => {
-        const updatedUsers = prevUsers.map(user => 
-          user.id === userId 
-            ? { ...user, ...updates }
-            : user
-        )
-        console.log('New users state:', updatedUsers)
-        return updatedUsers
-      })
-
-      // Wait a bit then refresh from server
-      setTimeout(() => {
-        console.log('Refreshing from server...')
-        fetchUsers()
-      }, 100)
+      // Atualização otimista
+      setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updates } : u)))
 
       setIsEditDialogOpen(false)
       setEditingUser(null)
-    } catch (error) {
-      console.error('Error updating user:', error)
-      toast({
-        title: 'Erro',
-        description: error instanceof Error ? error.message : 'Erro ao atualizar utilizador',
-        variant: 'destructive',
-      })
+
+      // Refrescar do servidor pouco depois
+      setTimeout(fetchUsers, 100)
+    } catch (e: any) {
+      console.error(e)
+      toast({ title: "Erro", description: e?.message || "Erro ao atualizar utilizador", variant: "destructive" })
     } finally {
       setProcessingId(null)
     }
@@ -130,63 +104,44 @@ export default function UsersManagementPage() {
 
   const handleDeleteUser = async (userId: string) => {
     setProcessingId(userId)
-    
     try {
-      const response = await fetch(`/api/users/${userId}`, {
-        method: 'DELETE',
-      })
-
+      const response = await fetch(`/api/users/${userId}`, { method: "DELETE" })
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao remover utilizador')
-      }
-
-      toast({
-        title: 'Sucesso',
-        description: data.message,
-      })
-
-      // Refresh the users list
+      if (!response.ok) throw new Error(data.error || "Erro ao remover utilizador")
+      toast({ title: "Sucesso", description: data.message })
       fetchUsers()
       setIsDeleteDialogOpen(false)
       setUserToDelete(null)
-    } catch (error) {
-      console.error('Error deleting user:', error)
-      toast({
-        title: 'Erro',
-        description: error instanceof Error ? error.message : 'Erro ao remover utilizador',
-        variant: 'destructive',
-      })
+    } catch (e: any) {
+      console.error(e)
+      toast({ title: "Erro", description: e?.message || "Erro ao remover utilizador", variant: "destructive" })
     } finally {
       setProcessingId(null)
     }
   }
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (role: User["role"]) => {
     switch (role) {
-      case 'admin':
+      case "admin":
         return <Badge variant="default" className="bg-red-600">Admin</Badge>
-      case 'bi':
+      case "bi":
         return <Badge variant="default" className="bg-blue-600">BI</Badge>
-      case 'requester':
+      case "requester":
         return <Badge variant="secondary">Requester</Badge>
       default:
         return <Badge variant="outline">{role}</Badge>
     }
   }
 
-  const getStatusBadge = (isActive: boolean) => {
-    return isActive ? (
+  const getStatusBadge = (isActive: boolean) => (
+    isActive ? (
       <Badge variant="default" className="bg-green-600">Ativo</Badge>
     ) : (
       <Badge variant="destructive">Inativo</Badge>
     )
-  }
+  )
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-PT')
-  }
+  const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString("pt-PT")
 
   if (isLoading) {
     return (
@@ -203,18 +158,14 @@ export default function UsersManagementPage() {
     <AuthenticatedLayout requireAuth={true} requireAdmin={true}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-100 mb-2">Gestão de Utilizadores</h1>
-        <p className="text-slate-400">
-          Gerir utilizadores, roles e permissões do sistema TicketBI
-        </p>
+        <p className="text-slate-400">Gerir utilizadores, roles e permissões do sistema TicketBI</p>
       </div>
 
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <CardTitle className="text-slate-100">Lista de Utilizadores</CardTitle>
-            <CardDescription className="text-slate-400">
-              {users.length} utilizador(es) registado(s)
-            </CardDescription>
+            <CardDescription className="text-slate-400">{users.length} utilizador(es) registado(s)</CardDescription>
           </div>
           <Dialog>
             <DialogTrigger asChild>
@@ -237,70 +188,63 @@ export default function UsersManagementPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id} className="border-slate-700 hover:bg-slate-700/50">
-                    <TableCell className="font-medium text-slate-100">
-                      {user.name}
-                    </TableCell>
-                    <TableCell className="text-slate-300">{user.email}</TableCell>
-                    <TableCell>
-                      {getRoleBadge(user.role)}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(user.is_active)}
-                    </TableCell>
-                    <TableCell className="text-slate-300">
-                      {formatDate(user.created_at)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingUser(user)
-                            setIsEditDialogOpen(true)
-                          }}
-                          className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
-                          disabled={processingId === user.id}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
-                          className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
-                          disabled={processingId === user.id || user.role === 'admin'}
-                        >
-                          {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                        </Button>
-                        
-                        {user.role !== 'admin' && (
+                {users.map((user) => {
+                  const isTargetAdmin = user.role === "admin"
+                  const isSelf = currentUserId === user.id
+                  const iAmAdmin = currentUserRole === "admin"
+
+                  // Regras: não permitir apagar a si próprio; apenas admin pode apagar admins
+                  const canDelete = isTargetAdmin ? (iAmAdmin && !isSelf) : !isSelf
+
+                  return (
+                    <TableRow key={user.id} className="border-slate-700 hover:bg-slate-700/50">
+                      <TableCell className="font-medium text-slate-100">{user.name}</TableCell>
+                      <TableCell className="text-slate-300">{user.email}</TableCell>
+                      <TableCell>{getRoleBadge(user.role)}</TableCell>
+                      <TableCell>{getStatusBadge(user.is_active)}</TableCell>
+                      <TableCell className="text-slate-300">{formatDate(user.created_at)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              setUserToDelete(user)
-                              setIsDeleteDialogOpen(true)
-                            }}
-                            className="bg-red-700 border-red-600 text-red-100 hover:bg-red-600"
+                            onClick={() => { setEditingUser(user); setIsEditDialogOpen(true) }}
+                            className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
                             disabled={processingId === user.id}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Edit className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
+                            className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
+                            disabled={processingId === user.id || user.role === "admin"}
+                          >
+                            {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                          </Button>
+
+                          {canDelete && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => { setUserToDelete(user); setIsDeleteDialogOpen(true) }}
+                              className="bg-red-700 border-red-600 text-red-100 hover:bg-red-600"
+                              disabled={processingId === user.id}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-8 text-slate-400">
-              Nenhum utilizador encontrado
-            </div>
+            <div className="text-center py-8 text-slate-400">Nenhum utilizador encontrado</div>
           )}
         </CardContent>
       </Card>
@@ -310,17 +254,13 @@ export default function UsersManagementPage() {
         <DialogContent className="bg-slate-800 border-slate-700">
           <DialogHeader>
             <DialogTitle className="text-slate-100">Editar Utilizador</DialogTitle>
-            <DialogDescription className="text-slate-400">
-              Alterar informações e permissões do utilizador
-            </DialogDescription>
+            <DialogDescription className="text-slate-400">Alterar informações e permissões do utilizador</DialogDescription>
           </DialogHeader>
-          
+
           {editingUser && (
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right text-slate-300">
-                  Nome
-                </Label>
+                <Label htmlFor="name" className="text-right text-slate-300">Nome</Label>
                 <Input
                   id="name"
                   value={editingUser.name}
@@ -328,11 +268,9 @@ export default function UsersManagementPage() {
                   className="col-span-3 bg-slate-700 border-slate-600 text-slate-100"
                 />
               </div>
-              
+
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right text-slate-300">
-                  Email
-                </Label>
+                <Label htmlFor="email" className="text-right text-slate-300">Email</Label>
                 <Input
                   id="email"
                   value={editingUser.email}
@@ -340,16 +278,12 @@ export default function UsersManagementPage() {
                   className="col-span-3 bg-slate-700 border-slate-600 text-slate-100 opacity-50"
                 />
               </div>
-              
+
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="role" className="text-right text-slate-300">
-                  Role
-                </Label>
+                <Label htmlFor="role" className="text-right text-slate-300">Role</Label>
                 <Select
                   value={editingUser.role}
-                  onValueChange={(value: 'requester' | 'bi' | 'admin') => 
-                    setEditingUser({ ...editingUser, role: value })
-                  }
+                  onValueChange={(value: User["role"]) => setEditingUser({ ...editingUser, role: value })}
                 >
                   <SelectTrigger className="col-span-3 bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue />
@@ -363,27 +297,21 @@ export default function UsersManagementPage() {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => {
-                setIsEditDialogOpen(false)
-                setEditingUser(null)
-              }}
+              onClick={() => { setIsEditDialogOpen(false); setEditingUser(null) }}
               className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
             >
               Cancelar
             </Button>
             <Button
-              onClick={() => editingUser && handleUpdateUser(editingUser.id, {
-                name: editingUser.name,
-                role: editingUser.role
-              })}
+              onClick={() => editingUser && handleUpdateUser(editingUser.id, { name: editingUser.name, role: editingUser.role })}
               disabled={!editingUser || processingId === editingUser?.id}
               className="bg-amber-600 hover:bg-amber-700"
             >
-              {processingId === editingUser?.id ? 'A guardar...' : 'Guardar'}
+              {processingId === editingUser?.id ? "A guardar..." : "Guardar"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -398,28 +326,19 @@ export default function UsersManagementPage() {
               Tem a certeza que pretende remover este utilizador? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
-          
+
           {userToDelete && (
             <div className="py-4">
-              <p className="text-slate-300">
-                <strong>Nome:</strong> {userToDelete.name}
-              </p>
-              <p className="text-slate-300">
-                <strong>Email:</strong> {userToDelete.email}
-              </p>
-              <p className="text-slate-300">
-                <strong>Role:</strong> {userToDelete.role}
-              </p>
+              <p className="text-slate-300"><strong>Nome:</strong> {userToDelete.name}</p>
+              <p className="text-slate-300"><strong>Email:</strong> {userToDelete.email}</p>
+              <p className="text-slate-300"><strong>Role:</strong> {userToDelete.role}</p>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => {
-                setIsDeleteDialogOpen(false)
-                setUserToDelete(null)
-              }}
+              onClick={() => { setIsDeleteDialogOpen(false); setUserToDelete(null) }}
               className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
             >
               Cancelar
@@ -430,7 +349,7 @@ export default function UsersManagementPage() {
               disabled={!userToDelete || processingId === userToDelete?.id}
               className="bg-red-600 hover:bg-red-700"
             >
-              {processingId === userToDelete?.id ? 'A remover...' : 'Remover'}
+              {processingId === userToDelete?.id ? "A remover..." : "Remover"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -443,31 +362,31 @@ function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
   const { toast } = useToast()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [role, setRole] = useState<'user'|'bi'|'admin'>('user')
+  const [role, setRole] = useState<"requester" | "bi" | "admin">("requester")
   const [submitting, setSubmitting] = useState(false)
 
   const submit = async () => {
     if (!name || !email) {
-      toast({ title: 'Dados em falta', description: 'Preencha nome e email', variant: 'destructive' })
+      toast({ title: "Dados em falta", description: "Preencha nome e email", variant: "destructive" })
       return
     }
     setSubmitting(true)
     try {
-      const resp = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, role })
+      const resp = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, role }),
       })
       const data = await resp.json()
-      if (!resp.ok) throw new Error(data?.error || 'Erro ao criar utilizador')
-      toast({ title: 'Sucesso', description: 'Utilizador criado. Foi enviado um email com a palavra‑passe temporária.' })
+      if (!resp.ok) throw new Error(data?.error || "Erro ao criar utilizador")
+      toast({ title: "Sucesso", description: "Convite enviado para o email do utilizador." })
       setName("")
       setEmail("")
-      setRole('user')
+      setRole("requester")
       onCreated()
       ;(document.activeElement as HTMLElement | null)?.blur()
     } catch (e: any) {
-      toast({ title: 'Erro', description: e?.message || 'Erro ao criar utilizador', variant: 'destructive' })
+      toast({ title: "Erro", description: e?.message || "Erro ao criar utilizador", variant: "destructive" })
     } finally {
       setSubmitting(false)
     }
@@ -477,7 +396,9 @@ function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
     <DialogContent className="bg-slate-800 border-slate-700">
       <DialogHeader>
         <DialogTitle className="text-slate-100">Novo Utilizador</DialogTitle>
-        <DialogDescription className="text-slate-400">Preencha os dados do utilizador. Será gerada uma palavra‑passe temporária.</DialogDescription>
+        <DialogDescription className="text-slate-400">
+          Preencha os dados do utilizador. O utilizador receberá um email para definir a palavra‑passe.
+        </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4 py-4">
         <div className="grid grid-cols-4 items-center gap-4">
@@ -490,12 +411,12 @@ function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right text-slate-300">Role</Label>
-          <Select value={role} onValueChange={(v: 'user'|'bi'|'admin') => setRole(v)}>
+          <Select value={role} onValueChange={(v: "requester" | "bi" | "admin") => setRole(v)}>
             <SelectTrigger className="col-span-3 bg-slate-700 border-slate-600 text-slate-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="requester">Requester</SelectItem>
               <SelectItem value="bi">BI</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
@@ -504,7 +425,7 @@ function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
       </div>
       <DialogFooter>
         <Button onClick={submit} disabled={submitting} className="bg-amber-600 hover:bg-amber-700">
-          {submitting ? 'A criar...' : 'Criar utilizador'}
+          {submitting ? "A criar..." : "Criar utilizador"}
         </Button>
       </DialogFooter>
     </DialogContent>
