@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canUploadToSubticket } from '@/lib/rbac'
@@ -93,9 +93,9 @@ export async function POST(
       uploaded_by: user.id,
     }
 
-    const { data: attachment, error } = await supabase
+    const { data: attachment, error } = await (supabase as any)
       .from('attachments')
-      .insert(attachmentData)
+      .insert(attachmentData as any)
       .select(`
         *,
         uploaded_by_user:users!attachments_uploaded_by_fkey(name, email)
@@ -116,3 +116,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
