@@ -163,9 +163,9 @@ export async function POST(
       author_id: user.id,
     }
 
-    const { data: comment, error } = await supabase
+    const { data: comment, error } = await (supabase as any)
       .from('comments')
-      .insert(commentData)
+      .insert(commentData as any)
       .select(`
         *,
         author:users!comments_author_id_fkey(name, email)
@@ -208,6 +208,7 @@ async function resolveAuthUser(
 
   return createAuthUser(dbUser)
 }
+
 
 
 
