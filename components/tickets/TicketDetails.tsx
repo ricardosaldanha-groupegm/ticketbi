@@ -286,17 +286,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        {!isEditing && (
-          <Button
-            onClick={handleEdit}
-            variant="outline"
-            size="icon"
-            aria-label="Editar"
-            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-        )}
+
       </div>
 
       <div className="rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-100">
@@ -335,7 +325,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,0.66fr)]">
         <div className="space-y-4">
-          <Tabs defaultValue="tasks" className="space-y-4">
+          <Tabs defaultValue="tasks" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="bg-slate-800 border border-slate-700">
               <TabsTrigger value="tasks">Tarefas</TabsTrigger>
               <TabsTrigger value="comments">Comentários</TabsTrigger>
@@ -467,7 +457,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
             )}
 
             <TabsContent value="tasks">
-              <TasksList ticketId={ticketId} />
+              <TasksList ticketId={ticketId} onEditTicket={() => { setIsEditing(true); setActiveTab('edit') }} />
             </TabsContent>
 
             <TabsContent value="comments">
