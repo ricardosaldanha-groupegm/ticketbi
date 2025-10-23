@@ -209,11 +209,19 @@ export default function UsersManagementPage() {
       </div>
 
       <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-slate-100">Lista de Utilizadores</CardTitle>
-          <CardDescription className="text-slate-400">
-            {users.length} utilizador(es) registado(s)
-          </CardDescription>
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <CardTitle className="text-slate-100">Lista de Utilizadores</CardTitle>
+            <CardDescription className="text-slate-400">
+              {users.length} utilizador(es) registado(s)
+            </CardDescription>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="bg-amber-600 hover:bg-amber-700">Novo Utilizador</Button>
+            </DialogTrigger>
+            <CreateUserDialog onCreated={fetchUsers} />
+          </Dialog>
         </CardHeader>
         <CardContent>
           {users.length > 0 ? (
@@ -428,5 +436,77 @@ export default function UsersManagementPage() {
         </DialogContent>
       </Dialog>
     </AuthenticatedLayout>
+  )
+}
+
+function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
+  const { toast } = useToast()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [role, setRole] = useState<'user'|'bi'|'admin'>('user')
+  const [submitting, setSubmitting] = useState(false)
+
+  const submit = async () => {
+    if (!name || !email) {
+      toast({ title: 'Dados em falta', description: 'Preencha nome e email', variant: 'destructive' })
+      return
+    }
+    setSubmitting(true)
+    try {
+      const resp = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, role })
+      })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(data?.error || 'Erro ao criar utilizador')
+      toast({ title: 'Sucesso', description: 'Utilizador criado. Foi enviado um email com a palavra‑passe temporária.' })
+      setName("")
+      setEmail("")
+      setRole('user')
+      onCreated()
+      ;(document.activeElement as HTMLElement | null)?.blur()
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e?.message || 'Erro ao criar utilizador', variant: 'destructive' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <DialogContent className="bg-slate-800 border-slate-700">
+      <DialogHeader>
+        <DialogTitle className="text-slate-100">Novo Utilizador</DialogTitle>
+        <DialogDescription className="text-slate-400">Preencha os dados do utilizador. Será gerada uma palavra‑passe temporária.</DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-4 py-4">
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="new-name" className="text-right text-slate-300">Nome</Label>
+          <Input id="new-name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3 bg-slate-700 border-slate-600 text-slate-100" />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="new-email" className="text-right text-slate-300">Email</Label>
+          <Input id="new-email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="col-span-3 bg-slate-700 border-slate-600 text-slate-100" />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right text-slate-300">Role</Label>
+          <Select value={role} onValueChange={(v: 'user'|'bi'|'admin') => setRole(v)}>
+            <SelectTrigger className="col-span-3 bg-slate-700 border-slate-600 text-slate-100">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="bi">BI</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button onClick={submit} disabled={submitting} className="bg-amber-600 hover:bg-amber-700">
+          {submitting ? 'A criar...' : 'Criar utilizador'}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   )
 }

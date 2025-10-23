@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Header from './Header'
+import { supabase } from '@/lib/supabase'
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode
@@ -16,35 +17,56 @@ export default function AuthenticatedLayout({
   requireAdmin = false 
 }: AuthenticatedLayoutProps) {
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [role, setRole] = useState<string | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
-    if (!requireAuth) {
-      setIsLoading(false)
-      return
+    let cancelled = false
+    const init = async () => {
+      if (!requireAuth) {
+        setIsLoading(false)
+        return
+      }
+
+      // 1) Dev fallback
+      const devUserRaw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+      if (devUserRaw) {
+        const dev = JSON.parse(devUserRaw)
+        setRole(dev.role || null)
+        setIsLoading(false)
+        if (requireAdmin && dev.role !== 'admin') router.push('/unauthorized')
+        return
+      }
+
+      // 2) Real Supabase auth
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      // Force change password flow
+      const mustChange = (user.user_metadata as any)?.must_change_password
+      if (mustChange && pathname !== '/alterar-password') {
+        router.push('/alterar-password')
+        return
+      }
+
+      // Fetch role from users table
+      const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+      const r = (data as any)?.role || null
+      setRole(r)
+      if (requireAdmin && r !== 'admin') {
+        router.push('/unauthorized')
+        return
+      }
+
+      if (!cancelled) setIsLoading(false)
     }
-
-    // Check authentication
-    const devUser = localStorage.getItem('dev-user')
-    if (!devUser) {
-      console.log('No user found, redirecting to login')
-      router.push('/login')
-      return
-    }
-
-    const userInfo = JSON.parse(devUser)
-    setUser(userInfo)
-
-    // Check admin requirement
-    if (requireAdmin && userInfo.role !== 'admin') {
-      console.log('User is not admin, redirecting to unauthorized')
-      router.push('/unauthorized')
-      return
-    }
-
-    setIsLoading(false)
-  }, [requireAuth, requireAdmin, router])
+    init()
+    return () => { cancelled = true }
+  }, [requireAuth, requireAdmin, router, pathname])
 
   if (isLoading) {
     return (
