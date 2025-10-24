@@ -268,26 +268,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     } catch {}
   }
 
-  const updateInterested = async () => {
-    try {
-      setSavingInterested(true)
-      const headers: HeadersInit = { 'Content-Type': 'application/json' }
-      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-      if (currentRole) (headers as any)['X-User-Role'] = currentRole
-      const resp = await fetch(`/api/tickets/${ticketId}/interested`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ users: interestedIds })
-      })
-      const payload = await resp.json()
-      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
-      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
-    } catch (e: any) {
-      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
-    } finally {
-      setSavingInterested(false)
-    }
-  }
 
   const updateGestor = async () => {
     if (!ticket) return
