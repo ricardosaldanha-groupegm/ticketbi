@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"`nimport { supabase } from '@/lib/supabase'
+import { useEffect, useMemo, useState } from "react"
+import { supabase } from '@/lib/supabase'
 import { Eye, Edit, MessageSquarePlus } from "lucide-react"
 import CommentsList from "./CommentsList"
 
