@@ -3,6 +3,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 import LogoutButton from './LogoutButton'
 
 interface UserInfo {
@@ -71,47 +80,48 @@ export default function Header() {
               TicketBI
             </Link>
             
-            <nav className="hidden md:flex space-x-4">
-              {user.role === 'admin' && (
-                <>
-                  <Link 
-                    href="/minhas-tarefas" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Minhas Tarefas
-                  </Link>
-                  <Link 
-                    href="/admin/users" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                    title="Pedidos de Acesso e Utilizadores"
-                  >
-                    Administração
-                  </Link>
-                  <Link 
-                    href="/tickets" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Tickets
-                  </Link>
-                </>
-              )}
-              
-              {user.role !== 'admin' && (
-                <>
-                  <Link 
-                    href="/minhas-tarefas" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Minhas Tarefas
-                  </Link>
-                  <Link 
-                    href="/tickets" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Tickets
-                  </Link>
-                </>
-              )}
+            <nav className="hidden md:flex">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {(user.role === 'admin') && (
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger>Administração</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[220px] gap-2">
+                          <li>
+                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                              <Link href="/admin/access-requests">Pedidos de Acesso</Link>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                              <Link href="/admin/users">Utilizadores</Link>
+                            </NavigationMenuLink>
+                          </li>
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  )}
+
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Minhas</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[220px] gap-2">
+                        <li>
+                          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                            <Link href="/minhas-tarefas">Minhas Tarefas</Link>
+                          </NavigationMenuLink>
+                        </li>
+                        <li>
+                          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                            <Link href="/tickets">Meus Tickets</Link>
+                          </NavigationMenuLink>
+                        </li>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
             </nav>
           </div>
           
