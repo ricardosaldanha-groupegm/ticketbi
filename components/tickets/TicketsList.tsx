@@ -104,6 +104,14 @@ export default function TicketsList() {
           // tentar obter role da tabela users
           const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
           currentUserRole = (data as any)?.role ?? null
+          // fallback por email para admin (igual ao Header)
+          if (!currentUserRole && user.email) {
+            const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
+              .split(',')
+              .map(s => s.trim().toLowerCase())
+              .filter(Boolean)
+            if (admins.includes(user.email.toLowerCase())) currentUserRole = 'admin'
+          }
         }
       } catch {}
       if (!currentUserId && typeof window !== 'undefined') {
