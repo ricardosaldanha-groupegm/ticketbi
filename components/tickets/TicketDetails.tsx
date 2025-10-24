@@ -152,7 +152,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       const headers: HeadersInit = {}
       if (effUserId) (headers as any)['X-User-Id'] = effUserId
       if (effRole) (headers as any)['X-User-Role'] = effRole
-      const response = await fetch(`/api/tickets/${ticketId}`, { headers })
+      const response = await fetch("/api/tickets/" + ticketId, { headers })
       const data = await response.json()
 
       if (!response.ok) {
@@ -306,7 +306,7 @@ const updateGestor = async () => {
       const headers: HeadersInit = { "Content-Type": "application/json" }
       if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
       if (currentRole) (headers as any)['X-User-Role'] = currentRole
-      const response = await fetch(`/api/tickets/${ticketId}`, {
+      const response = await fetch("/api/tickets/" + ticketId, {
         method: "PATCH",
         headers,
         body: JSON.stringify(formData),
