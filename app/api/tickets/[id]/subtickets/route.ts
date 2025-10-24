@@ -73,7 +73,6 @@ export async function GET(
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
     }
-    }
 
     // Get subtickets
     const { data: subtickets, error } = await supabase
