@@ -112,17 +112,7 @@ export async function GET(request: NextRequest) {
         .eq('user_id', userId)
       if (e5 && !error) error = e5
       const ticketIdsFromWatch = Array.from(new Set((watchRows || []).map((w: any) => w.ticket_id)))
-      // 3) Tickets onde o utilizador é gestor
-      const { data: managed, error: e4 } = await supabase
-        .from('tickets')
-        .select(`
-          *,
-          created_by_user:users!tickets_created_by_fkey(name, email),
-          gestor:users!tickets_gestor_id_fkey(name, email)
-        `)
-        .eq('gestor_id', userId)
-        .order('created_at', { ascending: false })
-      if (e4 && !error) error = e4
+      
 
       let byAssigned: any[] = []
       if (ticketIdsFromSubs.length > 0) {
