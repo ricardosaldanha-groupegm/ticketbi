@@ -118,6 +118,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
+  // Interested users (watchers)
+  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
+  const [interestedIds, setInterestedIds] = useState<string[]>([])
+  const [savingInterested, setSavingInterested] = useState(false)
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
@@ -188,6 +192,57 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       setBiUsers(list)
     } catch (_) {
       // ignore silently
+    }
+  }
+
+  const fetchAllUsers = async () => {
+    try {
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const resp = await fetch(`/api/users`, { headers })
+      const payload = await resp.json()
+      if (resp.ok && Array.isArray(payload?.users)) {
+        const list = (payload.users as any[])
+          .slice()
+          .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+        setAllUsers(list.map((u: any) => ({ id: u.id, name: u.name, email: u.email })))
+      }
+    } catch {}
+  }
+
+  const fetchInterested = async () => {
+    try {
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const resp = await fetch(`/api/tickets/${ticketId}/interested`, { headers })
+      const payload = await resp.json()
+      if (resp.ok && Array.isArray(payload?.users)) {
+        const ids = (payload.users as any[]).map((u: any) => u.id).filter(Boolean)
+        setInterestedIds(ids)
+      }
+    } catch {}
+  }
+
+  const updateInterested = async () => {
+    try {
+      setSavingInterested(true)
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const resp = await fetch(`/api/tickets/${ticketId}/interested`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ users: interestedIds })
+      })
+      const payload = await resp.json()
+      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
+      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
+    } finally {
+      setSavingInterested(false)
     }
   }
 
@@ -290,6 +345,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
           fetchTicket()
           fetchTaskPeople()
           fetchBIUsers()
+          fetchAllUsers()
+          fetchInterested()
           return
         }
       } catch {}
@@ -306,6 +363,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         fetchTicket()
         fetchTaskPeople()
         fetchBIUsers()
+        fetchAllUsers()
+        fetchInterested()
         return
       }
       router.push('/login')
@@ -416,6 +475,42 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <div className="flex gap-3">
                           <Button type="button" onClick={updateGestor} disabled={isUpdatingGestor} className="bg-amber-600 hover:bg-amber-700">
                             {isUpdatingGestor ? 'A guardar...' : 'Guardar gestor'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                {(currentRole === 'admin' || currentRole === 'bi') && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardHeader>
+                      <CardTitle>Utilizadores interessados</CardTitle>
+                      <CardDescription>
+                        Selecionar utilizadores (qualquer perfil) que podem consultar este ticket.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Label className="text-slate-300">Interessados</Label>
+                        <div className="max-h-56 overflow-auto rounded-md border border-slate-600 p-2 bg-slate-700">
+                          {allUsers.map((u) => (
+                            <label key={u.id} className="flex items-center gap-2 py-1 text-slate-100">
+                              <input
+                                type="checkbox"
+                                className="accent-amber-600"
+                                checked={interestedIds.includes(u.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) setInterestedIds(prev => Array.from(new Set([...prev, u.id])))
+                                  else setInterestedIds(prev => prev.filter(x => x !== u.id))
+                                }}
+                              />
+                              <span>{u.name} <span className="text-slate-400">({u.email})</span></span>
+                            </label>
+                          ))}
+                        </div>
+                        <div className="flex gap-3">
+                          <Button type="button" onClick={updateInterested} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700">
+                            {savingInterested ? 'A guardar...' : 'Guardar interessados'}
                           </Button>
                         </div>
                       </div>
