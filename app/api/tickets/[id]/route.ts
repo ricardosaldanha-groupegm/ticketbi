@@ -1,4 +1,9 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
+
+
+    const dbu: any = dbUser as any
+    const user = { id: (dbu?.id as string), role: (dbu?.role as 'admin' | 'bi' | 'requester'), name: (dbu?.name as string), email: (dbu?.email as string) }
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
