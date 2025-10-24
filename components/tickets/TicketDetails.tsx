@@ -954,108 +954,7 @@ const updateGestor = async () => {
 
               <TabsContent value="edit" className="space-y-4">
 
-                {(currentRole === 'admin' || currentRole === 'bi') && (
-
-                  <Card className="bg-slate-800 border-slate-700">
-
-                    <CardHeader>
-
-                      <CardTitle>Atribuir gestor</CardTitle>
-
-                      <CardDescription>
-
-                        Selecione um utilizador BI (ou admin) para gerir este ticket.
-
-                      </CardDescription>
-
-                    </CardHeader>
-
-                    <CardContent>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
-
-                        <div className="space-y-2">
-
-                          <Label htmlFor="gestor" className="text-slate-300">Gestor</Label>
-
-                          <select
-
-                            id="gestor"
-
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-
-                            value={selectedGestorId}
-
-                            onChange={(e) => setSelectedGestorId(e.target.value)}
-
-                          >
-
-                            <option value="">Sem gestor</option>
-
-                            {biUsers.map((u) => (
-
-                              <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
-
-                            ))}
-
-                          </select>
-
-                        </div>
-
-                        <div className="flex gap-3">
-
-                          <Button type="button" onClick={updateGestor} disabled={isUpdatingGestor} className="bg-amber-600 hover:bg-amber-700">
-
-                            {isUpdatingGestor ? 'A guardar...' : 'Guardar gestor'}
-
-                          </Button>
-
-                        </div>
-
-                      </div>
-
-                    </CardContent>
-
-                  </Card>
-
-                )}
-
-                {(currentRole === 'admin' || currentRole === 'bi') && (
-
-                  <Card className="bg-slate-800 border-slate-700">
-
-                    <CardHeader>
-
-                      <CardTitle>Utilizadores interessados</CardTitle>
-
-                      <CardDescription>
-
-                        Selecionar utilizadores (qualquer perfil) que podem consultar este ticket.
-
-                      </CardDescription>
-
-                    </CardHeader>
-
-                    <CardContent>
-
-                      <div className="space-y-2">
-
-                        <Label className="text-slate-300">Interessados</Label>
-
-                        <div className="max-h-56 overflow-auto rounded-md border border-slate-600 p-2 bg-slate-700">
-
-                          {allUsers.map((u) => (
-
-                            <label key={u.id} className="flex items-center gap-2 py-1 text-slate-100">
-
-                              <input
-
-                                type="checkbox"
-
-                                className="accent-amber-600"
-
-                                checked={interestedIds.includes(u.id)}
-
+                
                                 onChange={(e) => {
 
                                   if (e.target.checked) setInterestedIds(prev => Array.from(new Set([...prev, u.id])))
@@ -1404,20 +1303,7 @@ const updateGestor = async () => {
 
               )}
 
-              {(currentRole === 'admin' || currentRole === 'bi') && (
-
-                <div className="space-y-2" ref={interestedRef}>
-
-                  <Label className="text-slate-300">Utilizadores interessados</Label>
-
-                  <div className="relative">
-
-                    <button
-
-                      type="button"
-
-                      onClick={() => setOpenInterested((v) => !v)}
-
+              
                       className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100 text-left hover:bg-slate-600"
 
                     >
@@ -1551,4 +1437,5 @@ const updateGestor = async () => {
   </div>
   )
 }
+
 
