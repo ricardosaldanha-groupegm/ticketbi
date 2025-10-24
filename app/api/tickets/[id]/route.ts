@@ -93,7 +93,7 @@ export async function GET(
     // Access rules: admin/bi full access; creator; gestor; watcher; assigned in subtarefas
     let allowed = false
     if (user.role === 'admin' || user.role === 'bi') allowed = true
-    if (!allowed && ticket.created_by === user.id) allowed = true
+    if (!allowed && (ticket as any).created_by === user.id) allowed = true
     if (!allowed && (ticket as any).gestor_id === user.id) allowed = true
     if (!allowed) {
       const { data: w } = await supabase
