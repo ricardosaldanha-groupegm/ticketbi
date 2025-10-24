@@ -143,16 +143,15 @@ export async function GET(request: NextRequest) {
       if (ticketIdsFromWatch.length > 0) {
         const { data: extraW, error: e6 } = await supabase
           .from('tickets')
-          .select(.select(
+          .select(`
             *,
             created_by_user:users!tickets_created_by_fkey(name, email),
             gestor:users!tickets_gestor_id_fkey(name, email)
-          )
+          `)
           .in('id', ticketIdsFromWatch)
           .order('created_at', { ascending: false })
         if (e6 && !error) error = e6
         byWatched = extraW || []
-      }
       }
 
       const combined = [...(mine || []), ...byAssigned, ...(managed || [])]
