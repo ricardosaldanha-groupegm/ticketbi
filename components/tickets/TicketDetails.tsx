@@ -694,7 +694,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               )}
               {(currentRole === 'admin' || currentRole === 'bi') && (
                 <div className="pt-2">
-                  <Button type="button" variant="outline" className="px-3 py-1 h-auto">
                 <div className="relative">
                   <Button type="button" variant="outline" className="px-3 py-1 h-auto" onClick={() => setOpenInterested(v => !v)}>
                     Interessados ({interestedIds.length})
