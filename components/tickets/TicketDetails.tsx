@@ -692,6 +692,13 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   </ul>
                 </div>
               )}
+              {(currentRole === 'admin' || currentRole === 'bi') && (
+                <div className="pt-2">
+                  <Button type="button" variant="outline" className="px-3 py-1 h-auto">
+                    Interessados ({interestedIds.length})
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
