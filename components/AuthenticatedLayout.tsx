@@ -29,19 +29,18 @@ export default function AuthenticatedLayout({
         return
       }
 
-      // 1) Dev fallback
-      const devUserRaw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
-      if (devUserRaw) {
-        const dev = JSON.parse(devUserRaw)
-        setRole(dev.role || null)
-        setIsLoading(false)
-        if (requireAdmin && dev.role !== 'admin') router.push('/unauthorized')
-        return
-      }
-
-      // 2) Real Supabase auth
+      // 1) Real Supabase auth first
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
+        // 2) Dev fallback only if no Supabase session
+        const devUserRaw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+        if (devUserRaw) {
+          const dev = JSON.parse(devUserRaw)
+          setRole(dev.role || null)
+          setIsLoading(false)
+          if (requireAdmin && dev.role !== 'admin') router.push('/unauthorized')
+          return
+        }
         router.push('/login')
         return
       }
@@ -52,6 +51,9 @@ export default function AuthenticatedLayout({
         router.push('/alterar-password')
         return
       }
+
+      // Clear any dev-user shadow when real session exists
+      if (typeof window !== 'undefined') localStorage.removeItem('dev-user')
 
       // Fetch role from users table
       const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()

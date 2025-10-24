@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 
@@ -8,9 +9,11 @@ export default function LogoutButton() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // Remove user from localStorage
     localStorage.removeItem('dev-user')
+    // End Supabase session if present
+    try { await supabase.auth.signOut() } catch {}
     
     // Show success message
     toast({

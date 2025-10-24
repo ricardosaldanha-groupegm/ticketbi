@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import LogoutButton from './LogoutButton'
 
@@ -15,11 +16,28 @@ export default function Header() {
   const [user, setUser] = useState<UserInfo | null>(null)
 
   useEffect(() => {
-    // Get user from localStorage
-    const devUser = localStorage.getItem('dev-user')
-    if (devUser) {
-      setUser(JSON.parse(devUser))
+    let cancelled = false
+    const load = async () => {
+      // 1) Try Supabase session
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase.from('users').select('name, email, role').eq('id', user.id).maybeSingle()
+        if (!cancelled) setUser({
+          id: user.id,
+          email: (data as any)?.email || user.email || '',
+          name: (data as any)?.name || user.user_metadata?.name || user.email || '',
+          role: (data as any)?.role || 'requester',
+        })
+        // Ensure dev-user doesn't mask real session
+        if (typeof window !== 'undefined') localStorage.removeItem('dev-user')
+        return
+      }
+      // 2) Fallback to dev-user in localStorage
+      const devUser = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+      if (devUser && !cancelled) setUser(JSON.parse(devUser))
     }
+    load()
+    return () => { cancelled = true }
   }, [])
 
   if (!user) {

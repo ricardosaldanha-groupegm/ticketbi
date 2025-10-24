@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,6 +31,13 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // If Supabase is configured and reachable, use real auth
+      const { data: { user: existing } } = await supabase.auth.getUser()
+      if (existing) {
+        router.push('/tickets')
+        return
+      }
+
       const response = await fetch('/api/users-fresh')
       const data = await response.json()
 
@@ -54,18 +62,26 @@ export default function LoginPage() {
         return
       }
 
+      // Try Supabase password sign-in first
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password })
+      if (!signInErr && signInData?.user) {
+        localStorage.removeItem('dev-user')
+        toast({ title: 'Sucesso', description: 'Login realizado com sucesso!' })
+        router.push('/tickets')
+        return
+      }
+
+      // Fallback to dev-only credentials if Supabase sign-in failed
       const devPasswords: Record<string, string> = {
         'ricardo.saldanha@groupegm.com': 'adminadmin',
         'ricardosaldanha2005@gmail.com': 'bi123',
         'ricardosaldanha2005+user1@gmail.com': 'user123',
       }
-
       const expectedPassword = devPasswords[email]
       if (!expectedPassword || password !== expectedPassword) {
-        const passwordHint = expectedPassword || 'password nao definido'
         toast({
           title: 'Erro',
-          description: 'Password incorreta para ' + email + '. Use: ' + passwordHint,
+          description: signInErr?.message || 'Credenciais inválidas.',
           variant: 'destructive',
         })
         return
