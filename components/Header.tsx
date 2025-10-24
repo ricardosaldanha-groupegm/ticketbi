@@ -135,8 +135,8 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <div className="text-sm text-slate-300">
               <span className="text-amber-400">{user.name}</span>
-              <span className="mx-2">•</span>
-              <span className="capitalize">{user.role}</span>
+              <span className="mx-2">|</span>
+              <span>{user.role === 'requester' ? 'Utilizador' : user.role === 'bi' ? 'BI' : user.role === 'admin' ? 'Admin' : user.role}</span>
             </div>
             <LogoutButton />
           </div>
