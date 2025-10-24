@@ -33,7 +33,8 @@ export async function PUT(
 
     const { data: ticket } = await supabase.from('tickets').select('gestor_id').eq('id', params.id).maybeSingle()
     if (!ticket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
-    if (!(me.role === 'admin' || (me.role === 'bi' && ticket.gestor_id === me.id))) {
+    const gestorId = (ticket as any)?.gestor_id as string | null | undefined
+    if (!(me.role === 'admin' || (me.role === 'bi' && gestorId === me.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
