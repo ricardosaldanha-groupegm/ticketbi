@@ -40,14 +40,24 @@ export async function GET(request: NextRequest) {
     console.log('GET /api/tickets called - using Supabase')
     const supabase = createServerSupabaseClient()
 
-    // Identify requester (header X-User-Id or bypass if missing)
+    // Identify requester (header X-User-Id) and resolve role server-side
     const userId = request.headers.get('x-user-id') || request.headers.get('X-User-Id') || null
-    const userRole = (request.headers.get('x-user-role') || request.headers.get('X-User-Role') || '').toLowerCase()
+
+    // Resolve role from DB when possible; default to 'requester' for safety
+    let resolvedRole: string | null = null
+    if (userId) {
+      const { data: roleRow } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle()
+      resolvedRole = (roleRow as any)?.role ?? null
+    }
 
     let ticketsData: any[] | null = null
     let error: any = null
 
-    if (userId && userRole === 'requester') {
+    if (userId && (resolvedRole === 'requester' || !resolvedRole)) {
       // 1) Tickets criados pelo utilizador
       const { data: mine, error: e1 } = await supabase
         .from('tickets')
