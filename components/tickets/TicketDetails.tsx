@@ -115,7 +115,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [taskPeople, setTaskPeople] = useState<string[]>([])
   const [currentRole, setCurrentRole] = useState<string | null>(null)
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
-  const [assigneeSearch, setAssigneeSearch] = useState("")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
@@ -402,13 +401,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
                         <div className="space-y-2">
                           <Label htmlFor="gestor" className="text-slate-300">Gestor</Label>
-                          <div className="space-y-2">
-                          <input
-                            placeholder="Procurar utilizador..."
-                            value={assigneeSearch}
-                            onChange={(e) => setAssigneeSearch(e.target.value)}
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                          />
                           <select
                             id="gestor"
                             className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
@@ -416,11 +408,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             onChange={(e) => setSelectedGestorId(e.target.value)}
                           >
                             <option value="">Sem gestor</option>
-                            {biUsers.filter(u => (assigneeSearch? (u.name||'').toLowerCase().includes(assigneeSearch.toLowerCase()) || (u.email||'').toLowerCase().includes(assigneeSearch.toLowerCase()): true)).map((u) => (
+                            {biUsers.map((u) => (
                               <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
                             ))}
                           </select>
-                        </div>
                         </div>
                         <div className="flex gap-3">
                           <Button type="button" onClick={updateGestor} disabled={isUpdatingGestor} className="bg-amber-600 hover:bg-amber-700">
