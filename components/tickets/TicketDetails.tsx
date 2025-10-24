@@ -178,10 +178,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     try {
       // apenas para admin/bi
       if (currentRole !== 'admin' && currentRole !== 'bi') return
-      const response = await fetch(`/api/users/bi`)
-      const users = await response.json()
-      if (!response.ok || !Array.isArray(users)) return
-      setBiUsers(users)
+      const response = await fetch(`/api/users`)
+      const payload = await response.json()
+      if (!response.ok || !Array.isArray(payload?.users)) return
+      setBiUsers(payload.users)
     } catch (_) {
       // ignore silently
     }

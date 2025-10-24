@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"`nimport { supabase } from '@/lib/supabase'
 import { Eye, Edit, MessageSquarePlus } from "lucide-react"
 import CommentsList from "./CommentsList"
 
@@ -149,9 +149,9 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
 
   const loadBIUsers = async () => {
     try {
-      const resp = await fetch('/api/users/bi')
+      const resp = await fetch('/api/users')
       const data = await resp.json()
-      if (resp.ok && Array.isArray(data)) setBiUsers(data)
+      if (resp.ok && Array.isArray(data?.users)) setBiUsers(data.users)
     } catch (_) {}
   }
   useEffect(() => { loadBIUsers() }, [])
