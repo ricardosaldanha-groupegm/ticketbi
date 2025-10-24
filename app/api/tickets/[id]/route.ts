@@ -1,9 +1,4 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
-
-
-    const dbu: any = dbUser as any
-    const user = { id: (dbu?.id as string), role: (dbu?.role as 'admin' | 'bi' | 'requester'), name: (dbu?.name as string), email: (dbu?.email as string) }
-import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
@@ -88,7 +83,6 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const user = { id: dbUser.id as string, role: (dbUser as any).role as 'admin' | 'bi' | 'requester', name: (dbUser as any).name, email: (dbUser as any).email }
 
     // Access rules: admin/bi full access; creator; gestor; watcher; assigned in subtasks
     let allowed = false
@@ -316,6 +310,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
 
 
 
