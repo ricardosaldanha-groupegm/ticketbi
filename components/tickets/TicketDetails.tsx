@@ -695,8 +695,31 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               {(currentRole === 'admin' || currentRole === 'bi') && (
                 <div className="pt-2">
                   <Button type="button" variant="outline" className="px-3 py-1 h-auto">
+                <div className="relative">
+                  <Button type="button" variant="outline" className="px-3 py-1 h-auto" onClick={() => setOpenInterested(v => !v)}>
                     Interessados ({interestedIds.length})
                   </Button>
+                  {openInterested && (
+                    <div className="absolute z-50 mt-2 w-64 max-h-56 overflow-auto rounded-md border border-slate-600 bg-slate-800 shadow-lg">
+                      <ul className="p-2 space-y-1">
+                        {allUsers.map((u) => (
+                          <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
+                            <input
+                              type="checkbox"
+                              className="accent-amber-600"
+                              checked={interestedIds.includes(u.id)}
+                              onChange={(e) => {
+                                setInterestedIds(prev => e.target.checked ? Array.from(new Set([...prev, u.id])) : prev.filter(x => x !== u.id))
+                              }}
+                            />
+                            <span className="text-slate-100">{u.name}</span>
+                            <span className="text-slate-400 text-xs">({u.email})</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
                 </div>
               )}
             </CardContent>
