@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { supabase } from '@/lib/supabase'
@@ -74,10 +74,10 @@ const priorityColors: Record<number, string> = {
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     novo: "Novo",
-    em_analise: "Em análise",
+    em_analise: "Em anÃ¡lise",
     em_curso: "Em curso",
-    em_validacao: "Em validação",
-    concluido: "Concluído",
+    em_validacao: "Em validaÃ§Ã£o",
+    concluido: "ConcluÃ­do",
     rejeitado: "Rejeitado",
     bloqueado: "Bloqueado",
   }
@@ -87,7 +87,7 @@ const getStatusLabel = (status: string) => {
 const getLevelLabel = (value: number) => {
   const labels: Record<number, string> = {
     1: "Baixa",
-    2: "Média",
+    2: "MÃ©dia",
     3: "Elevada",
   }
   return labels[value] ?? String(value)
@@ -118,72 +118,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
-  // Interessados (watchers)
-  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
-  const [interestedIds, setInterestedIds] = useState<string[]>([])
-  const [savingInterested, setSavingInterested] = useState(false)
-  const [openInterested, setOpenInterested] = useState(false)
-  const interestedRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const headers: HeadersInit = {}
-        if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-        if (currentRole) (headers as any)['X-User-Role'] = currentRole
-        // all users
-        const resp = await fetch(`/api/users`, { headers })
-        const payload = await resp.json()
-        if (resp.ok && Array.isArray(payload?.users)) {
-          const list = (payload.users as any[])
-            .slice()
-            .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
-          setAllUsers(list.map((u: any) => ({ id: u.id, name: u.name, email: u.email })))
-        }
-        // interested users
-        const ri = await fetch(`/api/tickets/${ticketId}/interested`, { headers })
-        const pi = await ri.json()
-        if (ri.ok && Array.isArray(pi?.users)) {
-          const ids = (pi.users as any[]).map((u: any) => u.id).filter(Boolean)
-          setInterestedIds(ids)
-        }
-      } catch {}
-    }
-    if (ticketId && (currentUserId || currentRole)) load()
-  }, [ticketId, currentUserId, currentRole])
-
-  const updateInterested = async () => {
-    try {
-      setSavingInterested(true)
-      const headers: HeadersInit = { 'Content-Type': 'application/json' }
-      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-      if (currentRole) (headers as any)['X-User-Role'] = currentRole
-      const resp = await fetch(`/api/tickets/${ticketId}/interested`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ users: interestedIds })
-      })
-      const payload = await resp.json()
-      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
-      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
-      setOpenInterested(false)
-    } catch (e: any) {
-      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
-    } finally {
-      setSavingInterested(false)
-    }
-  }
-
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (!openInterested) return
-      if (interestedRef.current && !interestedRef.current.contains(e.target as any)) {
-        setOpenInterested(false)
-      }
-    }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [openInterested])
   // Interested users (watchers)
   const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [interestedIds, setInterestedIds] = useState<string[]>([])
@@ -309,26 +243,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       }
     } catch {}
   }
-
-  const updateInterested = async () => {
-    try {
-      setSavingInterested(true)
-      const headers: HeadersInit = { 'Content-Type': 'application/json' }
-      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-      if (currentRole) (headers as any)['X-User-Role'] = currentRole
-      const resp = await fetch(`/api/tickets/${ticketId}/interested`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ users: interestedIds })
-      })
-      const payload = await resp.json()
-      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
-      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
-    } catch (e: any) {
-      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
-    } finally {
-      setSavingInterested(false)
-    }
   }
 
   const updateGestor = async () => {
@@ -526,7 +440,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
           <Tabs defaultValue="tasks" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="bg-slate-800 border border-slate-700">
               <TabsTrigger value="tasks">Tarefas</TabsTrigger>
-              <TabsTrigger value="comments">Comentários</TabsTrigger>
+              <TabsTrigger value="comments">ComentÃ¡rios</TabsTrigger>
               <TabsTrigger value="attachments">Anexos</TabsTrigger>
               {isEditing && <TabsTrigger value="edit">Editar</TabsTrigger>}
             </TabsList>
@@ -606,7 +520,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   <CardHeader>
                     <CardTitle>Editar ticket</CardTitle>
                     <CardDescription>
-                      Pode editar descrição, objetivo e notas internas. Os restantes campos são apenas de leitura.
+                      Pode editar descriÃ§Ã£o, objetivo e notas internas. Os restantes campos sÃ£o apenas de leitura.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -623,7 +537,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
+                        <Label htmlFor="descricao" className="text-slate-300">DescriÃ§Ã£o *</Label>
                         <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
                         {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                       </div>
@@ -636,18 +550,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
+                          <Label htmlFor="urgencia" className="text-slate-300">UrgÃªncia (1-3)</Label>
                           <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - Média</option>
+                            <option value="2">2 - MÃ©dia</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
+                          <Label htmlFor="importancia" className="text-slate-300">ImportÃ¢ncia (1-3)</Label>
                           <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - Média</option>
+                            <option value="2">2 - MÃ©dia</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
@@ -711,11 +625,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
             </CardHeader>
             <CardContent className="flex flex-col gap-y-3 text-sm text-slate-200">
               <div className="flex items-center justify-between">
-                <span>Urgência</span>
+                <span>UrgÃªncia</span>
                 <Badge className={priorityColors[ticket.urgencia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.urgencia)}</Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span>Importância</span>
+                <span>ImportÃ¢ncia</span>
                 <Badge className={priorityColors[ticket.importancia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.importancia)}</Badge>
               </div>
               <div className="flex items-center justify-between order-[-1]">
@@ -833,3 +747,4 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     </div>
   )
 }
+
