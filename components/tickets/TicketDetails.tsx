@@ -215,6 +215,29 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     }
   }
 
+  // Guardar interessados (sem UI dedicada; chamado pelo botão no dropdown)
+  const updateInterested = async () => {
+    try {
+      setSavingInterested(true)
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const resp = await fetch('/api/tickets/' + ticketId + '/interested', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ users: interestedIds }),
+      })
+      const payload = await resp.json()
+      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
+      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
+      setOpenInterested(false)
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
+    } finally {
+      setSavingInterested(false)
+    }
+  }
+
   const fetchAllUsers = async () => {
     try {
       const headers: HeadersInit = {}
@@ -700,23 +723,30 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                     Interessados ({interestedIds.length})
                   </Button>
                   {openInterested && (
-                    <div className="absolute z-50 mt-2 w-64 max-h-56 overflow-auto rounded-md border border-slate-600 bg-slate-800 shadow-lg">
-                      <ul className="p-2 space-y-1">
-                        {allUsers.map((u) => (
-                          <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
-                            <input
-                              type="checkbox"
-                              className="accent-amber-600"
-                              checked={interestedIds.includes(u.id)}
-                              onChange={(e) => {
-                                setInterestedIds(prev => e.target.checked ? Array.from(new Set([...prev, u.id])) : prev.filter(x => x !== u.id))
-                              }}
-                            />
-                            <span className="text-slate-100">{u.name}</span>
-                            <span className="text-slate-400 text-xs">({u.email})</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="absolute z-50 mt-2 w-64 rounded-md border border-slate-600 bg-slate-800 shadow-lg">
+                      <div className="max-h-56 overflow-auto">
+                        <ul className="p-2 space-y-1">
+                          {allUsers.map((u) => (
+                            <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
+                              <input
+                                type="checkbox"
+                                className="accent-amber-600"
+                                checked={interestedIds.includes(u.id)}
+                                onChange={(e) => {
+                                  setInterestedIds(prev => e.target.checked ? Array.from(new Set([...prev, u.id])) : prev.filter(x => x !== u.id))
+                                }}
+                              />
+                              <span className="text-slate-100">{u.name}</span>
+                              <span className="text-slate-400 text-xs">({u.email})</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="p-2 border-t border-slate-700 flex justify-end">
+                        <Button type="button" onClick={updateInterested} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700">
+                          {savingInterested ? 'A guardar...' : 'Guardar'}
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
