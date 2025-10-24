@@ -130,9 +130,28 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const fetchTicket = async () => {
     try {
       setLoading(true)
+      // Build effective headers; derive from Supabase if state not ready yet
+      let effUserId = currentUserId
+      let effRole = currentRole
+      if (!effUserId) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            // resolve app users.id by id or email
+            const { data: byId } = await supabase.from('users').select('id, role').eq('id', user.id).maybeSingle()
+            effUserId = (byId as any)?.id ?? null
+            effRole = (byId as any)?.role ?? effRole
+            if (!effUserId && user.email) {
+              const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
+              effUserId = (byEmail as any)?.id ?? null
+              effRole = effRole ?? (byEmail as any)?.role ?? null
+            }
+          }
+        } catch {}
+      }
       const headers: HeadersInit = {}
-      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      if (effUserId) (headers as any)['X-User-Id'] = effUserId
+      if (effRole) (headers as any)['X-User-Role'] = effRole
       const response = await fetch(`/api/tickets/${ticketId}`, { headers })
       const data = await response.json()
 
