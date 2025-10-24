@@ -43,8 +43,11 @@ export async function GET(request: NextRequest) {
     // Identify requester (header X-User-Id) and resolve role server-side
     const userId = request.headers.get('x-user-id') || request.headers.get('X-User-Id') || null
 
-    // Resolve role from DB when possible; default to 'requester' for safety
+    // Resolve role from DB when possible; also consider header as hint (for admin/bi)
     let resolvedRole: string | null = null
+    const hintedRole = (request.headers.get('x-user-role') || request.headers.get('X-User-Role') || '')
+      .toString()
+      .toLowerCase()
     if (userId) {
       const { data: roleRow } = await supabase
         .from('users')
@@ -53,11 +56,15 @@ export async function GET(request: NextRequest) {
         .maybeSingle()
       resolvedRole = (roleRow as any)?.role ?? null
     }
+    // Prefer server DB role; if missing, trust hinted admin/bi, otherwise leave null
+    if (!resolvedRole && (hintedRole === 'admin' || hintedRole === 'bi')) {
+      resolvedRole = hintedRole
+    }
 
     let ticketsData: any[] | null = null
     let error: any = null
 
-    if (userId && (resolvedRole === 'requester' || !resolvedRole)) {
+    if (userId && resolvedRole === 'requester') {
       // 1) Tickets criados pelo utilizador
       const { data: mine, error: e1 } = await supabase
         .from('tickets')
