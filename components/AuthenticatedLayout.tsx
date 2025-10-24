@@ -55,9 +55,23 @@ export default function AuthenticatedLayout({
       // Clear any dev-user shadow when real session exists
       if (typeof window !== 'undefined') localStorage.removeItem('dev-user')
 
-      // Fetch role from users table
-      const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
-      const r = (data as any)?.role || null
+      // Fetch role from users table (by id, then fallback by email)
+      let r: string | null = null
+      {
+        const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+        r = (data as any)?.role || null
+      }
+      if (!r && user.email) {
+        const { data } = await supabase.from('users').select('role').eq('email', user.email).maybeSingle()
+        r = (data as any)?.role || null
+      }
+      // Final fallback: env-configured admin emails
+      if (!r && user.email) {
+        const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+        if (admins.includes(user.email.toLowerCase())) r = 'admin'
+      }
+      // Default to requester if still unknown
+      if (!r) r = 'requester'
       setRole(r)
       if (requireAdmin && r !== 'admin') {
         router.push('/unauthorized')

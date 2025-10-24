@@ -21,12 +21,30 @@ export default function Header() {
       // 1) Try Supabase session
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const { data } = await supabase.from('users').select('name, email, role').eq('id', user.id).maybeSingle()
+        // Try fetch by id
+        let profile: any = null
+        {
+          const { data } = await supabase.from('users').select('name, email, role').eq('id', user.id).maybeSingle()
+          profile = data as any
+        }
+        // Fallback by email if not found
+        if (!profile && user.email) {
+          const { data } = await supabase.from('users').select('name, email, role').eq('email', user.email).maybeSingle()
+          profile = data as any
+        }
+        // Final fallback: env-configured admin emails
+        let role = profile?.role as string | undefined
+        if (!role && user.email) {
+          const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+          if (admins.includes(user.email.toLowerCase())) role = 'admin'
+        }
+        if (!role) role = 'requester'
+
         if (!cancelled) setUser({
           id: user.id,
-          email: (data as any)?.email || user.email || '',
-          name: (data as any)?.name || user.user_metadata?.name || user.email || '',
-          role: (data as any)?.role || 'requester',
+          email: profile?.email || user.email || '',
+          name: profile?.name || user.user_metadata?.name || user.email || '',
+          role,
         })
         // Ensure dev-user doesn't mask real session
         if (typeof window !== 'undefined') localStorage.removeItem('dev-user')
