@@ -1,7 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
-import { canReadTicket, canEditTicket, canDeleteTicket } from '@/lib/rbac'
+import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
 const updateTicketSchema = z.object({
@@ -124,8 +124,21 @@ export async function PATCH(
       return NextResponse.json(merged)
     }
 
-    const user = await requireAuth()
     const supabase = createServerSupabaseClient()
+    // Resolve user from header (client-side auth) or fallback to server auth
+    let user: AuthUser | null = null
+    const headerUserId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+    if (headerUserId) {
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', headerUserId)
+        .maybeSingle()
+      if (dbUser) user = createAuthUser(dbUser as any)
+    }
+    if (!user) {
+      user = await requireAuth()
+    }
 
     // Get current ticket
     const { data: currentTicket, error: fetchError } = await supabase
