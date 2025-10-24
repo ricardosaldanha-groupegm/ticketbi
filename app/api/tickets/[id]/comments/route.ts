@@ -51,6 +51,7 @@ export async function GET(
     if (!w || w.length === 0) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    }
 
     // Get comments
     const { data: comments, error } = await supabase
@@ -210,6 +211,7 @@ async function resolveAuthUser(
 
   return createAuthUser(dbUser)
 }
+
 
 
 

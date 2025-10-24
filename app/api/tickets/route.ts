@@ -91,14 +91,16 @@ export async function GET(request: NextRequest) {
 
       if (e2 && !error) error = e2
 
-            // 3) Tickets onde o utilizador e gestor
+      const ticketIdsFromSubs = Array.from(new Set((mySubs || []).map((s: any) => s.ticket_id)))
+
+      // 3) Tickets onde o utilizador e gestor
       const { data: managed, error: e4 } = await supabase
         .from('tickets')
-        .select(
+        .select(`
           *,
           created_by_user:users!tickets_created_by_fkey(name, email),
           gestor:users!tickets_gestor_id_fkey(name, email)
-        )
+        `)
         .eq('gestor_id', userId)
         .order('created_at', { ascending: false })
       if (e4 && !error) error = e4
@@ -123,7 +125,7 @@ export async function GET(request: NextRequest) {
       if (e4 && !error) error = e4
 
       let byAssigned: any[] = []
-      if (ticketIds.length > 0) {
+      if (ticketIdsFromSubs.length > 0) {
         const { data: extra, error: e3 } = await supabase
           .from('tickets')
           .select(`
@@ -141,7 +143,7 @@ export async function GET(request: NextRequest) {
       if (ticketIdsFromWatch.length > 0) {
         const { data: extraW, error: e6 } = await supabase
           .from('tickets')
-          .select(
+          .select(.select(
             *,
             created_by_user:users!tickets_created_by_fkey(name, email),
             gestor:users!tickets_gestor_id_fkey(name, email)
@@ -287,6 +289,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }
+
+
+
 
 
 

@@ -58,6 +58,7 @@ export async function GET(
       if (!w || w.length === 0) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    }
 
     // Get subtickets
     const { data: subtickets, error } = await supabase
@@ -187,6 +188,7 @@ export async function POST(
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+
 
 
 
