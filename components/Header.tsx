@@ -89,14 +89,14 @@ export default function Header() {
                       <NavigationMenuContent>
                         <ul className="grid w-[220px] gap-2">
                           <li>
-                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                              <Link href="/admin/access-requests">Pedidos de Acesso</Link>
-                            </NavigationMenuLink>
+                            <Link href="/admin/access-requests" className={navigationMenuTriggerStyle()}>
+                              Pedidos de Acesso
+                            </Link>
                           </li>
                           <li>
-                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                              <Link href="/admin/users">Utilizadores</Link>
-                            </NavigationMenuLink>
+                            <Link href="/admin/users" className={navigationMenuTriggerStyle()}>
+                              Utilizadores
+                            </Link>
                           </li>
                         </ul>
                       </NavigationMenuContent>
@@ -108,14 +108,14 @@ export default function Header() {
                     <NavigationMenuContent>
                       <ul className="grid w-[220px] gap-2">
                         <li>
-                          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                            <Link href="/minhas-tarefas">Minhas Tarefas</Link>
-                          </NavigationMenuLink>
+                          <Link href="/minhas-tarefas" className={navigationMenuTriggerStyle()}>
+                            Minhas Tarefas
+                          </Link>
                         </li>
                         <li>
-                          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                            <Link href="/tickets">Meus Tickets</Link>
-                          </NavigationMenuLink>
+                          <Link href="/tickets" className={navigationMenuTriggerStyle()}>
+                            Meus Tickets
+                          </Link>
                         </li>
                       </ul>
                     </NavigationMenuContent>
