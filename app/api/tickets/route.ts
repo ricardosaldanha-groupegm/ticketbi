@@ -39,15 +39,70 @@ export async function GET(request: NextRequest) {
     // Production mode - use Supabase
     console.log('GET /api/tickets called - using Supabase')
     const supabase = createServerSupabaseClient()
-    
-    const { data: ticketsData, error } = await supabase
-      .from('tickets')
-      .select(`
-        *,
-        created_by_user:users!tickets_created_by_fkey(name, email),
-        gestor:users!tickets_gestor_id_fkey(name, email)
-      `)
-      .order('created_at', { ascending: false })
+
+    // Identify requester (header X-User-Id or bypass if missing)
+    const userId = request.headers.get('x-user-id') || request.headers.get('X-User-Id') || null
+    const userRole = (request.headers.get('x-user-role') || request.headers.get('X-User-Role') || '').toLowerCase()
+
+    let ticketsData: any[] | null = null
+    let error: any = null
+
+    if (userId && userRole === 'requester') {
+      // 1) Tickets criados pelo utilizador
+      const { data: mine, error: e1 } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          created_by_user:users!tickets_created_by_fkey(name, email),
+          gestor:users!tickets_gestor_id_fkey(name, email)
+        `)
+        .eq('created_by', userId)
+        .order('created_at', { ascending: false })
+
+      if (e1) error = e1
+
+      // 2) Tickets onde o utilizador tem subtarefas atribuídas
+      const { data: mySubs, error: e2 } = await supabase
+        .from('subtickets')
+        .select('ticket_id')
+        .eq('assignee_bi_id', userId)
+
+      if (e2 && !error) error = e2
+
+      const ticketIds = Array.from(new Set((mySubs || []).map((s: any) => s.ticket_id)))
+
+      let byAssigned: any[] = []
+      if (ticketIds.length > 0) {
+        const { data: extra, error: e3 } = await supabase
+          .from('tickets')
+          .select(`
+            *,
+            created_by_user:users!tickets_created_by_fkey(name, email),
+            gestor:users!tickets_gestor_id_fkey(name, email)
+          `)
+          .in('id', ticketIds)
+          .order('created_at', { ascending: false })
+        if (e3 && !error) error = e3
+        byAssigned = extra || []
+      }
+
+      const combined = [...(mine || []), ...byAssigned]
+      // dedupe by id
+      const seen = new Set<string>()
+      ticketsData = combined.filter((t: any) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
+    } else {
+      // Admin/BI or unknown: return all
+      const { data, error: e } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          created_by_user:users!tickets_created_by_fkey(name, email),
+          gestor:users!tickets_gestor_id_fkey(name, email)
+        `)
+        .order('created_at', { ascending: false })
+      error = e
+      ticketsData = data as any[] | null
+    }
     
     if (error) {
       console.error('Error fetching tickets from Supabase:', error)

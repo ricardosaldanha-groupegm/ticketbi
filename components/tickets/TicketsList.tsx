@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { supabase } from '@/lib/supabase'
 import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
@@ -93,7 +94,34 @@ export default function TicketsList() {
   const fetchTickets = async () => {
     try {
       setLoading(true)
-      const response = await fetch("/api/tickets")
+      // Descobrir utilizador atual e perfil para passar headers à API
+      let currentUserId: string | null = null
+      let currentUserRole: string | null = null
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          currentUserId = user.id
+          // tentar obter role da tabela users
+          const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+          currentUserRole = (data as any)?.role ?? null
+        }
+      } catch {}
+      if (!currentUserId && typeof window !== 'undefined') {
+        const raw = localStorage.getItem('dev-user')
+        if (raw) {
+          try {
+            const dev = JSON.parse(raw)
+            currentUserId = dev?.id ?? null
+            currentUserRole = dev?.role ?? null
+          } catch {}
+        }
+      }
+
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
+
+      const response = await fetch("/api/tickets", { headers })
       const data: TicketsResponse = await response.json()
       if (!response.ok) {
         throw new Error((data as any)?.error || "Erro ao carregar tickets")
