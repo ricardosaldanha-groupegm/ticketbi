@@ -81,28 +81,17 @@ export default function Header() {
                     Minhas Tarefas
                   </Link>
                   <Link 
-                    href="/admin/access-requests" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Pedidos de Acesso
-                  </Link>
-                  <Link 
                     href="/admin/users" 
                     className="text-slate-300 hover:text-amber-400 transition-colors"
+                    title="Pedidos de Acesso e Utilizadores"
                   >
-                    Utilizadores
+                    Administração
                   </Link>
                   <Link 
                     href="/tickets" 
                     className="text-slate-300 hover:text-amber-400 transition-colors"
                   >
                     Tickets
-                  </Link>
-                  <Link 
-                    href="/tickets/new" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Novo Ticket
                   </Link>
                 </>
               )}
@@ -119,13 +108,7 @@ export default function Header() {
                     href="/tickets" 
                     className="text-slate-300 hover:text-amber-400 transition-colors"
                   >
-                    Meus Tickets
-                  </Link>
-                  <Link 
-                    href="/tickets/new" 
-                    className="text-slate-300 hover:text-amber-400 transition-colors"
-                  >
-                    Novo Ticket
+                    Tickets
                   </Link>
                 </>
               )}
