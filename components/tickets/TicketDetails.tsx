@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { supabase } from '@/lib/supabase'
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -118,6 +118,72 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
+  // Interessados (watchers)
+  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
+  const [interestedIds, setInterestedIds] = useState<string[]>([])
+  const [savingInterested, setSavingInterested] = useState(false)
+  const [openInterested, setOpenInterested] = useState(false)
+  const interestedRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const headers: HeadersInit = {}
+        if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+        if (currentRole) (headers as any)['X-User-Role'] = currentRole
+        // all users
+        const resp = await fetch(`/api/users`, { headers })
+        const payload = await resp.json()
+        if (resp.ok && Array.isArray(payload?.users)) {
+          const list = (payload.users as any[])
+            .slice()
+            .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+          setAllUsers(list.map((u: any) => ({ id: u.id, name: u.name, email: u.email })))
+        }
+        // interested users
+        const ri = await fetch(`/api/tickets/${ticketId}/interested`, { headers })
+        const pi = await ri.json()
+        if (ri.ok && Array.isArray(pi?.users)) {
+          const ids = (pi.users as any[]).map((u: any) => u.id).filter(Boolean)
+          setInterestedIds(ids)
+        }
+      } catch {}
+    }
+    if (ticketId && (currentUserId || currentRole)) load()
+  }, [ticketId, currentUserId, currentRole])
+
+  const updateInterested = async () => {
+    try {
+      setSavingInterested(true)
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const resp = await fetch(`/api/tickets/${ticketId}/interested`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ users: interestedIds })
+      })
+      const payload = await resp.json()
+      if (!resp.ok) throw new Error(payload?.error || 'Erro ao atualizar interessados')
+      toast({ title: 'Sucesso', description: 'Interessados atualizados.' })
+      setOpenInterested(false)
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e?.message || 'Erro ao atualizar interessados', variant: 'destructive' })
+    } finally {
+      setSavingInterested(false)
+    }
+  }
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!openInterested) return
+      if (interestedRef.current && !interestedRef.current.contains(e.target as any)) {
+        setOpenInterested(false)
+      }
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [openInterested])
   // Interested users (watchers)
   const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [interestedIds, setInterestedIds] = useState<string[]>([])
@@ -690,6 +756,49 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <li key={name}>{name}</li>
                       ))}
                   </ul>
+                </div>
+              )}
+              {(currentRole === 'admin' || currentRole === 'bi') && (
+                <div className="space-y-2" ref={interestedRef}>
+                  <Label className="text-slate-300">Utilizadores interessados</Label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setOpenInterested((v) => !v)}
+                      className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100 text-left hover:bg-slate-600"
+                    >
+                      {interestedIds.length === 0
+                        ? 'Selecionar utilizadores...'
+                        : `${interestedIds.length} selecionado(s)`}
+                    </button>
+                    {openInterested && (
+                      <div className="absolute z-50 mt-1 w-full max-h-56 overflow-auto rounded-md border border-slate-600 bg-slate-800 shadow-lg">
+                        <ul className="p-2 space-y-1">
+                          {allUsers.map((u) => (
+                            <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
+                              <input
+                                type="checkbox"
+                                className="accent-amber-600"
+                                checked={interestedIds.includes(u.id)}
+                                onChange={(e) => {
+                                  setInterestedIds((prev) => e.target.checked
+                                    ? Array.from(new Set([...prev, u.id]))
+                                    : prev.filter((x) => x !== u.id))
+                                }}
+                              />
+                              <span className="text-slate-100">{u.name}</span>
+                              <span className="text-slate-400 text-xs">({u.email})</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-3">
+                    <Button type="button" onClick={updateInterested} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700">
+                      {savingInterested ? 'A guardar...' : 'Guardar interessados'}
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
