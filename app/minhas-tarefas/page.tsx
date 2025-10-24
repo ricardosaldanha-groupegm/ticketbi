@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { supabase } from '@/lib/supabase'
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
 import { Badge } from "@/components/ui/badge"
 
@@ -67,10 +68,31 @@ export default function MinhasTarefasPage() {
   const [search, setSearch] = useState<string>("")
 
   useEffect(() => {
-    const raw = typeof window !== "undefined" ? localStorage.getItem("dev-user") : null
-    if (raw) {
-      try { setCurrentUser(JSON.parse(raw)) } catch {}
+    const init = async () => {
+      // 1) Try Supabase session and resolve app users.id (by id or email)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          let appUserId: string | null = null
+          const { data: byId } = await supabase.from('users').select('id').eq('id', user.id).maybeSingle()
+          if (byId) appUserId = (byId as any).id
+          if (!appUserId && user.email) {
+            const { data: byEmail } = await supabase.from('users').select('id').eq('email', user.email).maybeSingle()
+            appUserId = (byEmail as any)?.id ?? null
+          }
+          if (appUserId) {
+            setCurrentUser({ id: appUserId })
+            return
+          }
+        }
+      } catch {}
+      // 2) Fallback to dev-user
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+      if (raw) {
+        try { const parsed = JSON.parse(raw); if (parsed?.id) setCurrentUser({ id: parsed.id }) } catch {}
+      }
     }
+    init()
   }, [])
 
   useEffect(() => {
