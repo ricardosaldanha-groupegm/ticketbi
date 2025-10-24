@@ -56,15 +56,20 @@ export async function GET(request: NextRequest) {
         .maybeSingle()
       resolvedRole = (roleRow as any)?.role ?? null
     }
-    // Prefer server DB role; if missing, trust hinted admin/bi, otherwise leave null
-    if (!resolvedRole && (hintedRole === 'admin' || hintedRole === 'bi')) {
-      resolvedRole = hintedRole
-    }
+    // Compute effective role:
+    // - If DB says admin/bi/requester, use that
+    // - Else if header hints admin/bi, use that
+    // - Else default to requester (safe default)
+    const effectiveRole = resolvedRole
+      ? resolvedRole
+      : (hintedRole === 'admin' || hintedRole === 'bi')
+        ? hintedRole
+        : 'requester'
 
     let ticketsData: any[] | null = null
     let error: any = null
 
-    if (userId && resolvedRole === 'requester') {
+    if (userId && effectiveRole === 'requester') {
       // 1) Tickets criados pelo utilizador
       const { data: mine, error: e1 } = await supabase
         .from('tickets')
