@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { supabase } from '@/lib/supabase'
@@ -74,10 +74,10 @@ const priorityColors: Record<number, string> = {
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     novo: "Novo",
-    em_analise: "Em anÃ¡lise",
+    em_analise: "Em análise",
     em_curso: "Em curso",
-    em_validacao: "Em validaÃ§Ã£o",
-    concluido: "ConcluÃ­do",
+    em_validacao: "Em validação",
+    concluido: "Concluído",
     rejeitado: "Rejeitado",
     bloqueado: "Bloqueado",
   }
@@ -87,7 +87,7 @@ const getStatusLabel = (status: string) => {
 const getLevelLabel = (value: number) => {
   const labels: Record<number, string> = {
     1: "Baixa",
-    2: "MÃ©dia",
+    2: "Média",
     3: "Elevada",
   }
   return labels[value] ?? String(value)
@@ -250,7 +250,7 @@ const updateInterested = async () => {
     const headers: HeadersInit = { 'Content-Type': 'application/json' }
     if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
     if (currentRole) (headers as any)['X-User-Role'] = currentRole
-    const resp = await fetch(/api/tickets//interested, {
+    const resp = await fetch(`/api/tickets/${ticketId}/interested, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ users: interestedIds })
@@ -461,7 +461,7 @@ const updateGestor = async () => {
           <Tabs defaultValue="tasks" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="bg-slate-800 border border-slate-700">
               <TabsTrigger value="tasks">Tarefas</TabsTrigger>
-              <TabsTrigger value="comments">ComentÃ¡rios</TabsTrigger>
+              <TabsTrigger value="comments">Comentários</TabsTrigger>
               <TabsTrigger value="attachments">Anexos</TabsTrigger>
               {isEditing && <TabsTrigger value="edit">Editar</TabsTrigger>}
             </TabsList>
@@ -541,7 +541,7 @@ const updateGestor = async () => {
                   <CardHeader>
                     <CardTitle>Editar ticket</CardTitle>
                     <CardDescription>
-                      Pode editar descriÃ§Ã£o, objetivo e notas internas. Os restantes campos sÃ£o apenas de leitura.
+                      Pode editar descrição, objetivo e notas internas. Os restantes campos são apenas de leitura.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -558,7 +558,7 @@ const updateGestor = async () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="descricao" className="text-slate-300">DescriÃ§Ã£o *</Label>
+                        <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
                         <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
                         {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                       </div>
@@ -571,18 +571,18 @@ const updateGestor = async () => {
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="urgencia" className="text-slate-300">UrgÃªncia (1-3)</Label>
+                          <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
                           <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - MÃ©dia</option>
+                            <option value="2">2 - Média</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="importancia" className="text-slate-300">ImportÃ¢ncia (1-3)</Label>
+                          <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
                           <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - MÃ©dia</option>
+                            <option value="2">2 - Média</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
@@ -646,11 +646,11 @@ const updateGestor = async () => {
             </CardHeader>
             <CardContent className="flex flex-col gap-y-3 text-sm text-slate-200">
               <div className="flex items-center justify-between">
-                <span>UrgÃªncia</span>
+                <span>Urgência</span>
                 <Badge className={priorityColors[ticket.urgencia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.urgencia)}</Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span>ImportÃ¢ncia</span>
+                <span>Importância</span>
                 <Badge className={priorityColors[ticket.importancia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.importancia)}</Badge>
               </div>
               <div className="flex items-center justify-between order-[-1]">
