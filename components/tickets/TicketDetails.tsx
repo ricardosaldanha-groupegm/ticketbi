@@ -122,6 +122,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [interestedIds, setInterestedIds] = useState<string[]>([])
   const [savingInterested, setSavingInterested] = useState(false)
+  const [openInterested, setOpenInterested] = useState(false)
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
