@@ -76,7 +76,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-xl font-bold text-amber-400">
+            <Link href="/tickets" className="text-xl font-bold text-amber-400">
               TicketBI
             </Link>
             
