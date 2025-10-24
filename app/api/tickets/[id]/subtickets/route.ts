@@ -54,9 +54,24 @@ export async function GET(
     }
 
     if (!skipPermissions && !canReadTicket(user, ticket)) {
-      const { data: w } = await supabase.from('ticket_watchers').select('user_id').eq('ticket_id', params.id).eq('user_id', user!.id)
-      if (!w || w.length === 0) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      let allow = false
+      const { data: w } = await supabase
+        .from('ticket_watchers')
+        .select('user_id')
+        .eq('ticket_id', params.id)
+        .eq('user_id', user!.id)
+      if (w && w.length > 0) allow = true
+      if (!allow) {
+        const { data: myAssign } = await supabase
+          .from('subtickets')
+          .select('id')
+          .eq('ticket_id', params.id)
+          .eq('assignee_bi_id', user!.id)
+        if (myAssign && myAssign.length > 0) allow = true
+      }
+      if (!allow) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
     }
 
