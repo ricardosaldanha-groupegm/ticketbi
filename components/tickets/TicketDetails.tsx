@@ -1547,19 +1547,7 @@ const updateGestor = async () => {
         </div>
 
       </div>
-
-    </div>
-
+  </div>
   )
-
 }
-
-
-
-
-
-
-
-
-
 
