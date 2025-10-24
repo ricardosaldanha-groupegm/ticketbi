@@ -1,4 +1,4 @@
-ï»¿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 
       if (e1) error = e1
 
-      // 2) Tickets onde o utilizador tem subtarefas atribuÃ­das
+      // 2) Tickets onde o utilizador tem subtarefas atribuídas
       const { data: mySubs, error: e2 } = await supabase
         .from('subtickets')
         .select('ticket_id')
@@ -91,9 +91,26 @@ export async function GET(request: NextRequest) {
 
       if (e2 && !error) error = e2
 
-      const ticketIds = Array.from(new Set((mySubs || []).map((s: any) => s.ticket_id)))
+            // 3) Tickets onde o utilizador e gestor
+      const { data: managed, error: e4 } = await supabase
+        .from('tickets')
+        .select(
+          *,
+          created_by_user:users!tickets_created_by_fkey(name, email),
+          gestor:users!tickets_gestor_id_fkey(name, email)
+        )
+        .eq('gestor_id', userId)
+        .order('created_at', { ascending: false })
+      if (e4 && !error) error = e4
 
-      // 3) Tickets onde o utilizador Ã© gestor
+      // 4) Tickets onde o utilizador e interessado (watcher)
+      const { data: watchRows, error: e5 } = await supabase
+        .from('ticket_watchers')
+        .select('ticket_id')
+        .eq('user_id', userId)
+      if (e5 && !error) error = e5
+      const ticketIdsFromWatch = Array.from(new Set((watchRows || []).map((w: any) => w.ticket_id)))
+      // 3) Tickets onde o utilizador é gestor
       const { data: managed, error: e4 } = await supabase
         .from('tickets')
         .select(`
@@ -114,10 +131,26 @@ export async function GET(request: NextRequest) {
             created_by_user:users!tickets_created_by_fkey(name, email),
             gestor:users!tickets_gestor_id_fkey(name, email)
           `)
-          .in('id', ticketIds)
+          .in('id', ticketIdsFromSubs)
           .order('created_at', { ascending: false })
         if (e3 && !error) error = e3
         byAssigned = extra || []
+      }
+
+      let byWatched: any[] = []
+      if (ticketIdsFromWatch.length > 0) {
+        const { data: extraW, error: e6 } = await supabase
+          .from('tickets')
+          .select(
+            *,
+            created_by_user:users!tickets_created_by_fkey(name, email),
+            gestor:users!tickets_gestor_id_fkey(name, email)
+          )
+          .in('id', ticketIdsFromWatch)
+          .order('created_at', { ascending: false })
+        if (e6 && !error) error = e6
+        byWatched = extraW || []
+      }
       }
 
       const combined = [...(mine || []), ...byAssigned, ...(managed || [])]

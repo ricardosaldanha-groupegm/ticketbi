@@ -62,7 +62,15 @@ export default function CommentsList({ ticketId, subticketId, hideForm = false }
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-          setCurrentUser({ id: user.id, name: user.user_metadata?.name || user.email || 'User', email: user.email || '', role: undefined })
+          // Resolve app user id by id or email
+          let appUserId: string | null = null
+          const { data: byId } = await supabase.from('users').select('id, role').eq('id', user.id).maybeSingle()
+          if (byId) appUserId = (byId as any).id
+          if (!appUserId && user.email) {
+            const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
+            appUserId = (byEmail as any)?.id ?? null
+          }
+          setCurrentUser({ id: appUserId || user.id, name: user.user_metadata?.name || user.email || 'User', email: user.email || '', role: undefined })
           setAuthReady(true)
           return
         }

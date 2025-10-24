@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getCurrentUser } from '@/lib/auth'
 import { canReadTicket, canCreateSubticket } from '@/lib/rbac'
@@ -54,6 +54,8 @@ export async function GET(
     }
 
     if (!skipPermissions && !canReadTicket(user, ticket)) {
+      const { data: w } = await supabase.from('ticket_watchers').select('user_id').eq('ticket_id', params.id).eq('user_id', user!.id)
+      if (!w || w.length === 0) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

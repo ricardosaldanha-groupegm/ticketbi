@@ -97,13 +97,20 @@ export default function TicketsList() {
       // Descobrir utilizador atual e perfil para passar headers à API
       let currentUserId: string | null = null
       let currentUserRole: string | null = null
+      let appUserId: string | null = null
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-          currentUserId = user.id
-          // tentar obter role da tabela users
-          const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
-          currentUserRole = (data as any)?.role ?? null
+          // Resolver utilizador da app (tabela users) por id ou email
+          const { data: byId } = await supabase.from('users').select('id, role, email').eq('id', user.id).maybeSingle()
+          if (byId) {
+            appUserId = (byId as any).id
+            currentUserRole = (byId as any)?.role ?? null
+          } else if (user.email) {
+            const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
+            appUserId = (byEmail as any)?.id ?? null
+            if (!currentUserRole) currentUserRole = (byEmail as any)?.role ?? null
+          }
           // fallback por email para admin (igual ao Header)
           if (!currentUserRole && user.email) {
             const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
@@ -112,6 +119,7 @@ export default function TicketsList() {
               .filter(Boolean)
             if (admins.includes(user.email.toLowerCase())) currentUserRole = 'admin'
           }
+          currentUserId = appUserId || user.id
         }
       } catch {}
       if (!currentUserId && typeof window !== 'undefined') {
