@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+ï»¿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 
       if (e1) error = e1
 
-      // 2) Tickets onde o utilizador tem subtarefas atribuídas
+      // 2) Tickets onde o utilizador tem subtarefas atribuÃ­das
       const { data: mySubs, error: e2 } = await supabase
         .from('subtickets')
         .select('ticket_id')
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
         .eq('user_id', userId)
       if (e5 && !error) error = e5
       const ticketIdsFromWatch = Array.from(new Set((watchRows || []).map((w: any) => w.ticket_id)))
-      // 3) Tickets onde o utilizador é gestor
+      // 3) Tickets onde o utilizador Ã© gestor
       const { data: managed, error: e4 } = await supabase
         .from('tickets')
         .select(`
@@ -287,6 +287,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }
+
 
 
 

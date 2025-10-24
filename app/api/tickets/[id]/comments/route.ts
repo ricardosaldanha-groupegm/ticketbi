@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import type { Database } from '@/lib/supabase'
@@ -210,6 +210,7 @@ async function resolveAuthUser(
 
   return createAuthUser(dbUser)
 }
+
 
 
 

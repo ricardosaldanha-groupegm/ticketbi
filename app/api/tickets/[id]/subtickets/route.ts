@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getCurrentUser } from '@/lib/auth'
 import { canReadTicket, canCreateSubticket } from '@/lib/rbac'
@@ -187,6 +187,7 @@ export async function POST(
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+
 
 
 
