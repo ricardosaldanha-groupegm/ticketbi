@@ -30,6 +30,7 @@ export default function AccessRequestsPage() {
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [selectedRequest, setSelectedRequest] = useState<AccessRequest | null>(null)
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   
   const router = useRouter()
   const supabase = createClientSupabaseClient()
@@ -143,10 +144,28 @@ export default function AccessRequestsPage() {
 
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-slate-100">Lista de Pedidos</CardTitle>
-          <CardDescription className="text-slate-400">
-            {requests.length} pedido(s) encontrado(s)
-          </CardDescription>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <CardTitle className="text-slate-100">Lista de Pedidos</CardTitle>
+              <CardDescription className="text-slate-400">
+                {requests.length} pedido(s) no total
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="status-filter" className="text-sm text-slate-300">Filtrar por status:</label>
+              <select
+                id="status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="bg-slate-700 border border-slate-600 text-slate-100 rounded px-2 py-1"
+              >
+                <option value="pending">Por aprovar</option>
+                <option value="approved">Aprovados</option>
+                <option value="rejected">Rejeitados</option>
+                <option value="all">Todos</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {requests.length === 0 ? (
@@ -166,7 +185,9 @@ export default function AccessRequestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.map((request) => (
+                {requests
+                  .filter(r => statusFilter === 'all' ? true : r.status === statusFilter)
+                  .map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className="font-medium text-slate-100">{request.name}</TableCell>
                     <TableCell className="text-slate-300">{request.email}</TableCell>
