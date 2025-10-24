@@ -90,7 +90,7 @@ export default function LoginPage() {
       const roleLabels: Record<string, string> = {
         admin: 'Admin',
         bi: 'BI',
-        requester: 'Requester',
+        requester: 'Utilizador',
       }
       const roleLabel = roleLabels[user.role] || user.role
 
