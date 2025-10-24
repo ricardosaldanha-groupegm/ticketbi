@@ -219,16 +219,7 @@ export default function LoginPage() {
                 </Button>
               </form>
               
-              <div className="mt-4 p-3 bg-amber-900/20 border border-amber-600/30 rounded-lg">
-                <p className="text-sm text-amber-200 mb-2">
-                  <strong>Credenciais de Desenvolvimento:</strong>
-                </p>
-                <div className="text-xs space-y-1">
-                  <p><strong>Admin:</strong> ricardo.saldanha@groupegm.com / adminadmin</p>
-                  <p><strong>BI:</strong> ricardosaldanha2005@gmail.com / bi123</p>
-                  <p><strong>Requester:</strong> ricardosaldanha2005+user1@gmail.com / user123</p>
-                </div>
-              </div>
+              {null}
             </TabsContent>
             
             <TabsContent value="request" className="space-y-4">
