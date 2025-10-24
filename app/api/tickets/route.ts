@@ -93,6 +93,18 @@ export async function GET(request: NextRequest) {
 
       const ticketIds = Array.from(new Set((mySubs || []).map((s: any) => s.ticket_id)))
 
+      // 3) Tickets onde o utilizador é gestor
+      const { data: managed, error: e4 } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          created_by_user:users!tickets_created_by_fkey(name, email),
+          gestor:users!tickets_gestor_id_fkey(name, email)
+        `)
+        .eq('gestor_id', userId)
+        .order('created_at', { ascending: false })
+      if (e4 && !error) error = e4
+
       let byAssigned: any[] = []
       if (ticketIds.length > 0) {
         const { data: extra, error: e3 } = await supabase
@@ -108,7 +120,7 @@ export async function GET(request: NextRequest) {
         byAssigned = extra || []
       }
 
-      const combined = [...(mine || []), ...byAssigned]
+      const combined = [...(mine || []), ...byAssigned, ...(managed || [])]
       // dedupe by id
       const seen = new Set<string>()
       ticketsData = combined.filter((t: any) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
