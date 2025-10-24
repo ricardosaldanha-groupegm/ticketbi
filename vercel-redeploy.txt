@@ -1,1 +1,1 @@
-﻿Redeploy trigger at 2025-10-24T16:29:11
+﻿Redeploy trigger at 2025-10-24T16:36:21 (fix TicketDetails structure)
