@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { supabase } from '@/lib/supabase'
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -114,6 +115,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [taskPeople, setTaskPeople] = useState<string[]>([])
   const [currentRole, setCurrentRole] = useState<string | null>(null)
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
 
@@ -124,7 +126,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const fetchTicket = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/tickets/${ticketId}`)
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const response = await fetch(`/api/tickets/${ticketId}`, { headers })
       const data = await response.json()
 
       if (!response.ok) {
@@ -150,7 +155,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
   const fetchTaskPeople = async () => {
     try {
-      const response = await fetch(`/api/tickets/${ticketId}/subtickets`)
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      const response = await fetch(`/api/tickets/${ticketId}/subtickets`, { headers })
       const data = await response.json()
       if (!response.ok || !Array.isArray(data)) return
       const names = Array.from(
@@ -183,9 +191,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     if (!ticket) return
     setIsUpdatingGestor(true)
     try {
+      const headers: HeadersInit = { "Content-Type": "application/json" }
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
       const response = await fetch(`/api/tickets/${ticketId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ gestor_id: selectedGestorId || null }),
       })
       const data = await response.json()
@@ -205,9 +216,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     if (!ticket) return
     setIsSaving(true)
     try {
+      const headers: HeadersInit = { "Content-Type": "application/json" }
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
       const response = await fetch(`/api/tickets/${ticketId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(formData),
       })
       if (!response.ok) {
@@ -241,21 +255,48 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   }
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       if (typeof window === "undefined") return
-      const devUser = localStorage.getItem("dev-user")
+      // 1) Real Supabase session
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          setIsAuthenticated(true)
+          setCurrentUserId(user.id)
+          // fetch role from users; fallback to admin via env list
+          let role: string | null = null
+          const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+          role = (data as any)?.role ?? null
+          if (!role && user.email) {
+            const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
+              .split(',')
+              .map(s => s.trim().toLowerCase())
+              .filter(Boolean)
+            if (admins.includes(user.email.toLowerCase())) role = 'admin'
+          }
+          setCurrentRole(role)
+          fetchTicket()
+          fetchTaskPeople()
+          fetchBIUsers()
+          return
+        }
+      } catch {}
+
+      // 2) Dev fallback
+      const devUser = localStorage.getItem('dev-user')
       if (devUser) {
         setIsAuthenticated(true)
         try {
           const parsed = JSON.parse(devUser)
           setCurrentRole(parsed?.role || null)
+          setCurrentUserId(parsed?.id || null)
         } catch (_) {}
         fetchTicket()
         fetchTaskPeople()
         fetchBIUsers()
-      } else {
-        router.push("/login")
+        return
       }
+      router.push('/login')
     }
     checkAuth()
   }, [ticketId])
