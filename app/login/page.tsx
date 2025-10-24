@@ -193,7 +193,7 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ricardo.saldanha@groupegm.com"
+                    placeholder="Introduza o seu email"
                     required
                     className="bg-slate-800 border-slate-600 text-slate-100"
                   />
@@ -205,7 +205,7 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="adminadmin"
+                    placeholder="Introduza a sua palavra-passe"
                     required
                     className="bg-slate-800 border-slate-600 text-slate-100"
                   />
