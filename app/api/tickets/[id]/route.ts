@@ -47,9 +47,9 @@ export async function GET(
       })
     }
 
-    // Use Supabase without auth in development
+    // Use Supabase and enforce access control
     const supabase = createServerSupabaseClient()
-    
+
     const { data: ticket, error } = await supabase
       .from('tickets')
       .select(`
@@ -66,6 +66,49 @@ export async function GET(
 
     if (!ticket) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
+    }
+
+    // Resolve current user from header X-User-Id (client-side auth) or deny
+    const headerUserId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+    if (!headerUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: dbUser } = await supabase
+      .from('users')
+      .select('id, role, email, name')
+      .eq('id', headerUserId)
+      .maybeSingle()
+    if (!dbUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = { id: dbUser.id as string, role: (dbUser as any).role as 'admin' | 'bi' | 'requester', name: (dbUser as any).name, email: (dbUser as any).email }
+
+    // Access rules: admin/bi full access; creator; gestor; watcher; assigned in subtasks
+    let allowed = false
+    if (user.role === 'admin' || user.role === 'bi') allowed = true
+    if (!allowed && ticket.created_by === user.id) allowed = true
+    if (!allowed && (ticket as any).gestor_id === user.id) allowed = true
+    if (!allowed) {
+      const { data: w } = await supabase
+        .from('ticket_watchers')
+        .select('user_id')
+        .eq('ticket_id', params.id)
+        .eq('user_id', user.id)
+      if (w && w.length > 0) allowed = true
+    }
+    if (!allowed) {
+      const { data: subs } = await supabase
+        .from('subtickets')
+        .select('id')
+        .eq('ticket_id', params.id)
+        .eq('assignee_bi_id', user.id)
+      if (subs && subs.length > 0) allowed = true
+    }
+
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     return NextResponse.json(ticket)
