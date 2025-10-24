@@ -115,6 +115,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [taskPeople, setTaskPeople] = useState<string[]>([])
   const [currentRole, setCurrentRole] = useState<string | null>(null)
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
+  const [assigneeSearch, setAssigneeSearch] = useState("")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
   const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
@@ -181,7 +182,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       const response = await fetch(`/api/users`)
       const payload = await response.json()
       if (!response.ok || !Array.isArray(payload?.users)) return
-      setBiUsers(payload.users)
+      const list = (payload.users as any[])
+        .filter((u: any) => (u?.role === 'bi' || u?.role === 'admin'))
+        .slice()
+        .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+      setBiUsers(list)
     } catch (_) {
       // ignore silently
     }
@@ -262,10 +267,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
           setIsAuthenticated(true)
-          setCurrentUserId(user.id)
+          // Resolver utilizador da app (tabela users) por id ou email
+          let appUserId: string | null = null
+          const { data: byId } = await supabase.from('users').select('id, role').eq('id', user.id).maybeSingle()
+          if (byId) appUserId = (byId as any).id
+          if (!appUserId && user.email) {
+            const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
+            appUserId = (byEmail as any)?.id ?? null
+          }
+          setCurrentUserId(appUserId || user.id)
           // fetch role from users; fallback to admin via env list
           let role: string | null = null
-          const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+          const { data } = await supabase.from('users').select('role').eq('id', appUserId || user.id).maybeSingle()
           role = (data as any)?.role ?? null
           if (!role && user.email) {
             const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
@@ -389,6 +402,13 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
                         <div className="space-y-2">
                           <Label htmlFor="gestor" className="text-slate-300">Gestor</Label>
+                          <div className="space-y-2">
+                          <input
+                            placeholder="Procurar utilizador..."
+                            value={assigneeSearch}
+                            onChange={(e) => setAssigneeSearch(e.target.value)}
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                          />
                           <select
                             id="gestor"
                             className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
@@ -396,10 +416,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             onChange={(e) => setSelectedGestorId(e.target.value)}
                           >
                             <option value="">Sem gestor</option>
-                            {biUsers.map((u) => (
+                            {biUsers.filter(u => (assigneeSearch? (u.name||'').toLowerCase().includes(assigneeSearch.toLowerCase()) || (u.email||'').toLowerCase().includes(assigneeSearch.toLowerCase()): true)).map((u) => (
                               <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
                             ))}
                           </select>
+                        </div>
                         </div>
                         <div className="flex gap-3">
                           <Button type="button" onClick={updateGestor} disabled={isUpdatingGestor} className="bg-amber-600 hover:bg-amber-700">
