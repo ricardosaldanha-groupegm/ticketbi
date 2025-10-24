@@ -1426,7 +1426,7 @@ const updateGestor = async () => {
 
                         ? 'Selecionar utilizadores...'
 
-                        : ' + interestedIds.length + ' selecionado(s)'}
+                        : {interestedIds.length + ' selecionado(s)'}
 
                     </button>
 
@@ -1553,6 +1553,7 @@ const updateGestor = async () => {
   )
 
 }
+
 
 
 
