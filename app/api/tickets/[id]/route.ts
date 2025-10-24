@@ -82,9 +82,15 @@ export async function GET(
     if (!dbUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const dbu: any = dbUser as any
+    const user = {
+      id: dbu.id as string,
+      role: (dbu.role as 'admin' | 'bi' | 'requester'),
+      name: dbu.name as string,
+      email: dbu.email as string,
+    }
 
-
-    // Access rules: admin/bi full access; creator; gestor; watcher; assigned in subtasks
+    // Access rules: admin/bi full access; creator; gestor; watcher; assigned in subtarefas
     let allowed = false
     if (user.role === 'admin' || user.role === 'bi') allowed = true
     if (!allowed && ticket.created_by === user.id) allowed = true
