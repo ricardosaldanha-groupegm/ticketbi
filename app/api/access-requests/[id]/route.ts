@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 import { getAccessRequest, updateAccessRequest } from '@/lib/dev-storage'
 import { z } from 'zod'
 
@@ -156,37 +157,54 @@ export async function PATCH(
       )
     }
     
-    // If approved, create the user account
+    // If approved, create the user account and send invite email
     if (validatedData.action === 'approve') {
-      const { data: newUser, error: userError } = await (supabase as any)
+      const email = (accessRequest as any).email as string
+      const name = (accessRequest as any).name as string
+
+      // 1) Send Supabase Auth invite email (same flow as /api/admin/users)
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (!supabaseUrl || !serviceKey) {
+        console.warn('Supabase config missing; cannot send invite email')
+      } else {
+        const admin = createClient(supabaseUrl, serviceKey)
+        const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || undefined
+        const redirectTo = origin ? `${origin}/alterar-password` : undefined
+        const { data: invited, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, {
+          data: { must_change_password: true, name },
+          redirectTo,
+        })
+        if (inviteErr) {
+          console.error('Error sending invite email:', inviteErr)
+          // Do not fail the whole request because of email; continue to DB upsert
+        }
+      }
+
+      // 2) Upsert into users table (ensure app mapping exists)
+      const { error: upsertErr } = await (supabase as any)
         .from('users')
-        .insert([{
-          email: (accessRequest as any).email,
-          name: (accessRequest as any).name,
-          role: 'requester' // Default role for new users
-        } as any])
-        .select()
-        .single()
-      
-      if (userError) {
-        console.error('Error creating user:', userError)
-        // Don't fail if user already exists
-        if (userError.code !== '23505') { // 23505 is unique violation
-          // Rollback the status update
+        .upsert({
+          // If the invited user already exists in auth, we might not know their id here; rely on email uniqueness
+          email,
+          name,
+          role: 'requester',
+        } as any, { onConflict: 'email' })
+
+      if (upsertErr) {
+        console.error('Error upserting user:', upsertErr)
+        // Rollback to pending only if it's a hard failure unrelated to unique conflict
+        if ((upsertErr as any).code && (upsertErr as any).code !== '23505') {
           await (supabase as any)
             .from('access_requests')
             .update({ status: 'pending' } as any)
             .eq('id', id)
-          
           return NextResponse.json(
             { error: 'Erro ao criar utilizador' },
             { status: 500 }
           )
         }
       }
-      
-      // TODO: Send email notification to user
-      // This would typically be done via a service like SendGrid, Resend, etc.
     }
     
     return NextResponse.json({
