@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -56,17 +57,25 @@ export default function CommentsList({ ticketId, subticketId, hideForm = false }
 
     useEffect(() => {
     if (typeof window === 'undefined') return
-
-    const storedUser = localStorage.getItem('dev-user')
-    if (storedUser) {
+    (async () => {
+      // 1) Try real Supabase session
       try {
-        setCurrentUser(JSON.parse(storedUser))
-      } catch (error) {
-        console.warn('Failed to parse stored user from localStorage.', error)
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          setCurrentUser({ id: user.id, name: user.user_metadata?.name || user.email || 'User', email: user.email || '', role: undefined })
+          setAuthReady(true)
+          return
+        }
+      } catch {}
+      // 2) Fallback to dev-user
+      const storedUser = localStorage.getItem('dev-user')
+      if (storedUser) {
+        try {
+          setCurrentUser(JSON.parse(storedUser))
+        } catch {}
       }
-    }
-
-    setAuthReady(true)
+      setAuthReady(true)
+    })()
   }, [])
 
   useEffect(() => {
@@ -94,11 +103,9 @@ const fetchComments = useCallback(async () => {
 
     try {
       setLoading(true)
-      const response = await fetch((ticketId ? `/api/tickets/${ticketId}/comments` : `/api/subtickets/${subticketId}/comments`), {
-        headers: {
-          'X-User-Id': currentUser.id,
-        },
-      })
+      const headers: HeadersInit = { 'X-User-Id': currentUser.id }
+      if (currentUser.role) (headers as any)['X-User-Role'] = currentUser.role
+      const response = await fetch((ticketId ? `/api/tickets/${ticketId}/comments` : `/api/subtickets/${subticketId}/comments`), { headers })
       const data = await response.json()
 
       if (!response.ok) {
