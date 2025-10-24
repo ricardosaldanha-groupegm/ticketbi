@@ -117,8 +117,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [selectedGestorId, setSelectedGestorId] = useState<string>("")
-  const [isUpdatingGestor, setIsUpdatingGestor] = useState(false)
-  // Interested users (watchers)
+    \r\n  // Interessados (watchers) – estado (sem UI por agora)\r\n  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])\r\n  const [interestedIds, setInterestedIds] = useState<string[]>([])\r\n  const [savingInterested, setSavingInterested] = useState(false)\r\n  // Interested users (watchers)
   const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [interestedIds, setInterestedIds] = useState<string[]>([])
   const [savingInterested, setSavingInterested] = useState(false)
@@ -724,3 +723,4 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     </div>
   )
 }
+
