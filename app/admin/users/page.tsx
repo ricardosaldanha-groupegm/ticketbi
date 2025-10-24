@@ -1,4 +1,4 @@
-"use client"
+Ôªø"use client"
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -40,7 +40,7 @@ export default function UsersManagementPage() {
     fetchUsers()
   }, [])
 
-  // Carrega o utilizador autenticado e o seu role (para controlar permissıes de UI)
+  // Carrega o utilizador autenticado e o seu role (para controlar permiss√µes de UI)
   useEffect(() => {
     const loadMe = async () => {
       // Prefer dev-user in localStorage for UI parity with Header
@@ -98,7 +98,7 @@ export default function UsersManagementPage() {
 
       toast({ title: "Sucesso", description: data.message })
 
-      // AtualizaÁ„o otimista
+      // Atualiza√ß√£o otimista
       setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updates } : u)))
 
       setIsEditDialogOpen(false)
@@ -163,7 +163,7 @@ export default function UsersManagementPage() {
     return (
       <AuthenticatedLayout requireAuth={true} requireAdmin={true}>
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">Gest„o de Utilizadores</h1>
+          <h1 className="text-3xl font-bold text-slate-100 mb-2">Gest√£o de Utilizadores</h1>
           <p className="text-slate-400">A carregar...</p>
         </div>
       </AuthenticatedLayout>
@@ -173,8 +173,8 @@ export default function UsersManagementPage() {
   return (
     <AuthenticatedLayout requireAuth={true} requireAdmin={true}>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">Gest„o de Utilizadores</h1>
-        <p className="text-slate-400">Gerir utilizadores, perfis e permissıes do sistema TicketBI</p>
+        <h1 className="text-3xl font-bold text-slate-100 mb-2">Gest√£o de Utilizadores</h1>
+        <p className="text-slate-400">Gerir utilizadores, perfis e permiss√µes do sistema TicketBI</p>
       </div>
 
       <Card className="bg-slate-800 border-slate-700">
@@ -199,8 +199,8 @@ export default function UsersManagementPage() {
                   <TableHead className="text-slate-300">Email</TableHead>
                   <TableHead className="text-slate-300">Perfil</TableHead>
                   <TableHead className="text-slate-300">Estado</TableHead>
-                  <TableHead className="text-slate-300">Data CriaÁ„o</TableHead>
-                  <TableHead className="text-slate-300">AÁıes</TableHead>
+                  <TableHead className="text-slate-300">Data Cria√ß√£o</TableHead>
+                  <TableHead className="text-slate-300">A√ß√µes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -209,7 +209,7 @@ export default function UsersManagementPage() {
                   const isSelf = currentUserId === user.id
                   const iAmAdmin = currentUserRole === "admin"
 
-                  // Regras: n„o permitir apagar a si prÛprio; apenas admin pode apagar admins
+                  // Regras: n√£o permitir apagar a si pr√≥prio; apenas admin pode apagar admins
                   const canDelete = isTargetAdmin ? (iAmAdmin && !isSelf) : !isSelf
 
                   return (
@@ -270,7 +270,7 @@ export default function UsersManagementPage() {
         <DialogContent className="bg-slate-800 border-slate-700">
           <DialogHeader>
             <DialogTitle className="text-slate-100">Editar Utilizador</DialogTitle>
-            <DialogDescription className="text-slate-400">Alterar informaÁıes e permissıes do utilizador</DialogDescription>
+            <DialogDescription className="text-slate-400">Alterar informa√ß√µes e permiss√µes do utilizador</DialogDescription>
           </DialogHeader>
 
           {editingUser && (
@@ -339,7 +339,7 @@ export default function UsersManagementPage() {
           <DialogHeader>
             <DialogTitle className="text-slate-100">Remover Utilizador</DialogTitle>
             <DialogDescription className="text-slate-400">
-              Tem a certeza que pretende remover este utilizador? Esta aÁ„o n„o pode ser desfeita.
+              Tem a certeza que pretende remover este utilizador? Esta a√ß√£o n√£o pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
 
@@ -413,7 +413,7 @@ function CreateUserDialog({ onCreated }: { onCreated: () => void }) {
       <DialogHeader>
         <DialogTitle className="text-slate-100">Novo Utilizador</DialogTitle>
         <DialogDescription className="text-slate-400">
-          Preencha os dados do utilizador. O utilizador receber· um email para definir a palavra-passe.
+          Preencha os dados do utilizador. O utilizador receber√° um email para definir a palavra-passe.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4 py-4">
