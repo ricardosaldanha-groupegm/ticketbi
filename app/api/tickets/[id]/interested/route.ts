@@ -46,7 +46,10 @@ export async function PUT(
     if (users.length === 0) return NextResponse.json({ users: [] })
 
     const rows = users.map((uid: string) => ({ ticket_id: params.id, user_id: uid }))
-    const { data, error } = await supabase.from('ticket_watchers').insert(rows).select('user_id')
+    const { data, error } = await (supabase as any)
+      .from('ticket_watchers')
+      .insert(rows as any)
+      .select('user_id')
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ users: data?.map((r: any) => r.user_id) || [] })
   } catch (e: any) {
