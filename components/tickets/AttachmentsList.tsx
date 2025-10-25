@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -74,8 +74,8 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-6 text-slate-200">
           <div className="text-center">A carregar anexos...</div>
         </CardContent>
       </Card>
@@ -83,24 +83,24 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   }
 
   return (
-    <Card>
+    <Card className="bg-slate-800 border-slate-700">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Anexos ({attachments.length})</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-slate-100">Anexos ({attachments.length})</CardTitle>
+            <CardDescription className="text-slate-400">
               Ficheiros associados a este ticket
             </CardDescription>
           </div>
-          <Button>
+          <Button className="bg-amber-600 hover:bg-amber-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Adicionar Anexo
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="text-slate-200">
         {attachments.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-slate-400">
             Nenhum anexo encontrado
           </div>
         ) : (
@@ -112,7 +112,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
                 <TableHead>Tamanho</TableHead>
                 <TableHead>Enviado por</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead>Ações</TableHead>
+                <TableHead>AÃ§Ãµes</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -125,24 +125,23 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-slate-400">
                       {attachment.mimetype}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-slate-400">
                       {formatFileSize(attachment.size_bytes)}
                     </span>
                   </TableCell>
                   <TableCell>{attachment.uploaded_by_user.name}</TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-slate-400">
                       {formatDate(attachment.created_at)}
                     </span>
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="outline"
                       size="sm"
                       onClick={() => handleDownload(attachment)}
                     >
@@ -159,3 +158,4 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
     </Card>
   )
 }
+
