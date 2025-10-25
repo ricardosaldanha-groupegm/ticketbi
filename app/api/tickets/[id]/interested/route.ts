@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
+import { createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
 const updateSchema = z.object({ users: z.array(z.string()) })
@@ -29,7 +30,20 @@ export async function PUT(
 ) {
   try {
     const supabase = createServerSupabaseClient()
-    const me = await requireAuth()
+    // Resolve utilizador a partir do header (cliente) ou auth do servidor
+    let me: AuthUser | null = null
+    const headerUserId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+    if (headerUserId) {
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', headerUserId)
+        .maybeSingle()
+      if (dbUser) me = createAuthUser(dbUser as any)
+    }
+    if (!me) {
+      me = await requireAuth()
+    }
 
     const { data: ticket } = await supabase.from('tickets').select('gestor_id').eq('id', params.id).maybeSingle()
     if (!ticket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
