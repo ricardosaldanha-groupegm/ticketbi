@@ -467,7 +467,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
           <Tabs defaultValue="tasks" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="bg-slate-800 border border-slate-700">
               <TabsTrigger value="tasks">Tarefas</TabsTrigger>
-              <TabsTrigger value="comments">Coment├írios</TabsTrigger>
+              <TabsTrigger value="comments">Comentários</TabsTrigger>
               <TabsTrigger value="attachments">Anexos</TabsTrigger>
               {isEditing && <TabsTrigger value="edit">Editar</TabsTrigger>}
             </TabsList>
@@ -700,11 +700,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
             </CardHeader>
             <CardContent className="flex flex-col gap-y-3 text-sm text-slate-200">
               <div className="flex items-center justify-between">
-                <span>Urg├¬ncia</span>
+                <span>Urgência</span>
                 <Badge className={priorityColors[ticket.urgencia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.urgencia)}</Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span>Import├óncia</span>
+                <span>Importância</span>
                 <Badge className={priorityColors[ticket.importancia] ?? "bg-slate-700 text-slate-100"}>{getLevelLabel(ticket.importancia)}</Badge>
               </div>
               <div className="flex items-center justify-between order-[-1]">
