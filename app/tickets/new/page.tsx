@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -24,7 +24,7 @@ interface User {
 const createTicketSchema = z.object({
   pedido_por: z.string().min(1, "Campo obrigatório"),
   assunto: z.string().min(1, "Campo obrigatório"),
-  descricao: z.string().min(1, "Campo obrigatóio"),
+  descricao: z.string().min(1, "Campo obrigatório"),
   objetivo: z.string().min(1, "Campo obrigatório"),
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
@@ -129,7 +129,7 @@ export default function NewTicketPage() {
                     <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                       <SelectValue placeholder="Selecionar utilizador" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+                    <SelectContent>
                       {users.map((user) => (
                         <SelectItem key={user.id} value={user.name}>
                           {user.name} ({user.email})
@@ -140,7 +140,7 @@ export default function NewTicketPage() {
                 )}
                 {errors.pedido_por && (<p className="text-sm text-red-400">{errors.pedido_por.message}</p>)}
                 {currentUser?.role === "requester" ? (
-                  <p className="text-xs text-slate-400">Este campo estÃ¡ travado com o seu nome (perfil: utilizador)</p>
+                  <p className="text-xs text-slate-400">Este campo está travado com o seu nome (perfil: utilizador)</p>
                 ) : (
                   <p className="text-xs text-slate-400">Selecione o utilizador que fez o pedido</p>
                 )}
@@ -171,7 +171,7 @@ export default function NewTicketPage() {
                 <Label htmlFor="urgencia" className="text-slate-300">Urgência *</Label>
                 <Select value={watch("urgencia") ? watch("urgencia").toString() : "1"} onValueChange={(value) => setValue("urgencia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Selecionar urgÃªncia" />
+                    <SelectValue placeholder="Selecionar urgência" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 - Baixa</SelectItem>
@@ -214,6 +214,4 @@ export default function NewTicketPage() {
     </AuthenticatedLayout>
   )
 }
-
-
 
