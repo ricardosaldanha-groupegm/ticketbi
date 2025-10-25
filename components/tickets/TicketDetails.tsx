@@ -595,7 +595,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   <CardHeader>
                     <CardTitle>Editar ticket</CardTitle>
                     <CardDescription>
-                      Pode editar descri├º├úo, objetivo e notas internas. Os restantes campos s├úo apenas de leitura.
+                      Pode editar descrição, objetivo e notas internas. Os restantes campos são apenas de leitura.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -612,7 +612,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="descricao" className="text-slate-300">Descri├º├úo *</Label>
+                        <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
                         <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
                         {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                       </div>
@@ -625,18 +625,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="urgencia" className="text-slate-300">Urg├¬ncia (1-3)</Label>
+                          <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
                           <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - M├®dia</option>
+                            <option value="2">2 - Média</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="importancia" className="text-slate-300">Import├óncia (1-3)</Label>
+                          <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
                           <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
                             <option value="1">1 - Baixa</option>
-                            <option value="2">2 - M├®dia</option>
+                            <option value="2">2 - Média</option>
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
