@@ -123,6 +123,9 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [interestedIds, setInterestedIds] = useState<string[]>([])
   const [savingInterested, setSavingInterested] = useState(false)
   const [openInterested, setOpenInterested] = useState(false)
+  // Dropdown de interessados (edição)
+  const [openInterestedEdit, setOpenInterestedEdit] = useState(false)
+  const [interestedQuery, setInterestedQuery] = useState("")
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
@@ -515,26 +518,74 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                     <CardContent>
                       <div className="space-y-2">
                         <Label className="text-slate-300">Interessados</Label>
-                        <div className="max-h-56 overflow-auto rounded-md border border-slate-600 p-2 bg-slate-700">
-                          {allUsers.map((u) => (
-                            <label key={u.id} className="flex items-center gap-2 py-1 text-slate-100">
-                              <input
-                                type="checkbox"
-                                className="accent-amber-600"
-                                checked={interestedIds.includes(u.id)}
-                                onChange={(e) => {
-                                  if (e.target.checked) setInterestedIds(prev => Array.from(new Set([...prev, u.id])))
-                                  else setInterestedIds(prev => prev.filter(x => x !== u.id))
-                                }}
-                              />
-                              <span>{u.name} <span className="text-slate-400">({u.email})</span></span>
-                            </label>
-                          ))}
-                        </div>
-                        <div className="flex gap-3">
-                          <Button type="button" onClick={updateInterested} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700">
-                            {savingInterested ? 'A guardar...' : 'Guardar interessados'}
-                          </Button>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setOpenInterestedEdit(v => !v)}
+                            className="w-full flex items-center justify-between rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-left text-slate-100 hover:bg-slate-700/80"
+                            aria-haspopup="listbox"
+                            aria-expanded={openInterestedEdit}
+                          >
+                            <span className="truncate">
+                              {interestedIds.length === 0 ? 'Selecionar utilizadores...' : `Selecionados (${interestedIds.length})`}
+                            </span>
+                            <svg className={`h-4 w-4 transition-transform ${openInterestedEdit ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          {openInterestedEdit && (
+                            <div className="absolute z-50 mt-2 w-full rounded-md border border-slate-600 bg-slate-800 shadow-lg">
+                              <div className="p-2 border-b border-slate-700">
+                                <input
+                                  type="text"
+                                  value={interestedQuery}
+                                  onChange={(e) => setInterestedQuery(e.target.value)}
+                                  placeholder="Procurar por nome ou email..."
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100 placeholder:text-slate-400 focus:outline-none"
+                                />
+                              </div>
+                              <div className="max-h-56 overflow-auto">
+                                <ul className="p-2 space-y-1" role="listbox" aria-multiselectable="true">
+                                  {allUsers
+                                    .filter(u => {
+                                      const q = interestedQuery.trim().toLowerCase()
+                                      if (!q) return true
+                                      return (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)
+                                    })
+                                    .map((u) => (
+                                    <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
+                                      <input
+                                        type="checkbox"
+                                        className="accent-amber-600"
+                                        checked={interestedIds.includes(u.id)}
+                                        onChange={(e) => {
+                                          setInterestedIds(prev => e.target.checked ? Array.from(new Set([...prev, u.id])) : prev.filter(x => x !== u.id))
+                                        }}
+                                      />
+                                      <span className="text-slate-100 truncate">{u.name}</span>
+                                      <span className="text-slate-400 text-xs truncate">({u.email})</span>
+                                    </li>
+                                  ))}
+                                  {allUsers.filter(u => {
+                                    const q = interestedQuery.trim().toLowerCase()
+                                    if (!q) return true
+                                    return (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)
+                                  }).length === 0 && (
+                                    <li className="px-3 py-2 text-sm text-slate-400">Sem resultados</li>
+                                  )}
+                                </ul>
+                              </div>
+                              <div className="p-2 border-t border-slate-700 flex items-center justify-between">
+                                <span className="text-xs text-slate-400">{interestedIds.length} selecionado(s)</span>
+                                <div className="flex gap-2">
+                                  <Button type="button" variant="outline" className="h-8 px-2" onClick={() => setOpenInterestedEdit(false)}>Fechar</Button>
+                                  <Button type="button" onClick={async () => { await updateInterested(); setOpenInterestedEdit(false) }} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700 h-8 px-2">
+                                    {savingInterested ? 'A guardar...' : 'Guardar'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
