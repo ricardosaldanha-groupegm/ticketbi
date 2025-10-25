@@ -726,13 +726,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div>
                 <p className="text-slate-400">Criado por</p>
                 <p>{ticket.created_by_user.name}</p>
-                <p className="text-xs text-slate-500">{ticket.created_by_user.email}</p>
               </div>
               {ticket.gestor && (
                 <div>
                   <p className="text-slate-400">Gestor</p>
                   <p>{ticket.gestor.name}</p>
-                  <p className="text-xs text-slate-500">{ticket.gestor.email}</p>
                 </div>
               )}
               {taskPeople.filter((n) => ![ticket.pedido_por, ticket.created_by_user.name, ticket.gestor?.name].includes(n)).length > 0 && (
@@ -756,10 +754,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       return (
                         <li key={id} className="text-slate-200">
                           {u ? (
-                            <>
                               <span>{u.name}</span>
-                              <span className="text-xs text-slate-500"> {u.email}</span>
-                            </>
                           ) : (
                             <span className="text-slate-400">Utilizador {id}</span>
                           )}
