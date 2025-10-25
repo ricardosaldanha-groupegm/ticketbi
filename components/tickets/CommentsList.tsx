@@ -281,7 +281,7 @@ const fetchComments = useCallback(async () => {
             placeholder="Procurar texto..."
             className="w-64 bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-400"
           />
-          <Button type="button" variant="outline" className="border-amber-600 text-amber-500 hover:bg-amber-600/10" disabled={uploading} onClick={() => setAppliedSearch(searchText)}>Pesquisar</Button>
+          <Button type="button" className="bg-amber-600 hover:bg-amber-700 text-white" disabled={uploading} onClick={() => setAppliedSearch(searchText)}>Pesquisar</Button>
         </div>
       </div>
         { !hideForm && (
@@ -339,6 +339,7 @@ const fetchComments = useCallback(async () => {
     </Card>
   )
 }
+
 
 
 
