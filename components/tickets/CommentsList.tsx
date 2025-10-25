@@ -229,8 +229,8 @@ const fetchComments = useCallback(async () => {
   }
   if (authReady && !currentUser) {
     return (
-      <Card>
-        <CardContent className="p-6">
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-6 text-slate-200">
           <div className="text-center text-sm text-muted-foreground">
             Autenticacao necessaria para consultar os comentarios.
           </div>
@@ -241,8 +241,8 @@ const fetchComments = useCallback(async () => {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-6 text-slate-200">
           <div className="text-center">A carregar comentarios...</div>
         </CardContent>
       </Card>
@@ -250,19 +250,19 @@ const fetchComments = useCallback(async () => {
   }
 
   return (
-    <Card>
+    <Card className="bg-slate-800 border-slate-700">
       <CardHeader>
-        <CardTitle>Comentarios ({comments.length})</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-slate-100">Comentarios ({comments.length})</CardTitle>
+        <CardDescription className="text-slate-400">
           Discussao sobre este ticket
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 text-slate-200">
 
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2">
           <Select value={filterTarget} onValueChange={setFilterTarget} disabled={!!subticketId}>
-            <SelectTrigger className="w-56" aria-label="Filtro">
+            <SelectTrigger className=\"w-56 bg-slate-700 border border-slate-600 text-slate-100\" aria-label="Filtro">
               <SelectValue placeholder="Filtrar por..." />
             </SelectTrigger>
             <SelectContent>
@@ -279,25 +279,24 @@ const fetchComments = useCallback(async () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Procurar texto..."
-            className="w-64"
+            className=\"w-64 bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-400\"
           />
-          <Button type="button" variant="outline" disabled={uploading} onClick={() => setAppliedSearch(searchText)}>Pesquisar</Button>
+          <Button type=\"button\" variant=\"outline\" className=\"border-amber-600 text-amber-500 hover:bg-amber-600/10\" disabled=\{uploading\} onClick={() => setAppliedSearch(searchText)}>Pesquisar</Button>
         </div>
       </div>
         { !hideForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Input type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files || []))} />
+            <Input type=\"file\" multiple className=\"bg-slate-700 border border-slate-600 text-slate-100 file:text-slate-100\" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
             <Textarea
               {...register('body')}
               placeholder="Escreva um comentario..."
-              rows={3}
-            />
+              rows={3}\r\n              className=\"bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-400\" />
             {errors.body && (
               <p className="text-sm text-red-500 mt-1">{errors.body.message}</p>
             )}
           </div>
-          <Button type="submit" disabled={submitting || uploading}>
+          <Button type=\"submit\" disabled=\{submitting || uploading\} className=\"bg-amber-600 hover:bg-amber-700 text-white\">
             <Send className="h-4 w-4 mr-2" />
             {submitting ? 'A enviar...' : 'Enviar Comentario'}
           </Button>
@@ -311,7 +310,7 @@ const fetchComments = useCallback(async () => {
             </div>
           ) : (
             filteredComments.map((comment) => (
-              <div key={comment.id} className="border rounded-lg p-4">
+              <div key={comment.id} className=\"border border-slate-700 rounded-lg p-4 bg-slate-800\">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h4 className="font-semibold">{comment.author.name}</h4>
@@ -320,7 +319,7 @@ const fetchComments = useCallback(async () => {
                     {comment.subticket_id ? (
                       <button
                         type="button"
-                        className="mt-1 inline-flex items-center rounded-full ml-2 px-2.5 py-0.5 text-xs font-semibold bg-amber-500 text-slate-900 hover:bg-amber-600 transition"
+                        className="mt-1 inline-flex items-center rounded-full ml-2 px-2.5 py-0.5 text-xs font-semibold bg-amber-600 text-white hover:bg-amber-700 transition"
                         onClick={() => window.dispatchEvent(new CustomEvent("open-subticket", { detail: comment.subticket_id }))}
                         title="Abrir tarefa"
                       >
@@ -339,6 +338,9 @@ const fetchComments = useCallback(async () => {
     </Card>
   )
 }
+
+
+
 
 
 
