@@ -468,10 +468,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         <div className="space-y-4">
           <Tabs defaultValue="tasks" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="bg-slate-800 border border-slate-700">
-              <TabsTrigger value="tasks">Tarefas</TabsTrigger>
-              <TabsTrigger value="comments">Comentários</TabsTrigger>
-              <TabsTrigger value="attachments">Anexos</TabsTrigger>
-              {isEditing && <TabsTrigger value="edit">Editar</TabsTrigger>}
+              <TabsTrigger value="tasks" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Tarefas</TabsTrigger>
+              <TabsTrigger value="comments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Comentários</TabsTrigger>
+              <TabsTrigger value="attachments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Anexos</TabsTrigger>
+              {isEditing && (<TabsTrigger value="edit" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Editar</TabsTrigger>)}
             </TabsList>
 
             {isEditing && (
@@ -800,6 +800,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     </div>
   )
 }
+
 
 
 
