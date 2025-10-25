@@ -747,9 +747,9 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   </ul>
                 </div>
               )}
-              {interestedIds.length > 0 && (
-                <div>
-                  <p className="text-slate-400">Interessados</p>
+              <div>
+                <p className="text-slate-400">Interessados</p>
+                {interestedIds.length > 0 ? (
                   <ul className="mt-1 space-y-1">
                     {interestedIds.map((id) => {
                       const u = allUsers.find((x) => x.id === id)
@@ -767,8 +767,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       )
                     })}
                   </ul>
-                </div>
-              )}
+                ) : (
+                  <p className="mt-1 text-slate-500">Nenhum interessado</p>
+                )}
+              </div>
             </CardContent>
           </Card>
 
