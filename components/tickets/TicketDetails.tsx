@@ -747,40 +747,26 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   </ul>
                 </div>
               )}
-              {(currentRole === 'admin' || currentRole === 'bi') && (
-                <div className="pt-2">
-                <div className="relative">
-                  <Button type="button" variant="outline" className="px-3 py-1 h-auto" onClick={() => setOpenInterested(v => !v)}>
-                    Interessados ({interestedIds.length})
-                  </Button>
-                  {openInterested && (
-                    <div className="absolute z-50 mt-2 w-64 rounded-md border border-slate-600 bg-slate-800 shadow-lg">
-                      <div className="max-h-56 overflow-auto">
-                        <ul className="p-2 space-y-1">
-                          {allUsers.map((u) => (
-                            <li key={u.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-700/60 rounded">
-                              <input
-                                type="checkbox"
-                                className="accent-amber-600"
-                                checked={interestedIds.includes(u.id)}
-                                onChange={(e) => {
-                                  setInterestedIds(prev => e.target.checked ? Array.from(new Set([...prev, u.id])) : prev.filter(x => x !== u.id))
-                                }}
-                              />
-                              <span className="text-slate-100">{u.name}</span>
-                              <span className="text-slate-400 text-xs">({u.email})</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="p-2 border-t border-slate-700 flex justify-end">
-                        <Button type="button" onClick={updateInterested} disabled={savingInterested} className="bg-amber-600 hover:bg-amber-700">
-                          {savingInterested ? 'A guardar...' : 'Guardar'}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {interestedIds.length > 0 && (
+                <div>
+                  <p className="text-slate-400">Interessados</p>
+                  <ul className="mt-1 space-y-1">
+                    {interestedIds.map((id) => {
+                      const u = allUsers.find((x) => x.id === id)
+                      return (
+                        <li key={id} className="text-slate-200">
+                          {u ? (
+                            <>
+                              <span>{u.name}</span>
+                              <span className="text-xs text-slate-500"> {u.email}</span>
+                            </>
+                          ) : (
+                            <span className="text-slate-400">Utilizador {id}</span>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
                 </div>
               )}
             </CardContent>
