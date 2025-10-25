@@ -316,6 +316,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       const updated = await response.json()
       setTicket(updated)
       setIsEditing(false)
+      setActiveTab('tasks')
       toast({ title: "Sucesso", description: "Ticket atualizado com sucesso." })
     } catch (error: any) {
       toast({ title: "Erro", description: error?.message || "Erro ao atualizar ticket", variant: "destructive" })
@@ -337,6 +338,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       })
     }
     setIsEditing(false)
+    setActiveTab('tasks')
   }
 
   useEffect(() => {
@@ -798,6 +800,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     </div>
   )
 }
+
 
 
 
