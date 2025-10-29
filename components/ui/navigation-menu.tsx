@@ -29,7 +29,7 @@ export const NavigationMenuTrigger = ({ children, className, ...props }: ButtonP
 )
 
 export const NavigationMenuContent = ({ children, className, ...props }: DivProps) => (
-  <div className={`absolute left-0 mt-2 z-50 hidden group-hover:block bg-slate-900 border border-slate-700 rounded-md shadow-lg p-3 ${className ?? ""}`} {...props}>
+  <div className={`absolute left-0 top-full z-50 hidden group-hover:block bg-slate-900 border border-slate-700 rounded-md shadow-lg p-3 ${className ?? ""}`} {...props}>
     {children}
   </div>
 )
@@ -40,4 +40,3 @@ export const NavigationMenuLink = React.forwardRef<HTMLAnchorElement, React.Comp
     return <Link ref={ref as any} className={className} {...props} />
   }
 )
-
