@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -42,13 +43,29 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
   useEffect(() => { fetchAttachments() }, [subticketId])
 
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
-      if (raw) {
-        const u = JSON.parse(raw)
-        if (u?.id) setCurrentUserId(u.id)
-      }
-    } catch {}
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          let appUserId: string | null = null
+          const { data: byId } = await supabase.from('users').select('id').eq('id', user.id).maybeSingle()
+          appUserId = (byId as any)?.id ?? null
+          if (!appUserId && user.email) {
+            const { data: byEmail } = await supabase.from('users').select('id').eq('email', user.email).maybeSingle()
+            appUserId = (byEmail as any)?.id ?? null
+          }
+          if (appUserId) setCurrentUserId(appUserId)
+          return
+        }
+      } catch {}
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+        if (raw) {
+          const u = JSON.parse(raw)
+          if (u?.id) setCurrentUserId(u.id)
+        }
+      } catch {}
+    })()
   }, [])
 
   const formatFileSize = (bytes: number) => {
