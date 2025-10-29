@@ -135,6 +135,7 @@ const fetchComments = useCallback(async () => {
 
   const onSubmit = async (data: CommentForm) => {
     let body = data.body
+    const uploadedMetas: Array<{ filename: string; mimetype: string; size_bytes: number; url: string }> = []
     try {
       setUploading(true)
       for (const f of files) {
@@ -145,6 +146,7 @@ const fetchComments = useCallback(async () => {
         if (resp.ok && uploaded?.url) {
           const isImage = (f.type || "").startsWith("image/")
           body += "\n" + (isImage ? `![${f.name}](${uploaded.url})` : `[${f.name}](${uploaded.url})`)
+          uploadedMetas.push({ filename: uploaded.filename || f.name, mimetype: uploaded.mimetype || f.type, size_bytes: uploaded.size ?? f.size, url: uploaded.url })
         }
       }
     } finally {
@@ -181,6 +183,21 @@ const fetchComments = useCallback(async () => {
         title: 'Sucesso',
         description: 'Comentario adicionado com sucesso!',
       })
+      // Link uploaded files as attachments to this comment (if any)
+      if (uploadedMetas.length > 0 && result?.id) {
+        try {
+          const linkResp = await fetch(`/api/comments/${result.id}/attachments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ attachments: uploadedMetas, ticket_id: ticketId, subticket_id: subticketId }),
+          })
+          if (!linkResp.ok) {
+            // non-fatal; just inform
+            const e = await linkResp.json().catch(() => ({} as any))
+            console.warn('Falha a associar anexos ao comentário:', e)
+          }
+        } catch {}
+      }
 
       reset()
       fetchComments()

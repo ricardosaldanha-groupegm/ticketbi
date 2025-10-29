@@ -20,6 +20,7 @@ interface Attachment {
 export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
 
   const fetchAttachments = async () => {
@@ -72,6 +73,39 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
     window.open(attachment.url, '_blank')
   }
 
+  const handleAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      setUploading(true)
+      const fd = new FormData()
+      fd.append('file', file)
+      const resp = await fetch('/api/uploads', { method: 'POST', body: fd })
+      const uploaded = await resp.json()
+      if (!resp.ok) throw new Error(uploaded?.error || 'Erro no upload')
+      const meta = {
+        filename: uploaded.filename || file.name,
+        mimetype: uploaded.mimetype || file.type,
+        size_bytes: uploaded.size ?? file.size,
+        url: uploaded.url,
+      }
+      const create = await fetch(`/api/tickets/${ticketId}/attachments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(meta),
+      })
+      const created = await create.json()
+      if (!create.ok) throw new Error(created?.error || 'Erro ao registar anexo')
+      toast({ title: 'Sucesso', description: 'Anexo adicionado.' })
+      fetchAttachments()
+    } catch (err: any) {
+      toast({ title: 'Erro', description: err?.message || 'Falha ao adicionar anexo', variant: 'destructive' })
+    } finally {
+      setUploading(false)
+    }
+  }
+
   if (loading) {
     return (
       <Card className="bg-slate-800 border-slate-700">
@@ -92,10 +126,12 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
               Ficheiros associados a este ticket
             </CardDescription>
           </div>
-          <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Anexo
-          </Button>
+          <div>
+            <label className="inline-flex items-center px-3 py-2 rounded-md bg-amber-600 hover:bg-amber-700 text-white cursor-pointer">
+              <Plus className="h-4 w-4 mr-2" /> {uploading ? 'A carregar...' : 'Adicionar Anexo'}
+              <input type="file" className="hidden" onChange={handleAdd} disabled={uploading} />
+            </label>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="text-slate-200">
