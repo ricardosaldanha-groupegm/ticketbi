@@ -23,6 +23,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   const fetchAttachments = async () => {
     try {
@@ -49,6 +50,17 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   useEffect(() => {
     fetchAttachments()
   }, [ticketId])
+
+  useEffect(() => {
+    // resolve current user id from localStorage dev-user (same pattern usado noutros componentes)
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+      if (raw) {
+        const u = JSON.parse(raw)
+        if (u?.id) setCurrentUserId(u.id)
+      }
+    } catch {}
+  }, [])
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes'
@@ -97,7 +109,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
       }
       const create = await fetch(`/api/tickets/${ticketId}/attachments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(currentUserId ? { 'X-User-Id': currentUserId } : {}) },
         body: JSON.stringify(meta),
       })
       const created = await create.json()

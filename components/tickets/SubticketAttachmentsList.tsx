@@ -23,6 +23,7 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   const fetchAttachments = async () => {
     try {
@@ -39,6 +40,16 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
   }
 
   useEffect(() => { fetchAttachments() }, [subticketId])
+
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('dev-user') : null
+      if (raw) {
+        const u = JSON.parse(raw)
+        if (u?.id) setCurrentUserId(u.id)
+      }
+    } catch {}
+  }, [])
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes'
@@ -69,7 +80,7 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
       const uploaded = await resp.json()
       if (!resp.ok) throw new Error(uploaded?.error || 'Erro no upload')
       const meta = { filename: uploaded.filename || file.name, mimetype: uploaded.mimetype || file.type, size_bytes: uploaded.size ?? file.size, storage_path: uploaded.path }
-      const create = await fetch(`/api/subtickets/${subticketId}/attachments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta) })
+      const create = await fetch(`/api/subtickets/${subticketId}/attachments`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(currentUserId ? { 'X-User-Id': currentUserId } : {}) }, body: JSON.stringify(meta) })
       const created = await create.json()
       if (!create.ok) throw new Error(created?.error || 'Erro ao registar anexo')
       toast({ title: 'Sucesso', description: 'Anexo adicionado.' })
