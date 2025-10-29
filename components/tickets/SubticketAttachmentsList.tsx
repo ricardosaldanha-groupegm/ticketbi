@@ -12,7 +12,8 @@ interface Attachment {
   filename: string
   mimetype: string
   size_bytes: number
-  url: string
+  url?: string
+  storage_path?: string
   created_at: string
   uploaded_by_user: { name: string; email: string }
 }
@@ -49,7 +50,13 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-PT', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-  const handleDownload = (attachment: Attachment) => window.open(attachment.url, '_blank')
+  const handleDownload = async (attachment: Attachment) => {
+    if (attachment.storage_path) {
+      await fetch(`/api/files/open?attachmentId=${attachment.id}`)
+      return
+    }
+    if (attachment.url) window.open(attachment.url, '_blank')
+  }
 
   const handleAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -61,7 +68,7 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
       const resp = await fetch('/api/uploads', { method: 'POST', body: fd })
       const uploaded = await resp.json()
       if (!resp.ok) throw new Error(uploaded?.error || 'Erro no upload')
-      const meta = { filename: uploaded.filename || file.name, mimetype: uploaded.mimetype || file.type, size_bytes: uploaded.size ?? file.size, url: uploaded.url }
+      const meta = { filename: uploaded.filename || file.name, mimetype: uploaded.mimetype || file.type, size_bytes: uploaded.size ?? file.size, storage_path: uploaded.path }
       const create = await fetch(`/api/subtickets/${subticketId}/attachments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta) })
       const created = await create.json()
       if (!create.ok) throw new Error(created?.error || 'Erro ao registar anexo')
@@ -131,4 +138,3 @@ export default function SubticketAttachmentsList({ subticketId }: { subticketId:
     </Card>
   )
 }
-

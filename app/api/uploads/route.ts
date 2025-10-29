@@ -29,15 +29,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    const { data: publicData } = supabase.storage
-      .from('attachments')
-      .getPublicUrl(uploadData.path)
-
     return NextResponse.json({
       filename: file.name,
       mimetype: file.type,
       size: file.size,
-      url: publicData.publicUrl,
       path: uploadData.path,
     })
   } catch (error: any) {

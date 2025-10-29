@@ -7,7 +7,7 @@ const attachmentSchema = z.object({
   filename: z.string().min(1),
   mimetype: z.string().min(1),
   size_bytes: z.number().min(0),
-  url: z.string().url(),
+  storage_path: z.string().min(1),
 })
 
 const payloadSchema = z.object({
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       filename: a.filename,
       mimetype: a.mimetype,
       size_bytes: a.size_bytes,
-      url: a.url,
+      storage_path: a.storage_path,
       uploaded_by: user.id,
       ticket_id: parsed.ticket_id ?? null,
       subticket_id: parsed.subticket_id ?? null,
@@ -71,4 +71,3 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-

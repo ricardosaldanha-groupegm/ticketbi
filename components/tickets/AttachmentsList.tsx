@@ -12,7 +12,8 @@ interface Attachment {
   filename: string
   mimetype: string
   size_bytes: number
-  url: string
+  url?: string
+  storage_path?: string
   created_at: string
   uploaded_by_user: { name: string; email: string }
 }
@@ -67,10 +68,14 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
     })
   }
 
-  const handleDownload = (attachment: Attachment) => {
-    // In a real implementation, you would handle file download
-    // For now, we'll just open the URL in a new tab
-    window.open(attachment.url, '_blank')
+  const handleDownload = async (attachment: Attachment) => {
+    if (attachment.storage_path) {
+      const resp = await fetch(`/api/files/open?attachmentId=${attachment.id}`)
+      if (!resp.ok) return
+      // redireciona pelo 307
+      return
+    }
+    if (attachment.url) window.open(attachment.url, '_blank')
   }
 
   const handleAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +93,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
         filename: uploaded.filename || file.name,
         mimetype: uploaded.mimetype || file.type,
         size_bytes: uploaded.size ?? file.size,
-        url: uploaded.url,
+        storage_path: uploaded.path,
       }
       const create = await fetch(`/api/tickets/${ticketId}/attachments`, {
         method: 'POST',

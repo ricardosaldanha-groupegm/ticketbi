@@ -8,7 +8,7 @@ const createAttachmentSchema = z.object({
   filename: z.string().min(1),
   mimetype: z.string().min(1),
   size_bytes: z.number().min(0),
-  url: z.string().url(),
+  storage_path: z.string().min(1),
 })
 
 // GET /api/tickets/[id]/attachments - List attachments for a ticket

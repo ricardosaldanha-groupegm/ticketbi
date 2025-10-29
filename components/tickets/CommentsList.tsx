@@ -135,7 +135,7 @@ const fetchComments = useCallback(async () => {
 
   const onSubmit = async (data: CommentForm) => {
     let body = data.body
-    const uploadedMetas: Array<{ filename: string; mimetype: string; size_bytes: number; url: string }> = []
+    const uploadedMetas: Array<{ filename: string; mimetype: string; size_bytes: number; storage_path: string }> = []
     try {
       setUploading(true)
       for (const f of files) {
@@ -143,10 +143,11 @@ const fetchComments = useCallback(async () => {
         fd.append("file", f)
         const resp = await fetch("/api/uploads", { method: "POST", body: fd })
         const uploaded = await resp.json()
-        if (resp.ok && uploaded?.url) {
+        if (resp.ok && uploaded?.path) {
           const isImage = (f.type || "").startsWith("image/")
-          body += "\n" + (isImage ? `![${f.name}](${uploaded.url})` : `[${f.name}](${uploaded.url})`)
-          uploadedMetas.push({ filename: uploaded.filename || f.name, mimetype: uploaded.mimetype || f.type, size_bytes: uploaded.size ?? f.size, url: uploaded.url })
+          // Opcional: não inserir link permanente quando bucket é privado; manter apenas texto.
+          // body += "\n" + (isImage ? `![${f.name}]()` : `[${f.name}]()`)
+          uploadedMetas.push({ filename: uploaded.filename || f.name, mimetype: uploaded.mimetype || f.type, size_bytes: uploaded.size ?? f.size, storage_path: uploaded.path })
         }
       }
     } finally {
