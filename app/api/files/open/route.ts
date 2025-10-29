@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       .from('attachments')
       .select('id, storage_path')
       .eq('id', id)
-      .maybeSingle()
+      .maybeSingle<any>()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     if (!att?.storage_path) return NextResponse.json({ error: 'Attachment not found or missing path' }, { status: 404 })
 
@@ -30,4 +30,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: e?.message || 'Internal server error' }, { status: 500 })
   }
 }
-
