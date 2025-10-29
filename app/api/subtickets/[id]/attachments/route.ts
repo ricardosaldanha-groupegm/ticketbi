@@ -104,7 +104,7 @@ export async function POST(
     }
 
     if (!canUploadToSubticket(user, subticket)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Sem permissão para anexar nesta tarefa' }, { status: 403 })
     }
 
     const attachmentData = {
@@ -123,7 +123,8 @@ export async function POST(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error inserting attachment (subticket):', error)
+      return NextResponse.json({ error: error.message || 'Erro ao criar anexo' }, { status: 500 })
     }
 
     return NextResponse.json(attachment, { status: 201 })

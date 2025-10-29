@@ -124,7 +124,20 @@ export async function POST(
     }
 
     if (!canUploadToTicket(user, ticket)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      // Fallback: permitir a watchers/interessados do ticket
+      try {
+        const { data: w } = await supabase
+          .from('ticket_watchers')
+          .select('user_id')
+          .eq('ticket_id', params.id)
+          .eq('user_id', user.id)
+        if (!w || w.length === 0) {
+          return NextResponse.json({ error: 'Sem permissão para anexar neste ticket' }, { status: 403 })
+        }
+      } catch (e) {
+        console.error('RBAC check (watchers) failed:', e)
+        return NextResponse.json({ error: 'Sem permissão para anexar neste ticket' }, { status: 403 })
+      }
     }
 
     const attachmentData = {
@@ -143,7 +156,8 @@ export async function POST(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error inserting attachment:', error)
+      return NextResponse.json({ error: error.message || 'Erro ao criar anexo' }, { status: 500 })
     }
 
     return NextResponse.json(attachment, { status: 201 })
