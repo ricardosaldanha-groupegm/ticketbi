@@ -49,6 +49,7 @@ const updateTicketSchema = z.object({
   internal_notes: z.string().optional(),
   urgencia: z.number().int().min(1).max(3).optional(),
   importancia: z.number().int().min(1).max(3).optional(),
+  estado: z.string().optional(),
 })
 
 type UpdateTicketForm = z.infer<typeof updateTicketSchema>
@@ -171,6 +172,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         internal_notes: data.internal_notes ?? "",
         urgencia: data.urgencia ?? 1,
         importancia: data.importancia ?? 1,
+        estado: data.estado ?? 'novo',
       })
     } catch (error) {
       toast({ title: "Erro", description: "Erro ao carregar ticket", variant: "destructive" })
@@ -335,6 +337,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         internal_notes: ticket.internal_notes ?? "",
         urgencia: ticket.urgencia ?? 1,
         importancia: ticket.importancia ?? 1,
+        estado: ticket.estado ?? 'novo',
       })
     }
     setIsEditing(false)
@@ -607,9 +610,21 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <Label className="text-slate-300">Assunto</Label>
                           <div className="rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-200">{ticket.assunto}</div>
                         </div>
-                        <div>
-                          <Label className="text-slate-300">Estado</Label>
-                          <div className="rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-200">{getStatusLabel(ticket.estado)}</div>
+                        <div className="space-y-2">
+                          <Label htmlFor="estado" className="text-slate-300">Estado</Label>
+                          <select
+                            id="estado"
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                            {...register("estado")}
+                            defaultValue={ticket.estado}
+                          >
+                            <option value="novo">Novo</option>
+                            <option value="em_curso">Em curso</option>
+                            <option value="em_analise">Aguardando 3ºs</option>
+                            <option value="em_validacao">Standby</option>
+                            <option value="concluido">Terminado</option>
+                            <option value="bloqueado">Bloqueado</option>
+                          </select>
                         </div>
                       </div>
 
