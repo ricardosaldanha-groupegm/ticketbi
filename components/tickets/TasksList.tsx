@@ -43,6 +43,8 @@ const statusLabels: Record<string, string> = {
   concluido: "concluido",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
+  aguardando_terceiros: "Aguardando 3ºs",
+  standby: "Standby",
 }
 
 const statusColors: Record<string, string> = {
@@ -53,6 +55,8 @@ const statusColors: Record<string, string> = {
   concluido: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
+  aguardando_terceiros: "bg-yellow-100 text-yellow-800",
+  standby: "bg-purple-100 text-purple-800",
 }
 
 const priorityColors: Record<number, string> = {
@@ -683,7 +687,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 <option value="em_curso">Em curso</option>
                 <option value="em_validacao">Em validação</option>
                 <option value="concluido">concluido</option>
-                <option value="rejeitado">Rejeitado</option>
+                <option value="rejeitado">Rejeitado</option>\n                <option value="aguardando_terceiros">Aguardando 3ºs</option>\n                <option value="standby">Standby</option>
                 <option value="bloqueado">Bloqueado</option>
               </select>
             </div>

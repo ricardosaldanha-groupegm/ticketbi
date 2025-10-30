@@ -14,7 +14,7 @@ const createSubticketSchema = z.object({
   data_inicio_planeado: z.string().optional(),
   data_esperada: z.string().optional(),
   data_conclusao: z.string().optional(),
-  estado: z.enum(['novo', 'em_analise', 'em_curso', 'em_validacao', 'concluido', 'rejeitado', 'bloqueado']).optional(),
+  estado: z.enum(['novo','em_analise','em_curso','em_validacao','concluido','rejeitado','bloqueado','aguardando_terceiros','standby']).optional(),
 })
 
 // GET /api/tickets/[id]/subtickets - List subtickets for a ticket
