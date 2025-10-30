@@ -625,8 +625,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           >
                             <option value="novo">Novo</option>
                             <option value="em_curso">Em curso</option>`n                            <option value="em_analise">Em análise</option>
-                            <option value="aguardando_terceiros">Aguardando 3ºs</option>
-                            <option value="standby">Standby</option>
+                            <option value="em_analise">Aguardando 3ºs</option>
+                            <option value="em_validacao">Standby</option>
                             <option value="concluido">Concluído</option>`n                            <option value="rejeitado">Rejeitado</option>
                             <option value="bloqueado">Bloqueado</option>
                           </select>
