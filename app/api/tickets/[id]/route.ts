@@ -4,8 +4,14 @@ import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
- param($m) $inner=$m.Groups[1].Value; if($inner -notmatch 'estado'){ $inner = $inner + "\n  estado: z.string().optional()," }; "const updateTicketSchema = z.object({$inner})" 
-
+ const updateTicketSchema = z.object({
+  descricao: z.string().min(1, 'Campo obrigatorio'),
+  objetivo: z.string().min(1, 'Campo obrigatorio'),
+  internal_notes: z.string().optional(),
+  urgencia: z.number().min(1).max(3).optional(),
+  importancia: z.number().min(1).max(3).optional(),
+  estado: z.string().optional(),
+});
 // GET /api/tickets/[id] - Get single ticket
 export async function GET(
   request: NextRequest,
