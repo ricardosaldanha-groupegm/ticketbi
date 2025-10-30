@@ -43,7 +43,7 @@ const statusLabels: Record<string, string> = {
   concluido: "Concluído",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
-  Aguardando 3ºs: "Aguardando 3ºs",
+  "Aguardando 3ºs": "Aguardando 3ºs",
   Standby: "Standby",
 }
 
@@ -55,7 +55,7 @@ const statusColors: Record<string, string> = {
   concluido: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
-  Aguardando 3ºs: "bg-yellow-100 text-yellow-800",
+  "Aguardando 3ºs": "bg-yellow-100 text-yellow-800",
   Standby: "bg-purple-100 text-purple-800",
 }
 
