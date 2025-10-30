@@ -30,15 +30,15 @@ const statusLabels: Record<string, string> = {
   Concluído: "Concluído",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
-  aguardando_terceiros: "Aguardando 3ºs",
-  standby: "Standby",
+  Aguardando 3ºs: "Aguardando 3ºs",
+  Standby: "Standby",
 }
 
 const allEstados = [
   "novo",
   "em_analise",
   "em_curso",
-  "em_validacao", "aguardando_terceiros", "standby",
+  "em_validacao", "Aguardando 3ºs", "Standby",
   "Concluído",
   "rejeitado",
   "bloqueado",
@@ -52,8 +52,8 @@ const statusColors: Record<string, string> = {
   Concluído: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
-  aguardando_terceiros: "bg-yellow-100 text-yellow-800",
-  standby: "bg-purple-100 text-purple-800",
+  Aguardando 3ºs: "bg-yellow-100 text-yellow-800",
+  Standby: "bg-purple-100 text-purple-800",
 }
 
 const formatDate = (value: string | null | undefined) => {
