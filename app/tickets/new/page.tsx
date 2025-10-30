@@ -154,21 +154,21 @@ export default function NewTicketPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="descricao" className="text-slate-300">Descri├â┬º├â┬úo *</Label>
-              <Textarea id="descricao" {...register("descricao")} placeholder="Descri├â┬º├â┬úo detalhada do pedido" rows={4} className="bg-slate-700 border-slate-600 text-slate-100" />
+              <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
+              <Textarea id="descricao" {...register("descricao")} placeholder="Descrição detalhada do pedido" rows={4} className="bg-slate-700 border-slate-600 text-slate-100" />
               {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="objetivo" className="text-slate-300">Objetivo do Pedido *</Label>
-              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual ├â┬® o objetivo final que pretende alcan├â┬ºar com este pedido? Como vai utilizar a informa├â┬º├â┬úo solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
+              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcan├â┬ºar com este pedido? Como vai utilizar a informa├â┬º├â┬úo solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
               <p className="text-xs text-slate-400">Explique o objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urg├¬ncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urg├¬ncia: qu├úo rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urg├¬ncia">i</span></div>
+                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urgência *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urg├¬ncia: qu├úo rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urg├¬ncia">i</span></div>
                 <Select value={watch("urgencia") ? watch("urgencia").toString() : "1"} onValueChange={(value) => setValue("urgencia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar urgência" />
@@ -183,7 +183,7 @@ export default function NewTicketPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Import├óncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Import├óncia: impacto do resultado no neg├│cio." aria-label="Ajuda sobre import├óncia">i</span></div>
+                <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Importância *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Import├óncia: impacto do resultado no neg├│cio." aria-label="Ajuda sobre import├óncia">i</span></div>
                 <Select value={watch("importancia") ? watch("importancia").toString() : "1"} onValueChange={(value) => setValue("importancia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar importância" />
