@@ -22,10 +22,10 @@ interface User {
 }
 
 const createTicketSchema = z.object({
-  pedido_por: z.string().min(1, "Campo obrigat├â┬│rio"),
-  assunto: z.string().min(1, "Campo obrigat├â┬│rio"),
-  descricao: z.string().min(1, "Campo obrigat├â┬│rio"),
-  objetivo: z.string().min(1, "Campo obrigat├â┬│rio"),
+  pedido_por: z.string().min(1, "Campo obrigatório"),
+  assunto: z.string().min(1, "Campo obrigatório"),
+  descricao: z.string().min(1, "Campo obrigatório"),
+  objetivo: z.string().min(1, "Campo obrigatório"),
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
@@ -113,7 +113,7 @@ export default function NewTicketPage() {
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="text-slate-100">Dados do Ticket</CardTitle>
-          <CardDescription className="text-slate-400">Preencha todos os campos obrigat├â┬│rios</CardDescription>
+          <CardDescription className="text-slate-400">Preencha todos os campos obrigatórios</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -171,11 +171,11 @@ export default function NewTicketPage() {
                 <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urg├¬ncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urg├¬ncia: qu├úo rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urg├¬ncia">i</span></div>
                 <Select value={watch("urgencia") ? watch("urgencia").toString() : "1"} onValueChange={(value) => setValue("urgencia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Selecionar urg├â┬¬ncia" />
+                    <SelectValue placeholder="Selecionar urgência" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 - Baixa</SelectItem>
-                    <SelectItem value="2">2 - M├â┬®dia</SelectItem>
+                    <SelectItem value="2">2 - Média</SelectItem>
                     <SelectItem value="3">3 - Elevada</SelectItem>
                   </SelectContent>
                 </Select>
@@ -186,11 +186,11 @@ export default function NewTicketPage() {
                 <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Import├óncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Import├óncia: impacto do resultado no neg├│cio." aria-label="Ajuda sobre import├óncia">i</span></div>
                 <Select value={watch("importancia") ? watch("importancia").toString() : "1"} onValueChange={(value) => setValue("importancia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Selecionar import├â┬óncia" />
+                    <SelectValue placeholder="Selecionar importância" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 - Baixa</SelectItem>
-                    <SelectItem value="2">2 - M├â┬®dia</SelectItem>
+                    <SelectItem value="2">2 - Média</SelectItem>
                     <SelectItem value="3">3 - Elevada</SelectItem>
                   </SelectContent>
                 </Select>
