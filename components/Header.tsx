@@ -108,13 +108,13 @@ export default function Header() {
                     <NavigationMenuContent>
                       <ul className="grid w-[220px] gap-2">
                         <li>
-                          <Link href="/minhas-tarefas" className={navigationMenuTriggerStyle()}>
-                            Minhas Tarefas
+                          <Link href="/tickets" className={navigationMenuTriggerStyle()}>
+                            Tickets
                           </Link>
                         </li>
                         <li>
-                          <Link href="/tickets" className={navigationMenuTriggerStyle()}>
-                            Meus Tickets
+                          <Link href="/minhas-tarefas" className={navigationMenuTriggerStyle()}>
+                            Tarefas
                           </Link>
                         </li>
                       </ul>
