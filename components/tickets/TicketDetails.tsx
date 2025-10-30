@@ -615,7 +615,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <Label className="text-slate-300">Assunto</Label>
                           <div className="rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-200">{ticket.assunto}</div>
                         </div>
-                        <div className="space-y-2">
+                        <div>
                           <Label htmlFor="estado" className="text-slate-300">Estado</Label>
                           <select
                             id="estado"
