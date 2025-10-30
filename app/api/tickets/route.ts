@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
         ...validatedData,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        estado: 'pendente'
+        estado: 'novo'
       }
       
       tickets.push(ticket)

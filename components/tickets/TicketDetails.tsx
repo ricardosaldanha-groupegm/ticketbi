@@ -59,7 +59,7 @@ const statusColors: Record<string, string> = {
   em_analise: "bg-yellow-100 text-yellow-800",
   em_curso: "bg-orange-100 text-orange-800",
   em_validacao: "bg-purple-100 text-purple-800",
-  concluido: "bg-green-100 text-green-800",
+  Concluído: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
 }
@@ -78,7 +78,7 @@ const getStatusLabel = (status: string) => {
     em_analise: "Em an+ílise",
     em_curso: "Em curso",
     em_validacao: "Em valida+º+úo",
-    concluido: "Conclu+¡do",
+    Concluído: "Conclu+¡do",
     rejeitado: "Rejeitado",
     bloqueado: "Bloqueado",
   }
@@ -622,7 +622,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             <option value="em_curso">Em curso</option>
                             <option value="em_analise">Aguardando 3ºs</option>
                             <option value="em_validacao">Standby</option>
-                            <option value="concluido">Terminado</option>
+                            <option value="Concluído">Terminado</option>
                             <option value="bloqueado">Bloqueado</option>
                           </select>
                         </div>
