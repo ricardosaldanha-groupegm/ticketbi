@@ -4,13 +4,7 @@ import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
-const updateTicketSchema = z.object({
-  descricao: z.string().min(1, 'Campo obrigat��rio'),
-  objetivo: z.string().min(1, 'Campo obrigat��rio'),
-  internal_notes: z.string().optional(),
-  urgencia: z.number().min(1).max(3).optional(),
-  importancia: z.number().min(1).max(3).optional(),
-})
+ param($m) $inner=$m.Groups[1].Value; if($inner -notmatch 'estado'){ $inner = $inner + "\n  estado: z.string().optional()," }; "const updateTicketSchema = z.object({$inner})" 
 
 // GET /api/tickets/[id] - Get single ticket
 export async function GET(
