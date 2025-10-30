@@ -74,13 +74,13 @@ const priorityColors: Record<number, string> = {
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    novo: "Novo",
-    em_analise: "Em an+ílise",
-    em_curso: "Em curso",
-    em_validacao: "Em valida+º+úo",
-    Concluído: "Conclu+¡do",
-    rejeitado: "Rejeitado",
-    bloqueado: "Bloqueado",
+    novo: 'Novo',
+    em_analise: 'Em análise',
+    em_curso: 'Em curso',
+    em_validacao: 'Em valida\u00E7\u00E3o',
+    concluido: 'Concluído',
+    rejeitado: 'Rejeitado',
+    bloqueado: 'Bloqueado',
   }
   return labels[status] ?? status
 }
@@ -619,10 +619,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             defaultValue={ticket.estado}
                           >
                             <option value="novo">Novo</option>
-                            <option value="em_curso">Em curso</option>
-                            <option value="em_analise">Aguardando 3ºs</option>
+                            <option value="em_curso">Em curso</option>`n                            <option value="em_analise">Em análise</option>
+                            <option value="em_analise">Aguardando 3\u00BAs</option>
                             <option value="em_validacao">Standby</option>
-                            <option value="Concluído">Terminado</option>
+                            <option value="concluido">Concluído</option>`n                            <option value="rejeitado">Rejeitado</option>
                             <option value="bloqueado">Bloqueado</option>
                           </select>
                         </div>
