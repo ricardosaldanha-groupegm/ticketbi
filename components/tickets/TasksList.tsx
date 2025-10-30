@@ -40,7 +40,7 @@ const statusLabels: Record<string, string> = {
   em_analise: "Em análise",
   em_curso: "Em curso",
   em_validacao: "Em validação",
-  concluido: "concluido",
+  concluido: "Concluído",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
   Aguardando 3ºs: "Aguardando 3ºs",
@@ -686,7 +686,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 <option value="em_analise">Em análise</option>
                 <option value="em_curso">Em curso</option>
                 <option value="em_validacao">Em validação</option>
-                <option value="concluido">concluido</option>
+                <option value="Concluído">concluido</option>
                 <option value="rejeitado">Rejeitado</option>\n                <option value="Aguardando 3ºs">Aguardando 3ºs</option>\n                <option value="Standby">Standby</option>
                 <option value="bloqueado">Bloqueado</option>
               </select>

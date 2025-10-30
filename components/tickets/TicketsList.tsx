@@ -35,7 +35,7 @@ const statusLabels: Record<string, string> = {
   em_analise: "Em análise",
   em_curso: "Em curso",
   em_validacao: "Em validação",
-  concluido: "concluido",
+  concluido: "Concluído",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
   Aguardando 3ºs: "Aguardando 3ºs",
