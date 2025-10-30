@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescriçãon, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
 
@@ -22,12 +22,12 @@ interface User {
 }
 
 const createTicketSchema = z.object({
-  pedido_por: z.string().min(1, "Campo obrigatório"),
-  assunto: z.string().min(1, "Campo obrigatório"),
-  Descrição: z.string().min(1, "Campo obrigatório"),
-  objetivo: z.string().min(1, "Campo obrigatório"),
+  pedido_por: z.string().min(1, "Campo obrigat├â┬│rio"),
+  assunto: z.string().min(1, "Campo obrigat├â┬│rio"),
+  descricao: z.string().min(1, "Campo obrigat├â┬│rio"),
+  objetivo: z.string().min(1, "Campo obrigat├â┬│rio"),
   urgencia: z.number().min(1).max(3),
-  importância: z.number().min(1).max(3),
+  importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
 })
 
@@ -46,10 +46,10 @@ export default function NewTicketPage() {
     defaultValues: {
       pedido_por: "",
       assunto: "",
-      Descrição: "",
+      descricao: "",
       objetivo: "",
       urgencia: 1,
-      importância: 1,
+      importancia: 1,
       data_esperada: "",
     },
   })
@@ -72,7 +72,7 @@ export default function NewTicketPage() {
         }
       } catch (error) {
         console.error("Error loading user data:", error)
-        toast({ title: "Erro", Descriçãon: "Erro ao carregar dados dos utilizadores", variant: "destructive" })
+        toast({ title: "Erro", description: "Erro ao carregar dados dos utilizadores", variant: "destructive" })
       } finally {
         setIsLoadingUsers(false)
       }
@@ -89,15 +89,15 @@ export default function NewTicketPage() {
         body: JSON.stringify(data),
       })
       if (response.ok) {
-        toast({ title: "Sucesso", Descriçãon: "Ticket criado com sucesso!" })
+        toast({ title: "Sucesso", description: "Ticket criado com sucesso!" })
         router.push("/tickets")
       } else {
         const error = await response.json()
-        toast({ title: "Erro", Descriçãon: error.message || "Erro ao criar ticket", variant: "destructive" })
+        toast({ title: "Erro", description: error.message || "Erro ao criar ticket", variant: "destructive" })
       }
     } catch (error) {
       console.error("Error creating ticket:", error)
-      toast({ title: "Erro", Descriçãon: "Erro interno do servidor", variant: "destructive" })
+      toast({ title: "Erro", description: "Erro interno do servidor", variant: "destructive" })
     } finally {
       setIsLoading(false)
     }
@@ -113,7 +113,7 @@ export default function NewTicketPage() {
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="text-slate-100">Dados do Ticket</CardTitle>
-          <CardDescriçãon className="text-slate-400">Preencha todos os campos obrigatórios</CardDescriçãon>
+          <CardDescription className="text-slate-400">Preencha todos os campos obrigat├â┬│rios</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -140,7 +140,7 @@ export default function NewTicketPage() {
                 )}
                 {errors.pedido_por && (<p className="text-sm text-red-400">{errors.pedido_por.message}</p>)}
                 {currentUser?.role === "requester" ? (
-                  <p className="text-xs text-slate-400">Este campo estÃƒÆ’Ã‚Â¡ travado com o seu nome (perfil: utilizador)</p>
+                  <p className="text-xs text-slate-400">Este campo est├â┬í travado com o seu nome (perfil: utilizador)</p>
                 ) : (
                   <p className="text-xs text-slate-400">Selecione o utilizador que fez o pedido</p>
                 )}
@@ -154,28 +154,28 @@ export default function NewTicketPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="Descrição" className="text-slate-300">Descrição *</Label>
-              <Textarea id="Descrição" {...register("Descrição")} placeholder="Descrição detalhada do pedido" rows={4} className="bg-slate-700 border-slate-600 text-slate-100" />
-              {errors.Descrição && (<p className="text-sm text-red-400">{errors.Descrição.message}</p>)}
+              <Label htmlFor="descricao" className="text-slate-300">Descri├â┬º├â┬úo *</Label>
+              <Textarea id="descricao" {...register("descricao")} placeholder="Descri├â┬º├â┬úo detalhada do pedido" rows={4} className="bg-slate-700 border-slate-600 text-slate-100" />
+              {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="objetivo" className="text-slate-300">Objetivo do Pedido *</Label>
-              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcançar com este pedido? Como vai utilizar a informação solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
+              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual ├â┬® o objetivo final que pretende alcan├â┬ºar com este pedido? Como vai utilizar a informa├â┬º├â┬úo solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
-              <p className="text-xs text-slate-400">Expliquão objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
+              <p className="text-xs text-slate-400">Explique o objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">urgência *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="urgência: quão rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urgência">i</span></div>
+                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urg├¬ncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urg├¬ncia: qu├úo rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urg├¬ncia">i</span></div>
                 <Select value={watch("urgencia") ? watch("urgencia").toString() : "1"} onValueChange={(value) => setValue("urgencia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Selecionar urgÃƒÆ’Ã‚Âªncia" />
+                    <SelectValue placeholder="Selecionar urg├â┬¬ncia" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 - Baixa</SelectItem>
-                    <SelectItem value="2">2 - Média</SelectItem>
+                    <SelectItem value="2">2 - M├â┬®dia</SelectItem>
                     <SelectItem value="3">3 - Elevada</SelectItem>
                   </SelectContent>
                 </Select>
@@ -183,18 +183,18 @@ export default function NewTicketPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="importância" className="text-slate-300">importância *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="importância: impacto do resultado no negócio." aria-label="Ajuda sobre importância">i</span></div>
-                <Select value={watch("importância") ? watch("importância").toString() : "1"} onValueChange={(value) => setValue("importância", parseInt(value))}>
+                <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Import├óncia *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Import├óncia: impacto do resultado no neg├│cio." aria-label="Ajuda sobre import├óncia">i</span></div>
+                <Select value={watch("importancia") ? watch("importancia").toString() : "1"} onValueChange={(value) => setValue("importancia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
-                    <SelectValue placeholder="Selecionar importância" />
+                    <SelectValue placeholder="Selecionar import├â┬óncia" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 - Baixa</SelectItem>
-                    <SelectItem value="2">2 - Média</SelectItem>
+                    <SelectItem value="2">2 - M├â┬®dia</SelectItem>
                     <SelectItem value="3">3 - Elevada</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.importância && (<p className="text-sm text-red-400">{errors.importância.message}</p>)}
+                {errors.importancia && (<p className="text-sm text-red-400">{errors.importancia.message}</p>)}
               </div>
 
               <div className="space-y-2">
