@@ -161,7 +161,7 @@ export default function NewTicketPage() {
 
             <div className="space-y-2">
               <Label htmlFor="objetivo" className="text-slate-300">Objetivo do Pedido *</Label>
-              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcan├â┬ºar com este pedido? Como vai utilizar a informa├â┬º├â┬úo solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
+              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcançar com este pedido? Como vai utilizar a informação solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
               <p className="text-xs text-slate-400">Explique o objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
             </div>
@@ -198,7 +198,14 @@ export default function NewTicketPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="data_esperada" className="text-slate-300">Data Esperada</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="data_esperada" className="text-slate-300">Data Esperada</Label>
+                  <span
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help"
+                    title="Data útil para o pedido; será referência para agendamento da conclusão."
+                    aria-label="Ajuda sobre data esperada"
+                  >i</span>
+                </div>
                 <Input id="data_esperada" type="date" {...register("data_esperada")} className="bg-slate-700 border-slate-600 text-slate-100" />
                 {errors.data_esperada && (<p className="text-sm text-red-400">{errors.data_esperada.message}</p>)}
               </div>
