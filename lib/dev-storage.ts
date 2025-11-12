@@ -48,3 +48,12 @@ export function updateTicket(id: string, updates: any) {
   }
   return null
 }
+
+export function deleteTicket(id: string) {
+  const index = tickets.findIndex(ticket => ticket.id === id)
+  if (index !== -1) {
+    tickets.splice(index, 1)
+    return true
+  }
+  return false
+}

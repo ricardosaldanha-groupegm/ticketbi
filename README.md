@@ -58,6 +58,8 @@ Sistema completo de gestão de tickets para o departamento de BI com subtíquete
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   N8N_INTEGRATION_KEY=your_n8n_api_key
+   N8N_ALLOWED_ORIGIN=https://app.n8n.cloud
    ```
 
 5. **Execute o seed da base de dados**
@@ -198,6 +200,11 @@ O projeto é compatível com qualquer plataforma que suporte Next.js:
 - `POST /api/tickets/[id]/attachments` - Upload anexo
 - `GET /api/subtickets/[id]/attachments` - Listar anexos de subtíquete
 - `POST /api/subtickets/[id]/attachments` - Upload anexo em subtíquete
+
+### Integração com n8n
+- `POST /api/integrations/n8n/tickets` - Criar ticket via workflow n8n (enviar header `x-api-key` ou `Authorization: Bearer` com a chave configurada)
+- `DELETE /api/integrations/n8n/tickets` - Reverter ticket criado pelo n8n (body JSON `{ "ticketId": "<id>" }`)
+- Defina `N8N_ALLOWED_ORIGIN` se quiser limitar os pedidos ao domínio do seu n8n; por omissão, os pedidos de qualquer origem são aceites.
 
 ## 🤝 Contribuição
 

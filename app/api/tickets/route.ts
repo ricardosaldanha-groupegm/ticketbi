@@ -1,38 +1,29 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { z } from 'zod'
-
-// Simple in-memory storage for development (fallback)
-let tickets: any[] = []
-
-const createTicketSchema = z.object({
-  pedido_por: z.string().min(1),
-  assunto: z.string().min(1),
-  descricao: z.string().min(1),
-  objetivo: z.string().min(1),
-  urgencia: z.number().min(1).max(3),
-  importancia: z.number().min(1).max(3),
-  data_esperada: z.string().optional(),
-})
+import {
+  createTicket,
+  createTicketSchema,
+  isSupabaseConfigured,
+  listTicketsInMemory,
+} from '@/lib/tickets-service'
 
 // GET /api/tickets - List tickets
 export async function GET(request: NextRequest) {
   try {
-    // Check if Supabase is configured
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    
-    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project') || supabaseKey.includes('your-')) {
-      // Development mode - use in-memory storage
+    const supabaseEnabled = isSupabaseConfigured()
+
+    if (!supabaseEnabled) {
+      const memoryTickets = listTicketsInMemory()
       console.log('GET /api/tickets called - using development mode (in-memory)')
-      return NextResponse.json({ 
-        tickets: tickets, 
-        total: tickets.length, 
-        page: 1, 
+      return NextResponse.json({
+        tickets: memoryTickets,
+        total: memoryTickets.length,
+        page: 1,
         limit: 20,
         pagination: {
-          pages: Math.ceil(tickets.length / 20)
-        }
+          pages: Math.ceil(memoryTickets.length / 20),
+        },
       })
     }
 
@@ -83,7 +74,7 @@ export async function GET(request: NextRequest) {
 
       if (e1) error = e1
 
-      // 2) Tickets onde o utilizador tem subtarefas atribuídas
+      // 2) Tickets onde o utilizador tem subtarefas atribuÃ­das
       const { data: mySubs, error: e2 } = await supabase
         .from('subtickets')
         .select('ticket_id')
@@ -186,98 +177,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('Request body:', body)
-    
+
     const validatedData = createTicketSchema.parse(body)
-    console.log('Validated data:', validatedData)
-    
-    // Check if Supabase is configured
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    
-    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project') || supabaseKey.includes('your-')) {
-      // Development mode - use in-memory storage
-      console.log('POST /api/tickets called - using development mode (in-memory)')
-      
-      const ticket = {
-        id: `ticket-${Date.now()}`,
-        ...validatedData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        estado: 'novo'
-      }
-      
-      tickets.push(ticket)
-      console.log('Ticket added to memory:', ticket)
-      
-      return NextResponse.json(ticket, { status: 201 })
-    }
 
-    // Production mode - use Supabase
-    console.log('POST /api/tickets called - using Supabase')
-    const supabase = createServerSupabaseClient()
+    const { ticket } = await createTicket(validatedData)
 
-    // Map pedido_por (nome) -> created_by (uuid)
-    let createdById: string | null = null
-
-    // Try exact match by name
-    const { data: userByName } = await supabase
-      .from('users')
-      .select('id, name')
-      .eq('name', validatedData.pedido_por)
-      .limit(1)
-      .maybeSingle()
-
-    if (((userByName as any)?.id)) {
-      createdById = (userByName as any).id
-    } else {
-      // Fallback: pick an admin user to satisfy NOT NULL in dev
-      const { data: adminUser } = await supabase
-        .from('users')
-        .select('id, role')
-        .eq('role', 'admin')
-        .limit(1)
-        .maybeSingle()
-      if (((adminUser as any)?.id)) createdById = (adminUser as any).id
-    }
-
-    // Normalize optional date field to null if empty string
-    const normalizedDate = validatedData.data_esperada && validatedData.data_esperada.trim() !== ''
-      ? validatedData.data_esperada
-      : null
-
-    const insertPayload = {
-      pedido_por: validatedData.pedido_por,
-      assunto: validatedData.assunto,
-      descricao: validatedData.descricao,
-      objetivo: validatedData.objetivo,
-      urgencia: validatedData.urgencia,
-      importancia: validatedData.importancia,
-      data_esperada: normalizedDate,
-      created_by: createdById,
-    }
-
-    const { data: ticket, error } = await (supabase as any)
-      .from('tickets')
-      .insert([insertPayload as any])
-      .select()
-      .single()
-    
-    if (error) {
-      console.error('Error creating ticket in Supabase:', error)
-      return NextResponse.json({ 
-        error: 'Error creating ticket', 
-        details: error.message 
-      }, { status: 500 })
-    }
-    
-    console.log('Ticket created in Supabase:', ticket)
     return NextResponse.json(ticket, { status: 201 })
+
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid data', details: error.errors },
+        { status: 400 },
+      )
+    }
     console.error('Error creating ticket:', error)
-    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json(
+      { error: 'Internal server error', details: message },
+      { status: 500 },
+    )
   }
 }
+
 
 
 
