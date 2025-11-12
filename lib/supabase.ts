@@ -43,6 +43,7 @@ export type Database = {
           data_pedido: string
           assunto: string
           descricao: string | null
+          objetivo: string
           urgencia: number
           importancia: number
           prioridade: number
@@ -61,6 +62,7 @@ export type Database = {
           data_pedido?: string
           assunto: string
           descricao?: string | null
+          objetivo: string
           urgencia?: number
           importancia?: number
           data_esperada?: string | null
@@ -78,6 +80,7 @@ export type Database = {
           data_pedido?: string
           assunto?: string
           descricao?: string | null
+          objetivo?: string
           urgencia?: number
           importancia?: number
           data_esperada?: string | null

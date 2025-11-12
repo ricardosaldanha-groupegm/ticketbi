@@ -47,6 +47,7 @@ const mockTicket = {
   estado: 'novo' as const,
   assunto: 'Test Ticket',
   descricao: 'Test Description',
+  objetivo: 'Test Objective',
   urgencia: 1,
   importancia: 1,
   prioridade: 1,

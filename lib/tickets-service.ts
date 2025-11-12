@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { addTicket, deleteTicket as deleteTicketFromMemory, getAllTickets } from '@/lib/dev-storage'
+import type { Database } from '@/lib/supabase'
 
 export const createTicketSchema = z.object({
   pedido_por: z.string().min(1),
@@ -13,6 +14,7 @@ export const createTicketSchema = z.object({
 })
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>
+type TicketInsert = Database['public']['Tables']['tickets']['Insert']
 
 export function isSupabaseConfigured() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -71,7 +73,11 @@ export async function createTicket(data: CreateTicketInput) {
       ? data.data_esperada
       : null
 
-  const insertPayload = {
+  if (!createdById) {
+    throw new Error('Unable to resolve requester user for ticket')
+  }
+
+  const insertPayload: TicketInsert = {
     pedido_por: data.pedido_por,
     assunto: data.assunto,
     descricao: data.descricao,
@@ -82,9 +88,9 @@ export async function createTicket(data: CreateTicketInput) {
     created_by: createdById,
   }
 
-  const { data: ticket, error } = await supabase
+  const { data: ticket, error } = await (supabase as any)
     .from('tickets')
-    .insert([insertPayload as any])
+    .insert(insertPayload)
     .select()
     .single()
 
