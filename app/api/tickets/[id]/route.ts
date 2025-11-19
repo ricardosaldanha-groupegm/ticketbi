@@ -279,8 +279,21 @@ export async function DELETE(
       return NextResponse.json({ message: 'Ticket deleted successfully (dev mode)' })
     }
 
-    const user = await requireAuth()
     const supabase = createServerSupabaseClient()
+    // Resolver utilizador a partir de headers (alinhado com GET)
+    const headerUserId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+    if (!headerUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const { data: dbUser } = await supabase
+      .from('users')
+      .select('id, role, email, name')
+      .eq('id', headerUserId)
+      .maybeSingle()
+    if (!dbUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const user = createAuthUser(dbUser as any)
     
     // Get current ticket
     const { data: ticket, error: fetchError } = await supabase

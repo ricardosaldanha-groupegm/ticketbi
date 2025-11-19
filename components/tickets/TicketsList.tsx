@@ -176,8 +176,12 @@ export default function TicketsList() {
     if (!confirmed) return
 
     try {
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
       const res = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'DELETE',
+        headers,
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({} as any))
