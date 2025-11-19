@@ -70,6 +70,7 @@ export default function MinhasTarefasPage() {
   const [estadoFilter, setEstadoFilter] = useState<string[]>(defaultEstados as unknown as string[])
   const [sortKey, setSortKey] = useState<"endAsc" | "endDesc" | "createdDesc">("endAsc")
   const [search, setSearch] = useState<string>("")
+  const featureTimeline = ((process.env.NEXT_PUBLIC_FEATURE_MY_TASKS_TIMELINE ?? 'on').toString().toLowerCase()) !== 'off'
 
   useEffect(() => {
     const init = async () => {
@@ -158,6 +159,52 @@ export default function MinhasTarefasPage() {
     return arr
   }, [withDays, estadoFilter, sortKey, search])
 
+  const timeline = useMemo(() => {
+    const parse = (value: string | null) => {
+      if (!value) return null
+      const parsed = new Date(value)
+      return Number.isNaN(parsed.getTime()) ? null : parsed
+    }
+    const rows = (filteredSorted as Task[])
+      .map((task) => {
+        const start = parse(task.data_inicio_planeado) ?? parse(task.data_inicio)
+        const end = parse(task.data_esperada) ?? parse(task.data_conclusao)
+        if (!start || !end || end.getTime() < start.getTime()) return null
+        const titleParts = [task.titulo]
+        if (task.ticket?.assunto) titleParts.push(`- ${task.ticket.assunto}`)
+        return {
+          id: task.id,
+          titulo: titleParts.join(' '),
+          start,
+          end,
+          rawStart: task.data_inicio_planeado ?? task.data_inicio,
+          rawEnd: task.data_esperada ?? task.data_conclusao,
+        }
+      })
+      .filter(Boolean) as Array<{ id: string; titulo: string; start: Date; end: Date; rawStart: string | null; rawEnd: string | null }>
+
+    if (!rows.length) return { rows: [], domainStart: null as Date | null, domainEnd: null as Date | null, totalDays: 0, todayPercent: null as number | null }
+
+    const domainStart = rows.reduce((acc, row) => (row.start < acc ? row.start : acc), rows[0].start)
+    const domainEnd = rows.reduce((acc, row) => (row.end > acc ? row.end : acc), rows[0].end)
+    const totalMs = Math.max(1, domainEnd.getTime() - domainStart.getTime())
+    const dayMs = 1000 * 60 * 60 * 24
+    const totalDays = Math.max(1, Math.round(totalMs / dayMs))
+
+    const items = rows.map((row) => {
+      const offset = ((row.start.getTime() - domainStart.getTime()) / totalMs) * 100
+      const width = Math.max(2, ((row.end.getTime() - row.start.getTime()) / totalMs) * 100)
+      const durationDays = Math.max(1, Math.round((row.end.getTime() - row.start.getTime()) / (1000 * 60 * 60 * 24)))
+      return { ...row, offset, width, durationDays }
+    })
+    const now = new Date()
+    let todayPercent: number | null = null
+    if (now >= domainStart && now <= domainEnd) {
+      todayPercent = ((now.getTime() - domainStart.getTime()) / Math.max(1, domainEnd.getTime() - domainStart.getTime())) * 100
+    }
+    return { rows: items, domainStart, domainEnd, totalDays, todayPercent }
+  }, [filteredSorted])
+
   return (
     <AuthenticatedLayout>
       <div className="mb-8">
@@ -167,6 +214,63 @@ export default function MinhasTarefasPage() {
             <p className="text-slate-400">Todas as tarefas onde é responsável</p>
           </div>
         </div>
+        {featureTimeline && (
+          <div className="mb-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-slate-500">Cronograma das tarefas (filtradas)</h4>
+              {timeline.domainStart && timeline.domainEnd ? (
+                <span className="text-xs text-muted-foreground">
+                  {formatDate((timeline.domainStart as any)?.toISOString?.() ?? null)} - {formatDate((timeline.domainEnd as any)?.toISOString?.() ?? null)} ({timeline.totalDays === 1 ? "1 dia" : `${timeline.totalDays} dias`})
+                </span>
+              ) : null}
+            </div>
+
+            {timeline.rows.length === 0 ? (
+              <div className="rounded-md border border-dashed border-slate-700 p-4 text-center text-xs text-muted-foreground">
+                Sem dados suficientes para desenhar o cronograma. Defina datas de início/fim nas tarefas.
+              </div>
+            ) : (
+              <div className="rounded-md border border-slate-700 bg-slate-900/60 p-4">
+                <div className="relative">
+                  {typeof timeline.todayPercent === 'number' ? (
+                    <>
+                      <div
+                        className="pointer-events-none absolute inset-y-0 w-px bg-white/80"
+                        style={{ left: `${timeline.todayPercent}%` }}
+                        title="Hoje"
+                      />
+                      <div
+                        className="pointer-events-none absolute -top-2 text-[10px] leading-none px-1.5 py-0.5 rounded bg-slate-800/80 text-white"
+                        style={{ left: `${timeline.todayPercent}%`, transform: 'translateX(-50%)' }}
+                      >
+                        Hoje
+                      </div>
+                    </>
+                  ) : null}
+                  <div className="space-y-3">
+                    {timeline.rows.map((row: any) => (
+                      <div key={row.id} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-slate-200">{row.titulo}</span>
+                          <span className="text-muted-foreground">
+                            {formatDate(row.rawStart)} - {formatDate(row.rawEnd)} ({row.durationDays === 1 ? "1 dia" : `${row.durationDays} dias`})
+                          </span>
+                        </div>
+                        <div className="relative h-6 rounded bg-slate-900/70">
+                          <div
+                            className="absolute top-1/2 h-3 -translate-y-1/2 rounded bg-amber-500 shadow-sm"
+                            style={{ left: `${row.offset}%`, width: `${row.width}%` }}
+                            title={`${formatDate(row.rawStart)} - ${formatDate(row.rawEnd)}`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
