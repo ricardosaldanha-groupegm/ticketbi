@@ -42,7 +42,10 @@ export function canEditSubticket(user: AuthUser, subticket: Subticket): boolean 
 }
 
 export function canDeleteTicket(user: AuthUser, ticket: Ticket): boolean {
-  return user.role === 'admin'
+  if (user.role === 'admin') return true
+  // Gestor do ticket (perfil BI) pode eliminar
+  if (user.role === 'bi' && ticket.gestor_id === user.id) return true
+  return false
 }
 
 export function canDeleteSubticket(user: AuthUser, subticket: Subticket, ticket: Ticket): boolean {

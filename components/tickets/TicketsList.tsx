@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye } from "lucide-react"
+import { Eye, Trash } from "lucide-react"
 
 interface Ticket {
   id: string
@@ -22,6 +22,7 @@ interface Ticket {
   prioridade: number
   urgencia: number
   importancia: number
+  gestor_id?: string | null
   gestor?: { name: string; email: string } | null
 }
 
@@ -94,13 +95,15 @@ export default function TicketsList() {
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
 
   const fetchTickets = async () => {
     try {
       setLoading(true)
       // Descobrir utilizador atual e perfil para passar headers à API
-      let currentUserId: string | null = null
-      let currentUserRole: string | null = null
+      let currentId: string | null = null
+      let currentRole: string | null = null
       let appUserId: string | null = null
       try {
         const { data: { user } } = await supabase.auth.getUser()
@@ -109,37 +112,37 @@ export default function TicketsList() {
           const { data: byId } = await supabase.from('users').select('id, role, email').eq('id', user.id).maybeSingle()
           if (byId) {
             appUserId = (byId as any).id
-            currentUserRole = (byId as any)?.role ?? null
+            currentRole = (byId as any)?.role ?? null
           } else if (user.email) {
             const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
             appUserId = (byEmail as any)?.id ?? null
-            if (!currentUserRole) currentUserRole = (byEmail as any)?.role ?? null
+            if (!currentRole) currentRole = (byEmail as any)?.role ?? null
           }
           // fallback por email para admin (igual ao Header)
-          if (!currentUserRole && user.email) {
+          if (!currentRole && user.email) {
             const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
               .split(',')
               .map(s => s.trim().toLowerCase())
               .filter(Boolean)
-            if (admins.includes(user.email.toLowerCase())) currentUserRole = 'admin'
+            if (admins.includes(user.email.toLowerCase())) currentRole = 'admin'
           }
-          currentUserId = appUserId || user.id
+          currentId = appUserId || user.id
         }
       } catch {}
-      if (!currentUserId && typeof window !== 'undefined') {
+      if (!currentId && typeof window !== 'undefined') {
         const raw = localStorage.getItem('dev-user')
         if (raw) {
           try {
             const dev = JSON.parse(raw)
-            currentUserId = dev?.id ?? null
-            currentUserRole = dev?.role ?? null
+            currentId = dev?.id ?? null
+            currentRole = dev?.role ?? null
           } catch {}
         }
       }
 
       const headers: HeadersInit = {}
-      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
-      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
+      if (currentId) (headers as any)['X-User-Id'] = currentId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
 
       const response = await fetch("/api/tickets", { headers })
       const data: TicketsResponse = await response.json()
@@ -147,6 +150,8 @@ export default function TicketsList() {
         throw new Error((data as any)?.error || "Erro ao carregar tickets")
       }
       setTickets(data.tickets || [])
+      setCurrentUserId(currentId)
+      setCurrentUserRole(currentRole)
     } catch (error: any) {
       toast({ title: "Erro", description: error?.message || "Erro ao carregar tickets", variant: "destructive" })
       setTickets([])
@@ -156,6 +161,34 @@ export default function TicketsList() {
   }
 
   useEffect(() => { fetchTickets() }, [])
+
+  const canDelete = (t: Ticket) => {
+    if (!currentUserId) return false
+    if (currentUserRole === 'admin') return true
+    if (t.gestor_id && t.gestor_id === currentUserId) return true
+    return false
+  }
+
+  const handleDelete = async (ticket: Ticket) => {
+    const confirmed = typeof window !== 'undefined'
+      ? window.confirm('Tem a certeza que pretende eliminar este ticket e todas as tarefas associadas? Esta ação é irreversível.')
+      : false
+    if (!confirmed) return
+
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as any))
+        throw new Error((data as any)?.error || 'Não foi possível eliminar o ticket')
+      }
+      toast({ title: 'Eliminado', description: 'O ticket e as suas tarefas foram eliminados.' })
+      setTickets(prev => prev.filter(t => t.id !== ticket.id))
+    } catch (err: any) {
+      toast({ title: 'Erro', description: err?.message || 'Falha ao eliminar o ticket', variant: 'destructive' })
+    }
+  }
 
   const groupedByEstado = useMemo(() => {
     const groups = new Map<string, Ticket[]>()
@@ -255,16 +288,29 @@ if (tickets.length === 0) {
                         <Badge className={colorClass ?? "bg-slate-200 text-slate-800"}>{computedPriority}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Link href={`/tickets/${ticket.id}`}>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            aria-label="Ver"
-                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                        <div className="flex justify-end gap-2">
+                          <Link href={`/tickets/${ticket.id}`}>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              aria-label="Ver"
+                              className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          {canDelete(ticket) && (
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              aria-label="Eliminar"
+                              className="h-9 w-9 p-0 rounded-md"
+                              onClick={() => handleDelete(ticket)}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   )
