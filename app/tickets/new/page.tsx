@@ -14,6 +14,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast"
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
 
+const entregaTipoValues = [
+  'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
+] as const
+
+const naturezaValues = [
+  'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
+] as const
+
 interface User {
   id: string
   email: string
@@ -29,6 +37,8 @@ const createTicketSchema = z.object({
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
+  entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
+  natureza: z.enum(naturezaValues).default('Novo'),
 })
 
 type CreateTicketForm = z.infer<typeof createTicketSchema>
@@ -51,6 +61,8 @@ export default function NewTicketPage() {
       urgencia: 1,
       importancia: 1,
       data_esperada: "",
+      entrega_tipo: 'Interno',
+      natureza: 'Novo',
     },
   })
 
@@ -164,6 +176,35 @@ export default function NewTicketPage() {
               <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcançar com este pedido? Como vai utilizar a informação solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
               <p className="text-xs text-slate-400">Explique o objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="entrega_tipo" className="text-slate-300">Por tipo de Entrega</Label>
+                <Select value={watch("entrega_tipo") as any} onValueChange={(value) => setValue("entrega_tipo", value as any)}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
+                    <SelectValue placeholder="Selecionar tipo de entrega" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {entregaTipoValues.map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="natureza" className="text-slate-300">Por natureza</Label>
+                <Select value={watch("natureza") as any} onValueChange={(value) => setValue("natureza", value as any)}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
+                    <SelectValue placeholder="Selecionar natureza" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {naturezaValues.map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

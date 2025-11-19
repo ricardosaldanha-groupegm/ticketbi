@@ -43,6 +43,14 @@ interface Ticket {
   gestor: { name: string; email: string } | null
 }
 
+const entregaTipoValues = [
+  'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
+] as const
+
+const naturezaValues = [
+  'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
+] as const
+
 const updateTicketSchema = z.object({
   descricao: z.string().min(1, "Campo obrigatorio"),
   objetivo: z.string().min(1, "Campo obrigatorio"),
@@ -50,6 +58,8 @@ const updateTicketSchema = z.object({
   urgencia: z.number().int().min(1).max(3).optional(),
   importancia: z.number().int().min(1).max(3).optional(),
   estado: z.string().optional(),
+  entrega_tipo: z.enum(entregaTipoValues).optional(),
+  natureza: z.enum(naturezaValues).optional(),
 })
 
 type UpdateTicketForm = z.infer<typeof updateTicketSchema>
@@ -178,6 +188,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         urgencia: data.urgencia ?? 1,
         importancia: data.importancia ?? 1,
         estado: data.estado ?? 'novo',
+        entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
+        natureza: (data as any).natureza ?? 'Novo',
       })
     } catch (error) {
       toast({ title: "Erro", description: "Erro ao carregar ticket", variant: "destructive" })
@@ -629,6 +641,21 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             <option value="Standby">Standby</option>
                             <option value="concluido">Concluído</option>`n                            <option value="rejeitado">Rejeitado</option>
                             <option value="bloqueado">Bloqueado</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="entrega_tipo" className="text-slate-300">Por tipo de Entrega</Label>
+                          <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'}>
+                            {entregaTipoValues.map(v => (<option key={v} value={v}>{v}</option>))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="natureza" className="text-slate-300">Por natureza</Label>
+                          <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'}>
+                            {naturezaValues.map(v => (<option key={v} value={v}>{v}</option>))}
                           </select>
                         </div>
                       </div>
