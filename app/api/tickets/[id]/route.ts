@@ -4,6 +4,13 @@ import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
+ const entregaTipoValues = [
+  'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
+] as const
+ const naturezaValues = [
+  'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
+] as const
+
  const updateTicketSchema = z.object({
   descricao: z.string().min(1, 'Campo obrigatorio'),
   objetivo: z.string().min(1, 'Campo obrigatorio'),
@@ -11,6 +18,8 @@ import { z } from 'zod'
   urgencia: z.number().min(1).max(3).optional(),
   importancia: z.number().min(1).max(3).optional(),
   estado: z.string().optional(),
+  entrega_tipo: z.enum(entregaTipoValues).optional(),
+  natureza: z.enum(naturezaValues).optional(),
 });
 // GET /api/tickets/[id] - Get single ticket
 export async function GET(

@@ -3,6 +3,14 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { addTicket, deleteTicket as deleteTicketFromMemory, getAllTickets } from '@/lib/dev-storage'
 import type { Database } from '@/lib/supabase'
 
+export const entregaTipoValues = [
+  'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
+] as const
+
+export const naturezaValues = [
+  'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
+] as const
+
 export const createTicketSchema = z.object({
   pedido_por: z.string().min(1),
   assunto: z.string().min(1),
@@ -11,6 +19,8 @@ export const createTicketSchema = z.object({
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
+  entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
+  natureza: z.enum(naturezaValues).default('Novo'),
 })
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>
@@ -77,7 +87,7 @@ export async function createTicket(data: CreateTicketInput) {
     throw new Error('Unable to resolve requester user for ticket')
   }
 
-  const insertPayload: TicketInsert = {
+  const insertPayload: any = {
     pedido_por: data.pedido_por,
     assunto: data.assunto,
     descricao: data.descricao,
@@ -86,6 +96,8 @@ export async function createTicket(data: CreateTicketInput) {
     importancia: data.importancia,
     data_esperada: normalizedDate,
     created_by: createdById,
+    entrega_tipo: data.entrega_tipo,
+    natureza: data.natureza,
   }
 
   const { data: ticket, error } = await (supabase as any)
