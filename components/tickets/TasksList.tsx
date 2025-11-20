@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from '@/lib/supabase'
@@ -37,13 +37,13 @@ interface UserOption {
 
 const statusLabels: Record<string, string> = {
   novo: "Novo",
-  em_analise: "Em análise",
+  em_analise: "Em an�lise",
   em_curso: "Em curso",
-  em_validacao: "Em validação",
-  concluido: "Concluído",
+  em_validacao: "Em valida��o",
+  concluido: "concluido",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
-  "Aguardando 3ºs": "Aguardando 3ºs",
+  "Aguardando 3�s": "Aguardando 3�s",
   Standby: "Standby",
 }
 
@@ -55,7 +55,7 @@ const statusColors: Record<string, string> = {
   concluido: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
-  "Aguardando 3ºs": "bg-yellow-100 text-yellow-800",
+  "Aguardando 3�s": "bg-yellow-100 text-yellow-800",
   Standby: "bg-purple-100 text-purple-800",
 }
 
@@ -183,7 +183,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
 
   const submitCreate = async () => {
     if (!newTitle || !newAssigneeId) {
-      toast({ title: 'Erro', description: 'Preencha título e responsável', variant: 'destructive' })
+      toast({ title: 'Erro', description: 'Preencha t�tulo e respons�vel', variant: 'destructive' })
       return
     }
     setIsCreating(true)
@@ -293,7 +293,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const submitUpdate = async () => {
     if (!editTaskId) return
     if (!editTitle || !editAssigneeId) {
-      toast({ title: 'Erro', description: 'Preencha título e responsável', variant: 'destructive' })
+      toast({ title: 'Erro', description: 'Preencha t�tulo e respons�vel', variant: 'destructive' })
       return
     }
     setIsUpdating(true)
@@ -334,7 +334,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const submitComment = async () => {
     if (!commentTaskId) return
     if (!currentUser) {
-      toast({ title: 'Sessão', description: 'Autenticação necessária para comentar.', variant: 'destructive' })
+      toast({ title: 'Sess�o', description: 'Autentica��o necess�ria para comentar.', variant: 'destructive' })
       return
     }
     let body = commentText
@@ -364,11 +364,11 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
         body: JSON.stringify({ body })
       })
       const data = await resp.json()
-      if (!resp.ok) throw new Error(data?.error || 'Erro ao criar comentário')
-      toast({ title: 'Sucesso', description: 'Comentário adicionado.' })
+      if (!resp.ok) throw new Error(data?.error || 'Erro ao criar coment�rio')
+      toast({ title: 'Sucesso', description: 'Coment�rio adicionado.' })
       setCommentOpen(false)
     } catch (e: any) {
-      toast({ title: 'Erro', description: e?.message || 'Erro ao criar comentário', variant: 'destructive' })
+      toast({ title: 'Erro', description: e?.message || 'Erro ao criar coment�rio', variant: 'destructive' })
     } finally {
       setIsCommentSubmitting(false)
     }
@@ -422,7 +422,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
 
             {timeline.rows.length === 0 ? (
               <div className="rounded-md border border-dashed border-slate-700 p-4 text-center text-xs text-muted-foreground">
-                Sem dados suficientes para desenhar o cronograma. Defina data in�cio planeada e data conclus�o esperada nas tarefas.
+                Sem dados suficientes para desenhar o cronograma. Defina data in?cio planeada e data conclus?o esperada nas tarefas.
               </div>
             ) : (
               <div className="rounded-md border border-slate-700 bg-slate-900/60 p-4">
@@ -472,15 +472,15 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Título</TableHead>
+                  <TableHead>T�tulo</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Prioridade</TableHead>
-                  <TableHead>Responsável</TableHead>
-                  <TableHead>Data início planeada</TableHead>
-                  <TableHead>Data conclusão esperada</TableHead>
-                  <TableHead>Data início</TableHead>
-                  <TableHead>Data conclusão</TableHead>
-                  <TableHead>Ações</TableHead>
+                  <TableHead>Respons�vel</TableHead>
+                  <TableHead>Data in�cio planeada</TableHead>
+                  <TableHead>Data conclus�o esperada</TableHead>
+                  <TableHead>Data in�cio</TableHead>
+                  <TableHead>Data conclus�o</TableHead>
+                  <TableHead>A��es</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -542,21 +542,21 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhe da tarefa</DialogTitle>
-            <DialogDescription>Consulte as informações da tarefa selecionada.</DialogDescription>
+            <DialogDescription>Consulte as informa��es da tarefa selecionada.</DialogDescription>
           </DialogHeader>
           {!viewTask ? (
             <div className="py-10 text-center text-sm text-muted-foreground">Sem tarefa selecionada.</div>
           ) : (
             <div className="space-y-4 text-sm">
               <section>
-                <h4 className="text-sm font-semibold text-slate-200">Informação geral</h4>
+                <h4 className="text-sm font-semibold text-slate-200">Informa��o geral</h4>
                 <dl className="mt-3 grid gap-3 md:grid-cols-2">
                   <div className="md:col-span-2">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Título</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">T�tulo</dt>
                     <dd className="mt-2 text-base font-semibold text-slate-50">{viewTask.titulo}</dd>
                   </div>
                   <div className="md:col-span-2">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Descrição</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Descri��o</dt>
                     <dd className="mt-2 text-sm text-slate-100 whitespace-pre-wrap">{viewTask.descricao || '-'}</dd>
                   </div>
                   <div className="">
@@ -568,15 +568,15 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                     </dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Responsável</dt>
-                    <dd className="mt-2 text-sm text-slate-100">{viewTask.assignee?.name ?? "Sem Responsável"}</dd>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Respons�vel</dt>
+                    <dd className="mt-2 text-sm text-slate-100">{viewTask.assignee?.name ?? "Sem Respons�vel"}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Urgência (1-3)</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Urg�ncia (1-3)</dt>
                     <dd className="mt-2 text-sm text-slate-100">{viewTask.urgencia}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Importância (1-3)</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Import�ncia (1-3)</dt>
                     <dd className="mt-2 text-sm text-slate-100">{viewTask.importancia}</dd>
                   </div>
                   <div className="">
@@ -588,19 +588,19 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                     <dd className="mt-2 text-sm text-slate-100">{formatDate(viewTask.created_at)}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data início planeada</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data in�cio planeada</dt>
                     <dd className="mt-2 text-sm text-slate-100">{formatDate(viewTask.data_inicio_planeado)}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data conclusão esperada</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data conclus�o esperada</dt>
                     <dd className="mt-2 text-sm text-slate-100">{formatDate(viewTask.data_esperada)}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data início</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data in�cio</dt>
                     <dd className="mt-2 text-sm text-slate-100">{formatDate(viewTask.data_inicio)}</dd>
                   </div>
                   <div className="">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data conclusão</dt>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Data conclus�o</dt>
                     <dd className="mt-2 text-sm text-slate-100">{formatDate(viewTask.data_conclusao)}</dd>
                   </div>
                 </dl>
@@ -612,7 +612,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 </div>
               </section>
               <section className="space-y-3">
-                <h4 className="text-sm font-semibold text-slate-200">Comentários</h4>
+                <h4 className="text-sm font-semibold text-slate-200">Coment�rios</h4>
                 <CommentsList subticketId={viewTask.id} hideForm />
               </section>
             </div>
@@ -624,8 +624,8 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
       <Dialog open={commentOpen} onOpenChange={setCommentOpen}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>Novo comentário</DialogTitle>
-            <DialogDescription>Escreva o comentário e anexe ficheiros.</DialogDescription>
+            <DialogTitle>Novo coment�rio</DialogTitle>
+            <DialogDescription>Escreva o coment�rio e anexe ficheiros.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 text-sm">
             <div className="space-y-2">
@@ -633,13 +633,13 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
               <input type="file" multiple onChange={(e) => setCommentFiles(Array.from(e.target.files || []))} />
             </div>
             <div className="space-y-2">
-              <label className="text-slate-300">Comentário</label>
+              <label className="text-slate-300">Coment�rio</label>
               <textarea value={commentText} onChange={(e) => setCommentText(e.target.value)} rows={4} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setCommentOpen(false)}>Cancelar</Button>
               <Button onClick={submitComment} disabled={isCommentSubmitting || isCommentUploading} className="bg-amber-600 hover:bg-amber-700">
-                {isCommentSubmitting || isCommentUploading ? 'A enviar...' : 'Enviar comentário'}
+                {isCommentSubmitting || isCommentUploading ? 'A enviar...' : 'Enviar coment�rio'}
               </Button>
             </div>
           </div>
@@ -655,16 +655,16 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           </DialogHeader>
           <div className="space-y-4 text-sm">
             <div className="space-y-2">
-              <label className="text-slate-300">Título *</label>
+              <label className="text-slate-300">T�tulo *</label>
               <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
             </div>
             <div className="space-y-2">
-              <label className="text-slate-300">Descrição</label>
+              <label className="text-slate-300">Descri��o</label>
               <textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" rows={3} />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-slate-300">Responsável *</label>
+                <label className="text-slate-300">Respons�vel *</label>
                 <select value={editAssigneeId} onChange={(e) => setEditAssigneeId(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
                   <option value="">Selecione...</option>
                   {biUsers.map(u => (
@@ -674,15 +674,15 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-slate-300">Urgência (1-3)</label>
+                  <label className="text-slate-300">Urg�ncia (1-3)</label>
                   <select value={editUrgencia} onChange={(e) => setEditUrgencia(Number(e.target.value))} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
-                    <option value={1}>1 - Baixa</option><option value={2}>2 - Média</option><option value={3}>3 - Elevada</option>
+                    <option value={1}>1 - Baixa</option><option value={2}>2 - M�dia</option><option value={3}>3 - Elevada</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-slate-300">Importância (1-3)</label>
+                  <label className="text-slate-300">Import�ncia (1-3)</label>
                   <select value={editImportancia} onChange={(e) => setEditImportancia(Number(e.target.value))} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
-                    <option value={1}>1 - Baixa</option><option value={2}>2 - Média</option><option value={3}>3 - Elevada</option>
+                    <option value={1}>1 - Baixa</option><option value={2}>2 - M�dia</option><option value={3}>3 - Elevada</option>
                   </select>
                 </div>
               </div>
@@ -691,31 +691,31 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
               <label className="text-slate-300">Estado</label>
               <select value={editEstado} onChange={(e) => setEditEstado(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
                 <option value="novo">Novo</option>
-                <option value="em_analise">Em análise</option>
+                <option value="em_analise">Em an�lise</option>
                 <option value="em_curso">Em curso</option>
-                <option value="em_validacao">Em validação</option>
-                <option value="Concluído">concluido</option>
-                <option value="rejeitado">Rejeitado</option>\n                <option value="Aguardando 3ºs">Aguardando 3ºs</option>\n                <option value="Standby">Standby</option>
+                <option value="em_validacao">Em valida��o</option>
+                <option value="concluido">concluido</option>
+                <option value="rejeitado">Rejeitado</option>
                 <option value="bloqueado">Bloqueado</option>
               </select>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-slate-300">Data início planeada</label>
+                <label className="text-slate-300">Data in�cio planeada</label>
                 <input type="date" value={editDataInicioPlaneado} onChange={(e) => setEditDataInicioPlaneado(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
               <div className="space-y-2">
-                <label className="text-slate-300">Data conclusão esperada</label>
+                <label className="text-slate-300">Data conclus�o esperada</label>
                 <input type="date" value={editDataEsperada} onChange={(e) => setEditDataEsperada(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-slate-300">Data início</label>
+                <label className="text-slate-300">Data in�cio</label>
                 <input type="date" value={editDataInicio} onChange={(e) => setEditDataInicio(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
               <div className="space-y-2">
-                <label className="text-slate-300">Data conclusão</label>
+                <label className="text-slate-300">Data conclus�o</label>
                 <input type="date" value={editDataConclusao} onChange={(e) => setEditDataConclusao(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
             </div>
@@ -735,16 +735,16 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           </DialogHeader>
           <div className="space-y-4 text-sm">
             <div className="space-y-2">
-              <label className="text-slate-300">Título *</label>
+              <label className="text-slate-300">T�tulo *</label>
               <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
             </div>
             <div className="space-y-2">
-              <label className="text-slate-300">Descrição</label>
+              <label className="text-slate-300">Descri��o</label>
               <textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" rows={3} />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-slate-300">Responsável *</label>
+                <label className="text-slate-300">Respons�vel *</label>
                 <select value={newAssigneeId} onChange={(e) => setNewAssigneeId(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
                   <option value="">Selecione...</option>
                   {biUsers.map(u => (
@@ -754,26 +754,26 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-slate-300">Urgência (1-3)</label>
+                  <label className="text-slate-300">Urg�ncia (1-3)</label>
                   <select value={newUrgencia} onChange={(e) => setNewUrgencia(Number(e.target.value))} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
-                    <option value={1}>1 - Baixa</option><option value={2}>2 - Média</option><option value={3}>3 - Elevada</option>
+                    <option value={1}>1 - Baixa</option><option value={2}>2 - M�dia</option><option value={3}>3 - Elevada</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-slate-300">Importância (1-3)</label>
+                  <label className="text-slate-300">Import�ncia (1-3)</label>
                   <select value={newImportancia} onChange={(e) => setNewImportancia(Number(e.target.value))} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
-                    <option value={1}>1 - Baixa</option><option value={2}>2 - Média</option><option value={3}>3 - Elevada</option>
+                    <option value={1}>1 - Baixa</option><option value={2}>2 - M�dia</option><option value={3}>3 - Elevada</option>
                   </select>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-slate-300">Data início planeada</label>
+                <label className="text-slate-300">Data in�cio planeada</label>
                 <input type="date" value={newDataInicioPlaneado} onChange={(e) => setNewDataInicioPlaneado(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
               <div className="space-y-2">
-                <label className="text-slate-300">Data conclusão esperada</label>
+                <label className="text-slate-300">Data conclus�o esperada</label>
                 <input type="date" value={newDataEsperada} onChange={(e) => setNewDataEsperada(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
             </div>
