@@ -3,6 +3,36 @@
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from '@/lib/supabase'
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
+// Normalized status labels and vibrant colors
+const strongStatusLabels: Record<string, string> = {
+  novo: "Novo",
+  em_analise: "Em análise",
+  em_curso: "Em curso",
+  em_validacao: "Em validação",
+  concluido: "Concluído",
+  rejeitado: "Rejeitado",
+  bloqueado: "Bloqueado",
+}
+const strongStatusColors: Record<string, string> = {
+  novo: "bg-sky-600 text-white",
+  em_analise: "bg-amber-500 text-white",
+  em_curso: "bg-orange-600 text-white",
+  em_validacao: "bg-violet-600 text-white",
+  concluido: "bg-emerald-600 text-white",
+  rejeitado: "bg-rose-600 text-white",
+  bloqueado: "bg-slate-700 text-white",
+}
+const normalizeStatus = (s: string): keyof typeof strongStatusLabels => {
+  const x = (s || "").toLowerCase()
+  if (x.includes("anal")) return "em_analise"
+  if (x.includes("valid")) return "em_validacao"
+  if (x.includes("curso")) return "em_curso"
+  if (x.includes("concl")) return "concluido"
+  if (x.includes("rej")) return "rejeitado"
+  if (x.includes("bloq")) return "bloqueado"
+  if (x.includes("novo")) return "novo"
+  return "novo"
+}
 import { Badge } from "@/components/ui/badge"
 
 interface Task {
@@ -24,13 +54,13 @@ interface Task {
 
 const statusLabels: Record<string, string> = {
   novo: "Novo",
-  em_analise: "Em análise",
+  em_analise: "Em an�lise",
   em_curso: "Em curso",
-  em_validacao: "Em validação",
-  Concluído: "Concluído",
+  em_valida��o: "Em valida��o",
+  Conclu�do: "Conclu�do",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
-  "Aguardando 3ºs": "Aguardando 3ºs",
+  "Aguardando 3�s": "Aguardando 3�s",
   Standby: "Standby",
 }
 
@@ -38,8 +68,8 @@ const allEstados = [
   "novo",
   "em_analise",
   "em_curso",
-  "em_validacao", "Aguardando 3ºs", "Standby",
-  "Concluído",
+  "em_valida��o", "Aguardando 3�s", "Standby",
+  "Conclu�do",
   "rejeitado",
   "bloqueado",
 ] as const
@@ -48,11 +78,11 @@ const statusColors: Record<string, string> = {
   novo: "bg-blue-100 text-blue-800",
   em_analise: "bg-yellow-100 text-yellow-800",
   em_curso: "bg-orange-100 text-orange-800",
-  em_validacao: "bg-purple-100 text-purple-800",
-  Concluído: "bg-green-100 text-green-800",
+  em_valida��o: "bg-purple-100 text-purple-800",
+  Conclu�do: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
-  "Aguardando 3ºs": "bg-yellow-100 text-yellow-800",
+  "Aguardando 3�s": "bg-yellow-100 text-yellow-800",
   Standby: "bg-purple-100 text-purple-800",
 }
 
@@ -66,7 +96,7 @@ export default function MinhasTarefasPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null)
-  const defaultEstados = allEstados.filter((s) => !["Concluído", "rejeitado", "bloqueado"].includes(s))
+  const defaultEstados = allEstados.filter((s) => !["Conclu�do", "rejeitado", "bloqueado"].includes(s))
   const [estadoFilter, setEstadoFilter] = useState<string[]>(defaultEstados as unknown as string[])
   const [sortKey, setSortKey] = useState<"endAsc" | "endDesc" | "createdDesc">("endAsc")
   const [search, setSearch] = useState<string>("")
@@ -179,6 +209,7 @@ export default function MinhasTarefasPage() {
           end,
           rawStart: task.data_inicio_planeado ?? task.data_inicio,
           rawEnd: task.data_esperada ?? task.data_conclusao,
+          status: normalizeStatus(task.estado),
         }
       })
       .filter(Boolean) as Array<{ id: string; titulo: string; start: Date; end: Date; rawStart: string | null; rawEnd: string | null }>
@@ -211,7 +242,7 @@ export default function MinhasTarefasPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-100 mb-2">Minhas Tarefas</h1>
-            <p className="text-slate-400">Todas as tarefas onde é responsável</p>
+            <p className="text-slate-400">Todas as tarefas onde � respons�vel</p>
           </div>
         </div>
         {featureTimeline && (
@@ -227,7 +258,7 @@ export default function MinhasTarefasPage() {
 
             {timeline.rows.length === 0 ? (
               <div className="rounded-md border border-dashed border-slate-700 p-4 text-center text-xs text-muted-foreground">
-                Sem dados suficientes para desenhar o cronograma. Defina datas de início/fim nas tarefas.
+                Sem dados suficientes para desenhar o cronograma. Defina datas de in�cio/fim nas tarefas.
               </div>
             ) : (
               <div className="rounded-md border border-slate-700 bg-slate-900/60 p-4">
@@ -258,7 +289,7 @@ export default function MinhasTarefasPage() {
                         </div>
                         <div className="relative h-6 rounded bg-slate-900/70">
                           <div
-                            className="absolute top-1/2 h-3 -translate-y-1/2 rounded bg-amber-500 shadow-sm"
+                            className={"absolute top-1/2 h-3 -translate-y-1/2 rounded shadow-sm " + (strongStatusColors[(row as any).status] ?? 'bg-slate-500 text-white')}
                             style={{ left: `${row.offset}%`, width: `${row.width}%` }}
                             title={`${formatDate(row.rawStart)} - ${formatDate(row.rawEnd)}`}
                           />
@@ -306,7 +337,7 @@ export default function MinhasTarefasPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Procurar por título/assunto..."
+              placeholder="Procurar por t�tulo/assunto..."
               className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100 w-64"
               type="text"
             />
@@ -315,7 +346,7 @@ export default function MinhasTarefasPage() {
         {loading ? (
           <div className="text-center">A carregar...</div>
         ) : tasks.length === 0 ? (
-          <div className="text-center text-muted-foreground py-10">Sem tarefas atribuídas</div>
+          <div className="text-center text-muted-foreground py-10">Sem tarefas atribu�das</div>
         ) : (
           <div className="divide-y divide-slate-700">
             {filteredSorted.map((t: any) => (
@@ -325,10 +356,10 @@ export default function MinhasTarefasPage() {
                   <div className="text-xs text-slate-400">{t.ticket?.assunto ?? "Ticket"}</div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <Badge className={statusColors[t.estado] ?? "bg-slate-200 text-slate-800"}>
-                    {statusLabels[t.estado] ?? t.estado}
+                  <Badge className={strongStatusColors[normalizeStatus(t.estado)] ?? "bg-slate-200 text-slate-800"}>
+                    {strongStatusLabels[normalizeStatus(t.estado)] ?? t.estado}
                   </Badge>
-                  <div className="text-slate-300">Início: {formatDate(t.data_inicio_planeado ?? t.data_inicio)}</div>
+                  <div className="text-slate-300">In�cio: {formatDate(t.data_inicio_planeado ?? t.data_inicio)}</div>
                   <div className="text-slate-300">Fim: {formatDate(t.data_esperada ?? t.data_conclusao)}</div>
                   {typeof t._daysLeft === "number" ? (
                     <div className={`px-2 py-0.5 rounded text-xs ${t._daysLeft < 0 ? "bg-red-500/20 text-red-300" : t._daysLeft <= 3 ? "bg-amber-500/20 text-amber-300" : "bg-emerald-500/20 text-emerald-300"}`}>
@@ -347,3 +378,5 @@ export default function MinhasTarefasPage() {
     </AuthenticatedLayout>
   )
 }
+
+
