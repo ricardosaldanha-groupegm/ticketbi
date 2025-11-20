@@ -58,6 +58,7 @@ const updateTicketSchema = z.object({
   urgencia: z.number().int().min(1).max(3).optional(),
   importancia: z.number().int().min(1).max(3).optional(),
   estado: z.string().optional(),
+  data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
 })
@@ -188,6 +189,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         urgencia: data.urgencia ?? 1,
         importancia: data.importancia ?? 1,
         estado: data.estado ?? 'novo',
+        data_esperada: data.data_esperada ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
       })
@@ -689,6 +691,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             <option value="3">3 - Elevada</option>
                           </select>
                         </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="data_esperada" className="text-slate-300">Data conclusão esperada</Label>
+                        <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} />
                       </div>
 
                       <div className="space-y-2">

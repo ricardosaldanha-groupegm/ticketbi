@@ -18,6 +18,7 @@ import { z } from 'zod'
   urgencia: z.number().min(1).max(3).optional(),
   importancia: z.number().min(1).max(3).optional(),
   estado: z.string().optional(),
+  data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
 });
@@ -245,10 +246,16 @@ export async function PATCH(
     }
 
     // Update ticket
+    // Normalize optional fields
+    const updatePayload: any = { ...validatedData }
+    if (typeof updatePayload.data_esperada === 'string' && updatePayload.data_esperada.trim() === '') {
+      updatePayload.data_esperada = null
+    }
+
     const { data: ticket, error } = await (supabase as any)
       .from('tickets')
       .update({
-        ...validatedData,
+        ...updatePayload,
         ...(hasGestorUpdate ? { gestor_id: nextGestorId ?? null } : {}),
         updated_at: new Date().toISOString()
       } as any)
