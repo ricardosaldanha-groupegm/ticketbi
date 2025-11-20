@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from '@/lib/supabase'
@@ -44,26 +44,26 @@ const statusLabels: Record<string, string> = {
 }
 
 const statusColors: Record<string, string> = {
-  novo: "bg-blue-100 text-blue-800",
-  em_analise: "bg-yellow-100 text-yellow-800",
-  em_curso: "bg-orange-100 text-orange-800",
-  em_validacao: "bg-purple-100 text-purple-800",
-  concluido: "bg-green-100 text-green-800",
-  rejeitado: "bg-red-100 text-red-800",
-  bloqueado: "bg-gray-100 text-gray-800",
-  "Aguardando 3ºs": "bg-yellow-100 text-yellow-800",
-  Standby: "bg-purple-100 text-purple-800",
+  novo: "bg-sky-600 text-white",
+  em_analise: "bg-amber-500 text-white",
+  em_curso: "bg-orange-600 text-white",
+  em_validacao: "bg-violet-600 text-white",
+  concluido: "bg-emerald-600 text-white",
+  rejeitado: "bg-rose-600 text-white",
+  bloqueado: "bg-slate-700 text-white",
+  "Aguardando 3ºs": "bg-amber-500 text-white",
+  Standby: "bg-violet-600 text-white",
 }
 
 const priorityColors: Record<number, string> = {
-  1: "bg-green-100 text-green-800",
+  1: "bg-emerald-600 text-white",
   2: "bg-green-200 text-green-900",
   3: "bg-lime-200 text-lime-900",
-  4: "bg-yellow-100 text-yellow-800",
+  4: "bg-amber-500 text-white",
   5: "bg-yellow-200 text-yellow-900",
   6: "bg-orange-200 text-orange-900",
   7: "bg-orange-300 text-orange-900",
-  8: "bg-red-100 text-red-800",
+  8: "bg-rose-600 text-white",
   9: "bg-red-200 text-red-900",
 }
 
