@@ -103,7 +103,7 @@ const getStatusLabel = (status: string) => {
 const getLevelLabel = (value: number) => {
   const labels: Record<number, string> = {
     1: "Baixa",
-    2: "M+®dia",
+    2: "Média",
     3: "Elevada",
   }
   return labels[value] ?? String(value)
