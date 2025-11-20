@@ -37,14 +37,12 @@ interface UserOption {
 
 const statusLabels: Record<string, string> = {
   novo: "Novo",
-  em_analise: "Em an�lise",
+  em_analise: "Em análise",
   em_curso: "Em curso",
-  em_validacao: "Em valida��o",
-  concluido: "concluido",
+  em_validacao: "Em validação",
+  concluido: "Concluído",
   rejeitado: "Rejeitado",
   bloqueado: "Bloqueado",
-  "Aguardando 3�s": "Aguardando 3�s",
-  Standby: "Standby",
 }
 
 const statusColors: Record<string, string> = {
@@ -55,8 +53,6 @@ const statusColors: Record<string, string> = {
   concluido: "bg-green-100 text-green-800",
   rejeitado: "bg-red-100 text-red-800",
   bloqueado: "bg-gray-100 text-gray-800",
-  "Aguardando 3�s": "bg-yellow-100 text-yellow-800",
-  Standby: "bg-purple-100 text-purple-800",
 }
 
 const priorityColors: Record<number, string> = {
