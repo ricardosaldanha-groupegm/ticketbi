@@ -232,9 +232,10 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           end,
           rawStart: task.data_inicio_planeado ?? task.data_inicio,
           rawEnd: task.data_esperada ?? task.data_conclusao,
+          status: task.estado,
         }
       })
-      .filter(Boolean) as Array<{ id: string; titulo: string; start: Date; end: Date; rawStart: string | null; rawEnd: string | null }>
+      .filter(Boolean) as Array<{ id: string; titulo: string; start: Date; end: Date; rawStart: string | null; rawEnd: string | null; status: string }>
 
     if (!rows.length) return { rows: [], domainStart: null as Date | null, domainEnd: null as Date | null, totalDays: 0, todayPercent: null as number | null }
 
@@ -489,7 +490,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                         </div>
                         <div className="relative h-6 rounded bg-slate-900/70">
                           <div
-                            className="absolute top-1/2 h-3 -translate-y-1/2 rounded bg-amber-500 shadow-sm"
+                            className={`absolute top-1/2 h-3 -translate-y-1/2 rounded shadow-sm ${statusColors[(row as any).status] ?? 'bg-slate-500 text-white'}`}
                             style={{ left: `${(row as any).offset}%`, width: `${(row as any).width}%` }}
                             title={`${formatDate(row.rawStart)} - ${formatDate(row.rawEnd)}`}
                           />
