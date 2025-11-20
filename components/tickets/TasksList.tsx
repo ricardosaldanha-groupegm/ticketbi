@@ -94,6 +94,8 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
+  const [sortBy, setSortBy] = useState<'titulo' | 'estado' | 'prioridade' | 'responsavel' | 'inicio_planeado' | 'esperada'>('esperada')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
   // Create modal state
   const [createOpen, setCreateOpen] = useState(false)
@@ -327,6 +329,43 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
       setIsUpdating(false)
     }
   }
+  const sortedTasks = useMemo(() => {
+    const arr = [...tasks]
+    const getDate = (v: string | null) => {
+      if (!v) return null
+      const d = new Date(v)
+      return Number.isNaN(d.getTime()) ? null : d
+    }
+    arr.sort((a, b) => {
+      const dir = sortDir === 'asc' ? 1 : -1
+      if (sortBy === 'titulo') return dir * ((a.titulo || '').localeCompare(b.titulo || ''))
+      if (sortBy === 'estado') return dir * ((a.estado || '').localeCompare(b.estado || ''))
+      if (sortBy === 'prioridade') return dir * ((a.prioridade || 0) - (b.prioridade || 0))
+      if (sortBy === 'responsavel') return dir * ((a.assignee?.name || '').localeCompare(b.assignee?.name || ''))
+      if (sortBy === 'inicio_planeado') {
+        const ad = getDate(a.data_inicio_planeado)
+        const bd = getDate(b.data_inicio_planeado)
+        if (!ad && !bd) return 0
+        if (!ad) return 1
+        if (!bd) return -1
+        return dir * (ad.getTime() - bd.getTime())
+      }
+      // esperada (default)
+      const ad = getDate(a.data_esperada)
+      const bd = getDate(b.data_esperada)
+      if (!ad && !bd) return 0
+      if (!ad) return 1
+      if (!bd) return -1
+      return dir * (ad.getTime() - bd.getTime())
+    })
+    return arr
+  }, [tasks, sortBy, sortDir])
+
+  const toggleSort = (key: typeof sortBy) => {
+    if (sortBy === key) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
+    else { setSortBy(key); setSortDir('asc') }
+  }
+  const sortIndicator = (key: typeof sortBy) => sortBy === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''
   const submitComment = async () => {
     if (!commentTaskId) return
     if (!currentUser) {
@@ -465,6 +504,31 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           {tasks.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">Nenhuma tarefa encontrada</div>
           ) : (
+            <div className="mb-3 flex items-center justify-end gap-3 text-xs text-slate-300">
+              <label>Ordenar por:</label>
+              <select
+                value={`${sortBy}:${sortDir}`}
+                onChange={(e) => {
+                  const [k, d] = e.target.value.split(":") as any
+                  setSortBy(k)
+                  setSortDir(d)
+                }}
+                className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
+              >
+                <option value="esperada:asc">Fim esperado (mais cedo)</option>
+                <option value="esperada:desc">Fim esperado (mais tarde)</option>
+                <option value="titulo:asc">Título (A-Z)</option>
+                <option value="titulo:desc">Título (Z-A)</option>
+                <option value="estado:asc">Estado (A-Z)</option>
+                <option value="estado:desc">Estado (Z-A)</option>
+                <option value="prioridade:asc">Prioridade (1-9)</option>
+                <option value="prioridade:desc">Prioridade (9-1)</option>
+                <option value="responsavel:asc">Responsável (A-Z)</option>
+                <option value="responsavel:desc">Responsável (Z-A)</option>
+                <option value="inicio_planeado:asc">Início planeado (mais cedo)</option>
+                <option value="inicio_planeado:desc">Início planeado (mais tarde)</option>
+              </select>
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -478,7 +542,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tasks.map((task) => {
+                {sortedTasks.map((task) => {
                   const expectedStart = task.data_inicio_planeado ?? task.data_inicio
                   const handleOpen = () => openTaskDetail(task.id)
                   return (
