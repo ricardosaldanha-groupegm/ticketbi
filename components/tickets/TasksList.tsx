@@ -504,6 +504,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           {tasks.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">Nenhuma tarefa encontrada</div>
           ) : (
+            <>
             <div className="mb-3 flex items-center justify-end gap-3 text-xs text-slate-300">
               <label>Ordenar por:</label>
               <select
@@ -590,6 +591,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 })}
               </TableBody>
             </Table>
+            </>
           )}
         </CardContent>
       </Card>
