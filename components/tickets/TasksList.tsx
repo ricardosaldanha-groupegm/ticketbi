@@ -475,7 +475,6 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                   <TableHead>Data início planeada</TableHead>
                   <TableHead>Data conclusão esperada</TableHead>
                   <TableHead>Data início</TableHead>
-                  <TableHead>Data conclusão</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -502,7 +501,6 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                       <TableCell>{formatDate(task.data_inicio_planeado)}</TableCell>
                       <TableCell>{formatDateWithDiff(task.data_esperada, expectedStart)}</TableCell>
                       <TableCell>{formatDate(task.data_inicio)}</TableCell>
-                      <TableCell>{formatDateWithDiff(task.data_conclusao, task.data_inicio)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Button
