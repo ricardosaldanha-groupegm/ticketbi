@@ -118,6 +118,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const [editTitle, setEditTitle] = useState("")
   const [editDesc, setEditDesc] = useState("")
   const [editAssigneeId, setEditAssigneeId] = useState("")
+  const [originalAssigneeId, setOriginalAssigneeId] = useState("")
   const [editUrgencia, setEditUrgencia] = useState(1)
   const [editImportancia, setEditImportancia] = useState(1)
   const [editEstado, setEditEstado] = useState("novo")
@@ -276,7 +277,9 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
     setEditTaskId(t.id)
     setEditTitle(t.titulo)
     setEditDesc(t.descricao ?? "")
-    setEditAssigneeId(t.assignee_bi_id || t.assignee?.id || "")
+    const origAssignee = t.assignee_bi_id || t.assignee?.id || ""
+    setEditAssigneeId(origAssignee)
+    setOriginalAssigneeId(origAssignee)
     setEditUrgencia(t.urgencia)
     setEditImportancia(t.importancia)
     setEditEstado(t.estado)
@@ -295,21 +298,26 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
     }
     setIsUpdating(true)
     try {
+      const payload: any = {
+        titulo: editTitle,
+        descricao: editDesc || undefined,
+        urgencia: editUrgencia,
+        importancia: editImportancia,
+        estado: editEstado,
+        data_inicio_planeado: editDataInicioPlaneado || undefined,
+        data_esperada: editDataEsperada || undefined,
+        data_inicio: editDataInicio || undefined,
+        data_conclusao: editDataConclusao || undefined,
+      }
+      if (editAssigneeId && editAssigneeId !== originalAssigneeId) {
+        payload.assignee_bi_id = editAssigneeId
+      }
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (currentUser?.id) (headers as any)['X-User-Id'] = currentUser.id
       const resp = await fetch(`/api/subtickets/${editTaskId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          titulo: editTitle,
-          descricao: editDesc || undefined,
-          assignee_bi_id: editAssigneeId,
-          urgencia: editUrgencia,
-          importancia: editImportancia,
-          estado: editEstado,
-          data_inicio_planeado: editDataInicioPlaneado || undefined,
-          data_esperada: editDataEsperada || undefined,
-          data_inicio: editDataInicio || undefined,
-          data_conclusao: editDataConclusao || undefined,
-        })
+        headers,
+        body: JSON.stringify(payload)
       })
       const data = await resp.json()
       if (!resp.ok) throw new Error(data?.error || 'Erro ao atualizar tarefa')
