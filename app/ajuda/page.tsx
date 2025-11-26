@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function AjudaPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
@@ -91,13 +93,12 @@ export default function AjudaPage() {
         </div>
 
         <div className="mt-8 flex justify-end">
-          <button
-            type="button"
-            onClick={() => window.location.assign('/login')}
+          <Link
+            href="/login"
             className="px-4 py-2 rounded-md border border-slate-600 text-slate-100 hover:bg-slate-800 text-sm"
           >
             Voltar ao Login
-          </button>
+          </Link>
         </div>
       </div>
     </div>
