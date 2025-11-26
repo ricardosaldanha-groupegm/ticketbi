@@ -152,7 +152,7 @@ export default function NewTicketPage() {
                 )}
                 {errors.pedido_por && (<p className="text-sm text-red-400">{errors.pedido_por.message}</p>)}
                 {currentUser?.role === "requester" ? (
-                  <p className="text-xs text-slate-400">Este campo est├â┬í travado com o seu nome (perfil: utilizador)</p>
+                  <p className="text-xs text-slate-400">Este campo está bloqueado com o seu nome (perfil: utilizador)</p>
                 ) : (
                   <p className="text-xs text-slate-400">Selecione o utilizador que fez o pedido</p>
                 )}
@@ -209,7 +209,7 @@ export default function NewTicketPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urgência *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urg├¬ncia: qu├úo rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urg├¬ncia">i</span></div>
+                <div className="flex items-center gap-2"><Label htmlFor="urgencia" className="text-slate-300">Urgência *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Urgência: quão rapidamente isto precisa de ser feito." aria-label="Ajuda sobre urgência">i</span></div>
                 <Select value={watch("urgencia") ? watch("urgencia").toString() : "1"} onValueChange={(value) => setValue("urgencia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar urgência" />
@@ -224,7 +224,7 @@ export default function NewTicketPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Importância *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Import├óncia: impacto do resultado no neg├│cio." aria-label="Ajuda sobre import├óncia">i</span></div>
+                <div className="flex items-center gap-2"><Label htmlFor="importancia" className="text-slate-300">Importância *</Label><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help" title="Importância: impacto do resultado no negócio." aria-label="Ajuda sobre importância">i</span></div>
                 <Select value={watch("importancia") ? watch("importancia").toString() : "1"} onValueChange={(value) => setValue("importancia", parseInt(value))}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar importância" />

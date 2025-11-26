@@ -218,8 +218,17 @@ export default function LoginPage() {
                   {isLoading ? 'A entrar...' : 'Entrar'}
                 </Button>
               </form>
-              
-              {null}
+
+              <div className="mt-4 text-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-slate-600 text-slate-200 hover:bg-slate-800"
+                  onClick={() => router.push('/ajuda')}
+                >
+                  Ajuda
+                </Button>
+              </div>
             </TabsContent>
             
             <TabsContent value="request" className="space-y-4">
