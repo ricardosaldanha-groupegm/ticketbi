@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'TicketBI - Sistema de Gestão de Tickets',
-  description: 'Sistema de gestão de tickets para o departamento de BI',
+  description: 'Sistema de gestão de tickets para o DSI',
 }
 
 export default function RootLayout({

@@ -4,7 +4,7 @@ import { createAuthUser, canReadTicket } from "@/lib/rbac"
 import { createTicket, createTicketSchema, isSupabaseConfigured } from "@/lib/tickets-service"
 
 // POST /api/tickets/[id]/duplicate - Create a new ticket as a copy of an existing one
-// Copies main ticket fields but does NOT copy comments, attachments or subtickets.
+// Copies main ticket fields and subtickets, but does NOT copy comments or attachments.
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -73,6 +73,38 @@ export async function POST(
     const validated = createTicketSchema.parse(rawPayload)
 
     const { ticket: newTicket } = await createTicket(validated)
+
+    // Copy subtickets (tarefas) from source ticket to new ticket
+    const { data: sourceSubtickets, error: subticketsError } = await supabase
+      .from("subtickets")
+      .select("*")
+      .eq("ticket_id", params.id)
+
+    if (subticketsError) {
+      console.error("Error fetching subtickets for duplication:", subticketsError)
+    } else if (sourceSubtickets && sourceSubtickets.length > 0) {
+      const subticketsToInsert = sourceSubtickets.map((st: any) => ({
+        ticket_id: (newTicket as any).id,
+        titulo: st.titulo,
+        descricao: st.descricao,
+        assignee_bi_id: st.assignee_bi_id,
+        urgencia: st.urgencia,
+        importancia: st.importancia,
+        data_inicio: st.data_inicio,
+        data_inicio_planeado: st.data_inicio_planeado,
+        data_esperada: st.data_esperada,
+        data_conclusao: st.data_conclusao,
+        estado: st.estado,
+      }))
+
+      const { error: insertSubticketsError } = await supabase
+        .from("subtickets")
+        .insert(subticketsToInsert as any)
+
+      if (insertSubticketsError) {
+        console.error("Error inserting duplicated subtickets:", insertSubticketsError)
+      }
+    }
 
     return NextResponse.json(newTicket, { status: 201 })
   } catch (error: any) {
