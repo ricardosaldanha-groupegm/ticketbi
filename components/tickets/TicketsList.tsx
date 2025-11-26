@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye, Trash } from "lucide-react"
+import { Eye, Trash, Copy } from "lucide-react"
 
 interface Ticket {
   id: string
@@ -169,6 +169,37 @@ export default function TicketsList() {
     return false
   }
 
+  const handleDuplicate = async (ticket: Ticket) => {
+    try {
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
+
+      const res = await fetch(`/api/tickets/${ticket.id}/duplicate`, {
+        method: 'POST',
+        headers,
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as any))
+        throw new Error((data as any)?.error || 'Não foi possível duplicar o ticket')
+      }
+
+      toast({
+        title: 'Ticket duplicado',
+        description: 'Foi criado um novo ticket com os mesmos dados principais.',
+      })
+
+      await fetchTickets()
+    } catch (err: any) {
+      toast({
+        title: 'Erro',
+        description: err?.message || 'Falha ao duplicar o ticket',
+        variant: 'destructive',
+      })
+    }
+  }
+
   const handleDelete = async (ticket: Ticket) => {
     const confirmed = typeof window !== 'undefined'
       ? window.confirm('Tem a certeza que pretende eliminar este ticket e todas as tarefas associadas? Esta ação é irreversível.')
@@ -303,6 +334,15 @@ if (tickets.length === 0) {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Duplicar"
+                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                            onClick={() => handleDuplicate(ticket)}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                           {canDelete(ticket) && (
                             <Button
                               variant="destructive"

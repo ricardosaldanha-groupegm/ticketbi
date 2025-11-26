@@ -17,8 +17,8 @@ export default function AjudaPage() {
               O que é o TicketBI?
             </h2>
             <p className="text-slate-300 text-sm">
-              O TicketBI é o sistema de gestão de pedidos ao departamento de Business Intelligence
-              (BI) do Groupe GM. Através desta aplicação pode registar, acompanhar e priorizar
+              O TicketBI é o sistema de gestão de pedidos ao departamento de Sistemas e Inteligência
+              (DSI) do Groupe GM - Península Ibérica. Através desta aplicação pode registar, acompanhar e priorizar
               pedidos relacionados com dados, relatórios, automatizações e suporte BI.
             </p>
           </section>
@@ -41,7 +41,7 @@ export default function AjudaPage() {
             <p className="text-slate-300 text-sm">
               Caso tenha sido criado através do sistema de autenticação, utilize o fluxo habitual
               de recuperação de password (quando disponível). Em alternativa, contacte o
-              administrador de BI ou TI responsável para apoio.
+              administrador do sistema responsável para apoio. <a href="mailto:ricardo.saldanha@groupegm.com">Enviar email a Ricardo Saldanha</a>
             </p>
           </section>
 
@@ -53,7 +53,7 @@ export default function AjudaPage() {
               Deve criar tickets para pedidos de novos relatórios ou dashboards, correções a
               informação existente, dúvidas relacionadas com dados, automatizações de processos e
               outras necessidades de suporte BI. Utilize sempre o campo &quot;Objetivo do Pedido&quot;
-              para explicar como vai utilizar a informação.
+              para explicar como vai utilizar a informação. O seu pedido pode ser rejeitado sumariamente se não for claro o objetivo final.
             </p>
           </section>
 
@@ -64,8 +64,7 @@ export default function AjudaPage() {
             <p className="text-slate-300 text-sm">
               Preencha todos os campos obrigatórios com a maior clareza possível: assunto,
               descrição detalhada, objetivo do pedido, urgência, importância e, se aplicável,
-              data esperada. Quanto mais contexto fornecer, mais fácil será para o departamento de
-              BI priorizar e responder ao pedido.
+              data esperada. Quanto mais contexto fornecer, mais fácil será para o DSI priorizar e responder ao pedido.
             </p>
           </section>
 
@@ -86,8 +85,8 @@ export default function AjudaPage() {
             </h2>
             <p className="text-slate-300 text-sm">
               Em caso de dúvidas adicionais sobre o funcionamento do TicketBI ou sobre um pedido
-              específico, contacte o responsável do departamento de BI ou o administrador do
-              sistema.
+              específico, contacte o responsável do DSI ou o administrador do
+              sistema. <a href="mailto:ricardo.saldanha@groupegm.com">Enviar email a Ricardo Saldanha</a>
             </p>
           </section>
         </div>
