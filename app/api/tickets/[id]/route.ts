@@ -141,10 +141,12 @@ export async function GET(
       }, 0)
     }
 
-    return NextResponse.json({
-      ...ticket,
+    const ticketWithRetrabalhos: any = {
+      ...(ticket as any),
       total_retrabalhos_subtarefas: totalRetrabalhosSubtickets,
-    })
+    }
+
+    return NextResponse.json(ticketWithRetrabalhos)
   } catch (error) {
     console.error('Error fetching ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
