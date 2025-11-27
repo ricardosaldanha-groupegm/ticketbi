@@ -15,6 +15,7 @@ const updateSubticketSchema = z.object({
   data_conclusao: z.string().optional(),
   estado: z.enum(['novo', 'em_analise', 'em_curso', 'em_validacao', 'concluido', 'rejeitado', 'bloqueado']).optional(),
   assignee_bi_id: z.string().optional(),
+  retrabalhos: z.number().int().min(0).optional(),
 })
 
 // GET /api/subtickets/[id] - Get single subticket

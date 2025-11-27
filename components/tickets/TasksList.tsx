@@ -27,6 +27,7 @@ interface Task {
   created_at: string
   assignee: { id?: string; name: string; email: string } | null
   assignee_bi_id?: string | null
+  retrabalhos?: number
 }
 
 interface UserOption {
@@ -108,6 +109,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const [newImportancia, setNewImportancia] = useState(1)
   const [newDataInicioPlaneado, setNewDataInicioPlaneado] = useState("")
   const [newDataEsperada, setNewDataEsperada] = useState("")
+  const [newRetrabalhos, setNewRetrabalhos] = useState(0)
 
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [viewTask, setViewTask] = useState<Task | null>(null)
@@ -125,6 +127,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
   const [editDataEsperada, setEditDataEsperada] = useState("")
   const [editDataInicio, setEditDataInicio] = useState("")
   const [editDataConclusao, setEditDataConclusao] = useState("")
+  const [editRetrabalhos, setEditRetrabalhos] = useState(0)
   // Comment modal state
   const [commentOpen, setCommentOpen] = useState(false)
   const [commentTaskId, setCommentTaskId] = useState<string | null>(null)
@@ -177,6 +180,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
     setNewImportancia(1)
     setNewDataInicioPlaneado("")
     setNewDataEsperada("")
+    setNewRetrabalhos(0)
     setCreateOpen(true)
   }
 
@@ -198,6 +202,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           importancia: newImportancia,
           data_inicio_planeado: newDataInicioPlaneado || undefined,
           data_esperada: newDataEsperada || undefined,
+          retrabalhos: newRetrabalhos || 0,
         })
       })
       const data = await resp.json()
@@ -287,6 +292,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
     setEditDataEsperada(t.data_esperada ?? "")
     setEditDataInicio(t.data_inicio ?? "")
     setEditDataConclusao(t.data_conclusao ?? "")
+    setEditRetrabalhos(typeof t.retrabalhos === "number" ? t.retrabalhos : 0)
     setEditOpen(true)
   }
 
@@ -308,6 +314,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
         data_esperada: editDataEsperada || undefined,
         data_inicio: editDataInicio || undefined,
         data_conclusao: editDataConclusao || undefined,
+        retrabalhos: editRetrabalhos ?? 0,
       }
       if (editAssigneeId && editAssigneeId !== originalAssigneeId) {
         payload.assignee_bi_id = editAssigneeId
@@ -428,7 +435,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Tarefas ({tasks.length})</CardTitle>
-              <CardDescription>Gestuo de tarefas para este ticket</CardDescription>
+              <CardDescription>Gestor de tarefas para este ticket</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -538,6 +545,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                   <TableHead>Título</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Prioridade</TableHead>
+                  <TableHead>Retrabalhos</TableHead>
                   <TableHead>Responsável</TableHead>
                   <TableHead>Data início planeada</TableHead>
                   <TableHead>Data conclusão esperada</TableHead>
@@ -563,6 +571,7 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                       <TableCell>
                         <Badge className={priorityColors[task.prioridade] ?? "bg-slate-200 text-slate-800"}>{task.prioridade}</Badge>
                       </TableCell>
+                      <TableCell className="text-center">{typeof task.retrabalhos === "number" ? task.retrabalhos : 0}</TableCell>
                       <TableCell>{task.assignee?.name ?? "-"}</TableCell>
                       <TableCell>{formatDate(task.data_inicio_planeado)}</TableCell>
                       <TableCell>{formatDateWithDiff(task.data_esperada, expectedStart)}</TableCell>
@@ -642,6 +651,10 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                   <div className="">
                     <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Prioridade</dt>
                     <dd className="mt-2 text-sm text-slate-100">{viewTask.prioridade}</dd>
+                  </div>
+                  <div className="">
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Retrabalhos</dt>
+                    <dd className="mt-2 text-sm text-slate-100">{typeof viewTask.retrabalhos === "number" ? viewTask.retrabalhos : 0}</dd>
                   </div>
                   <div className="">
                     <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Criado em</dt>
@@ -779,6 +792,16 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 <input type="date" value={editDataConclusao} onChange={(e) => setEditDataConclusao(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
             </div>
+            <div className="space-y-2">
+              <label className="text-slate-300">Retrabalhos</label>
+              <input
+                type="number"
+                min={0}
+                value={editRetrabalhos}
+                onChange={(e) => setEditRetrabalhos(Number(e.target.value) || 0)}
+                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+              />
+            </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
               <Button onClick={submitUpdate} disabled={isUpdating} className="bg-amber-600 hover:bg-amber-700">{isUpdating ? 'A guardar...' : 'Guardar'}</Button>
@@ -836,6 +859,16 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
                 <label className="text-slate-300">Data conclusão esperada</label>
                 <input type="date" value={newDataEsperada} onChange={(e) => setNewDataEsperada(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-slate-300">Retrabalhos</label>
+              <input
+                type="number"
+                min={0}
+                value={newRetrabalhos}
+                onChange={(e) => setNewRetrabalhos(Number(e.target.value) || 0)}
+                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+              />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>

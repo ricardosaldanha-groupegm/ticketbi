@@ -21,6 +21,7 @@ import { z } from 'zod'
   data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
+  retrabalhos_ticket: z.number().int().min(0).optional(),
 });
 // GET /api/tickets/[id] - Get single ticket
 export async function GET(
@@ -126,7 +127,24 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    return NextResponse.json(ticket)
+    // Calculate total retrabalhos from subtickets for this ticket
+    let totalRetrabalhosSubtickets = 0
+    const { data: subticketsAgg, error: subticketsError } = await supabase
+      .from('subtickets')
+      .select('retrabalhos')
+      .eq('ticket_id', params.id)
+
+    if (!subticketsError && Array.isArray(subticketsAgg)) {
+      totalRetrabalhosSubtickets = subticketsAgg.reduce((sum, st: any) => {
+        const v = typeof st.retrabalhos === 'number' ? st.retrabalhos : 0
+        return sum + v
+      }, 0)
+    }
+
+    return NextResponse.json({
+      ...ticket,
+      total_retrabalhos_subtarefas: totalRetrabalhosSubtickets,
+    })
   } catch (error) {
     console.error('Error fetching ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

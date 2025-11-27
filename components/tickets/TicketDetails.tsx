@@ -41,6 +41,8 @@ interface Ticket {
   gestor_id: string | null
   created_by_user: { name: string; email: string }
   gestor: { name: string; email: string } | null
+  retrabalhos_ticket?: number | null
+  total_retrabalhos_subtarefas?: number
 }
 
 const entregaTipoValues = [
@@ -61,6 +63,7 @@ const updateTicketSchema = z.object({
   data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
+  retrabalhos_ticket: z.number().int().min(0).optional(),
 })
 
 type UpdateTicketForm = z.infer<typeof updateTicketSchema>
@@ -192,6 +195,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         data_esperada: data.data_esperada ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
+        retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
       })
     } catch (error) {
       toast({ title: "Erro", description: "Erro ao carregar ticket", variant: "destructive" })
@@ -357,6 +361,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         urgencia: ticket.urgencia ?? 1,
         importancia: ticket.importancia ?? 1,
         estado: ticket.estado ?? 'novo',
+        retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
     setIsEditing(false)
@@ -703,6 +708,17 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} />
                       </div>
 
+                      <div className="space-y-2">
+                        <Label htmlFor="retrabalhos_ticket" className="text-slate-300">Retrabalhos neste ticket</Label>
+                        <input
+                          id="retrabalhos_ticket"
+                          type="number"
+                          min={0}
+                          className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                          {...register("retrabalhos_ticket", { valueAsNumber: true })}
+                        />
+                      </div>
+
                       <div className="flex items-center gap-3">
                         <Button
                           type="submit"
@@ -766,6 +782,26 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div className="flex items-center justify-between order-[-1]">
                 <span className="font-semibold">Prioridade</span>
                 <Badge className={priorityColors[ticket.prioridade] ?? "bg-slate-700 text-slate-100"}>{ticket.prioridade}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader>
+              <CardTitle>Retrabalhos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-slate-200">
+              <div className="flex items-center justify-between">
+                <span>Retrabalhos nas tarefas</span>
+                <span className="font-semibold">
+                  {typeof ticket.total_retrabalhos_subtarefas === "number" ? ticket.total_retrabalhos_subtarefas : 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Retrabalhos neste ticket</span>
+                <span className="font-semibold">
+                  {typeof (ticket as any).retrabalhos_ticket === "number" ? (ticket as any).retrabalhos_ticket : 0}
+                </span>
               </div>
             </CardContent>
           </Card>

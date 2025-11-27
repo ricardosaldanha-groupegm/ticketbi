@@ -95,6 +95,7 @@ export async function POST(
         data_esperada: st.data_esperada,
         data_conclusao: st.data_conclusao,
         estado: st.estado,
+        retrabalhos: typeof st.retrabalhos === "number" ? st.retrabalhos : 0,
       }))
 
       const { error: insertSubticketsError } = await supabase

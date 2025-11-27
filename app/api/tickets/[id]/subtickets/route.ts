@@ -15,6 +15,7 @@ const createSubticketSchema = z.object({
   data_esperada: z.string().optional(),
   data_conclusao: z.string().optional(),
   estado: z.enum(['novo', 'em_analise', 'em_curso', 'em_validacao', 'concluido', 'rejeitado', 'bloqueado', 'Aguardando 3ºs', 'Standby']).optional(),
+  retrabalhos: z.number().int().min(0).optional(),
 })
 
 // GET /api/tickets/[id]/subtickets - List subtickets for a ticket
@@ -172,6 +173,7 @@ export async function POST(
           : null,
       data_esperada: validatedData.data_esperada && validatedData.data_esperada.trim() !== '' ? validatedData.data_esperada : null,
       data_conclusao: validatedData.data_conclusao && validatedData.data_conclusao.trim() !== '' ? validatedData.data_conclusao : null,
+      retrabalhos: typeof validatedData.retrabalhos === 'number' ? validatedData.retrabalhos : 0,
     }
 
     const subticketData = {
