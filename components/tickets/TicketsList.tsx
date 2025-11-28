@@ -48,6 +48,19 @@ const defaultEstados = allEstados.filter(
   (s) => !["concluido", "rejeitado", "bloqueado"].includes(s)
 )
 
+// Ordem específica para exibição dos grupos de estados
+const estadoOrder = [
+  "novo",
+  "em_curso",
+  "em_validacao",
+  "em_analise",
+  "Aguardando 3ºs",
+  "Standby",
+  "concluido",
+  "bloqueado",
+  "rejeitado",
+]
+
 const statusColors: Record<string, string> = {
   novo: "bg-sky-600 text-white",
   em_analise: "bg-amber-500 text-white",
@@ -265,7 +278,17 @@ export default function TicketsList() {
       group.push(ticket)
       groups.set(ticket.estado, group)
     }
-    return Array.from(groups.entries()).map(([estado, items]) => ({ estado, items }))
+    const entries = Array.from(groups.entries()).map(([estado, items]) => ({ estado, items }))
+    // Ordenar grupos pela ordem definida
+    return entries.sort((a, b) => {
+      const indexA = estadoOrder.indexOf(a.estado)
+      const indexB = estadoOrder.indexOf(b.estado)
+      // Se o estado não estiver na ordem, colocar no final
+      if (indexA === -1 && indexB === -1) return 0
+      if (indexA === -1) return 1
+      if (indexB === -1) return -1
+      return indexA - indexB
+    })
   }, [filteredTickets])
 
 if (loading) {
