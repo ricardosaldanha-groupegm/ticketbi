@@ -278,7 +278,34 @@ export default function TicketsList() {
       group.push(ticket)
       groups.set(ticket.estado, group)
     }
-    const entries = Array.from(groups.entries()).map(([estado, items]) => ({ estado, items }))
+    const entries = Array.from(groups.entries()).map(([estado, items]) => {
+      // Ordenar items dentro de cada grupo: primeiro por dias até ao fim (crescente), depois por prioridade (decrescente)
+      const sortedItems = [...items].sort((a, b) => {
+        const daysA = daysUntil(a.data_esperada)
+        const daysB = daysUntil(b.data_esperada)
+        const priorityA = formatPriority(a.urgencia, a.importancia)
+        const priorityB = formatPriority(b.urgencia, b.importancia)
+        
+        // Se ambos têm dias, ordenar por dias (crescente)
+        if (daysA != null && daysB != null) {
+          if (daysA !== daysB) {
+            return daysA - daysB
+          }
+          // Em caso de empate, ordenar por prioridade (decrescente - maior primeiro)
+          const numPriorityA = typeof priorityA === "number" ? priorityA : 0
+          const numPriorityB = typeof priorityB === "number" ? priorityB : 0
+          return numPriorityB - numPriorityA
+        }
+        // Se apenas um tem dias, o que tem dias vem primeiro
+        if (daysA != null) return -1
+        if (daysB != null) return 1
+        // Se nenhum tem dias, ordenar por prioridade (decrescente)
+        const numPriorityA = typeof priorityA === "number" ? priorityA : 0
+        const numPriorityB = typeof priorityB === "number" ? priorityB : 0
+        return numPriorityB - numPriorityA
+      })
+      return { estado, items: sortedItems }
+    })
     // Ordenar grupos pela ordem definida
     return entries.sort((a, b) => {
       const indexA = estadoOrder.indexOf(a.estado)
@@ -398,7 +425,15 @@ if (tickets.length === 0) {
                     <TableRow key={ticket.id}>
                       <TableCell className="font-medium">
                         <div className="flex flex-col">
-                          <span>{ticket.assunto}</span>
+                          <div className="flex items-center gap-2">
+                            {d != null && d < 0 && (
+                              <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" title={`${Math.abs(d)} dias em atraso`} />
+                            )}
+                            {d != null && d >= 0 && d < 5 && (
+                              <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" title={`Faltam ${d} dias`} />
+                            )}
+                            <span>{ticket.assunto}</span>
+                          </div>
                           {ticket.gestor?.name && (
                             <span className="text-xs text-muted-foreground">Gestor: {ticket.gestor.name}</span>
                           )}
