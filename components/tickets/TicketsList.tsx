@@ -43,6 +43,11 @@ const statusLabels: Record<string, string> = {
   Standby: "Standby",
 }
 
+const allEstados = Object.keys(statusLabels)
+const defaultEstados = allEstados.filter(
+  (s) => !["concluido", "rejeitado", "bloqueado"].includes(s)
+)
+
 const statusColors: Record<string, string> = {
   novo: "bg-sky-600 text-white",
   em_analise: "bg-amber-500 text-white",
@@ -97,6 +102,9 @@ export default function TicketsList() {
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+  const [estadoFilter, setEstadoFilter] = useState<string[]>(defaultEstados)
+  const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none">("me")
+  const [search, setSearch] = useState<string>("")
 
   const fetchTickets = async () => {
     try {
@@ -161,6 +169,31 @@ export default function TicketsList() {
   }
 
   useEffect(() => { fetchTickets() }, [])
+
+  const filteredTickets = useMemo(() => {
+    let arr = tickets
+
+    if (Array.isArray(estadoFilter) && estadoFilter.length > 0) {
+      arr = arr.filter((t) => estadoFilter.includes(t.estado))
+    }
+
+    if (responsavelFilter === "me" && currentUserId) {
+      arr = arr.filter((t) => t.gestor_id === currentUserId)
+    } else if (responsavelFilter === "none") {
+      arr = arr.filter((t) => !t.gestor_id)
+    }
+
+    const q = search.trim().toLowerCase()
+    if (q) {
+      arr = arr.filter((t) =>
+        (t.assunto || "").toLowerCase().includes(q) ||
+        (t.descricao || "").toLowerCase().includes(q) ||
+        (t.gestor?.name || "").toLowerCase().includes(q)
+      )
+    }
+
+    return arr
+  }, [tickets, estadoFilter, responsavelFilter, search, currentUserId])
 
   const canDelete = (t: Ticket) => {
     if (!currentUserId) return false
@@ -227,13 +260,13 @@ export default function TicketsList() {
 
   const groupedByEstado = useMemo(() => {
     const groups = new Map<string, Ticket[]>()
-    for (const ticket of tickets) {
+    for (const ticket of filteredTickets) {
       const group = groups.get(ticket.estado) ?? []
       group.push(ticket)
       groups.set(ticket.estado, group)
     }
     return Array.from(groups.entries()).map(([estado, items]) => ({ estado, items }))
-  }, [tickets])
+  }, [filteredTickets])
 
 if (loading) {
     return (
@@ -263,6 +296,50 @@ if (tickets.length === 0) {
 
   return (
     <div className="space-y-6">
+      <div className="mb-2 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="flex items-center gap-3 text-sm flex-wrap">
+          <span className="text-slate-300">Estado:</span>
+          {allEstados.map((s) => (
+            <label key={s} className="inline-flex items-center gap-1 text-slate-200">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-amber-600"
+                checked={estadoFilter.includes(s)}
+                onChange={(e) => {
+                  setEstadoFilter((prev) => {
+                    const set = new Set(prev)
+                    if (e.target.checked) set.add(s)
+                    else set.delete(s)
+                    return Array.from(set)
+                  })
+                }}
+              />
+              <span>{statusLabels[s] ?? s}</span>
+            </label>
+          ))}
+        </div>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-300">Responsável:</span>
+            <select
+              value={responsavelFilter}
+              onChange={(e) => setResponsavelFilter(e.target.value as any)}
+              className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
+            >
+              <option value="me">Meus tickets</option>
+              <option value="all">Todos</option>
+              <option value="none">Sem responsável</option>
+            </select>
+          </div>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Procurar por assunto/descrição..."
+            className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100 min-w-[220px]"
+            type="text"
+          />
+        </div>
+      </div>
       {groupedByEstado.map(({ estado, items }) => (
         <Card key={estado} className="bg-slate-800 border-slate-700">
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
