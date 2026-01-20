@@ -21,6 +21,8 @@ import { z } from 'zod'
   data_esperada: z.string().optional(),
   data_primeiro_contacto: z.string().optional(),
   data_prevista_conclusao: z.string().optional(),
+  data_conclusao: z.string().optional(),
+  data_inicio: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -53,6 +55,8 @@ export async function GET(
         data_esperada: null,
         data_primeiro_contacto: null,
         data_prevista_conclusao: null,
+        data_conclusao: null,
+        data_inicio: null,
         sla_date: null,
         internal_notes: null,
         created_at: new Date().toISOString(),
@@ -191,6 +195,8 @@ export async function PATCH(
         data_esperada: null,
         data_primeiro_contacto: null,
         data_prevista_conclusao: null,
+        data_conclusao: null,
+        data_inicio: null,
         sla_date: null,
         internal_notes: null,
         created_at: now,
@@ -297,6 +303,12 @@ export async function PATCH(
     if (typeof updatePayload.data_prevista_conclusao === 'string' && updatePayload.data_prevista_conclusao.trim() === '') {
       updatePayload.data_prevista_conclusao = null
     }
+    if (typeof updatePayload.data_conclusao === 'string' && updatePayload.data_conclusao.trim() === '') {
+      updatePayload.data_conclusao = null
+    }
+    if (typeof updatePayload.data_inicio === 'string' && updatePayload.data_inicio.trim() === '') {
+      updatePayload.data_inicio = null
+    }
     const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
     if (
       hasDataPrevistaUpdate &&
@@ -306,6 +318,16 @@ export async function PATCH(
       (user.role === 'bi' || user.role === 'admin')
     ) {
       updatePayload.data_primeiro_contacto = new Date().toISOString()
+    }
+    const hasEstadoUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'estado')
+    if (
+      hasEstadoUpdate &&
+      updatePayload.estado === 'concluido' &&
+      !Object.prototype.hasOwnProperty.call(updatePayload, 'data_conclusao') &&
+      !(currentTicket as any).data_conclusao &&
+      (user.role === 'bi' || user.role === 'admin')
+    ) {
+      updatePayload.data_conclusao = new Date().toISOString()
     }
 
     const { data: ticket, error } = await (supabase as any)

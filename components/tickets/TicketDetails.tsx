@@ -35,6 +35,8 @@ interface Ticket {
   data_esperada: string | null
   data_prevista_conclusao: string | null
   data_primeiro_contacto: string | null
+  data_conclusao: string | null
+  data_inicio: string | null
   sla_date: string | null
   internal_notes: string | null
   created_at: string
@@ -64,6 +66,8 @@ const updateTicketSchema = z.object({
   estado: z.string().optional(),
   data_esperada: z.string().optional(),
   data_prevista_conclusao: z.string().optional(),
+  data_conclusao: z.string().optional(),
+  data_inicio: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -197,6 +201,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         estado: data.estado ?? 'novo',
         data_esperada: data.data_esperada ?? '',
         data_prevista_conclusao: data.data_prevista_conclusao ?? '',
+        data_conclusao: data.data_conclusao ?? '',
+        data_inicio: data.data_inicio ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -367,6 +373,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         estado: ticket.estado ?? 'novo',
         data_esperada: ticket.data_esperada ?? "",
         data_prevista_conclusao: ticket.data_prevista_conclusao ?? "",
+        data_conclusao: ticket.data_conclusao ?? "",
+        data_inicio: ticket.data_inicio ?? "",
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
@@ -491,6 +499,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div>
                 <p className="text-slate-500">Data prevista de conclusão</p>
                 <p>{formatDate(ticket.data_prevista_conclusao)}</p>
+              </div>
+            )}
+            {ticket.data_conclusao && (
+              <div>
+                <p className="text-slate-500">Data de conclusão</p>
+                <p>{formatDate(ticket.data_conclusao)}</p>
               </div>
             )}
             {ticket.sla_date && (
@@ -721,6 +735,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <input id="data_prevista_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_prevista_conclusao")} />
                         </div>
                       )}
+                      {(currentRole === 'admin' || currentRole === 'bi') && (
+                        <div className="space-y-2">
+                          <Label htmlFor="data_conclusao" className="text-slate-300">Data de conclusão</Label>
+                          <input id="data_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_conclusao")} />
+                        </div>
+                      )}
+                      {(currentRole === 'admin' || currentRole === 'bi') && (
+                        <div className="space-y-2">
+                          <Label htmlFor="data_inicio" className="text-slate-300">Data de início</Label>
+                          <input id="data_inicio" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_inicio")} />
+                        </div>
+                      )}
 
                       <div className="space-y-2">
                         <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
@@ -897,6 +923,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                 <div>
                   <p className="text-slate-400">Primeiro contacto</p>
                   <p>{formatDate(ticket.data_primeiro_contacto)}</p>
+                </div>
+              )}
+              {ticket.data_conclusao && (
+                <div>
+                  <p className="text-slate-400">Data de conclusão</p>
+                  <p>{formatDate(ticket.data_conclusao)}</p>
+                </div>
+              )}
+              {ticket.data_inicio && (
+                <div>
+                  <p className="text-slate-400">Data de início</p>
+                  <p>{formatDate(ticket.data_inicio)}</p>
                 </div>
               )}
             </CardContent>

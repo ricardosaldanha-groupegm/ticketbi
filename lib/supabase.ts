@@ -50,6 +50,8 @@ export type Database = {
           data_esperada: string | null
           data_primeiro_contacto: string | null
           data_prevista_conclusao: string | null
+          data_conclusao: string | null
+          data_inicio: string | null
           sla_date: string | null
           internal_notes: string | null
           created_at: string
@@ -70,6 +72,8 @@ export type Database = {
           data_esperada?: string | null
           data_primeiro_contacto?: string | null
           data_prevista_conclusao?: string | null
+          data_conclusao?: string | null
+          data_inicio?: string | null
           sla_date?: string | null
           internal_notes?: string | null
           created_at?: string
@@ -90,6 +94,8 @@ export type Database = {
           data_esperada?: string | null
           data_primeiro_contacto?: string | null
           data_prevista_conclusao?: string | null
+          data_conclusao?: string | null
+          data_inicio?: string | null
           sla_date?: string | null
           internal_notes?: string | null
           created_at?: string
