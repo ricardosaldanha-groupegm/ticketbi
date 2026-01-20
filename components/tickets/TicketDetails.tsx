@@ -529,7 +529,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
             </TabsList>
 
             <TabsContent value="edit" className="space-y-4">
-                {(currentRole === 'admin' || currentRole === 'bi') && (
+              {(currentRole === 'admin' || currentRole === 'bi') && (
+                <div className="grid gap-4 md:grid-cols-2">
                   <Card className="bg-slate-800 border-slate-700">
                     <CardHeader>
                       <CardTitle>Atribuir gestor</CardTitle>
@@ -561,8 +562,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       </div>
                     </CardContent>
                   </Card>
-                )}
-                {(currentRole === 'admin' || currentRole === 'bi') && (
                   <Card className="bg-slate-800 border-slate-700">
                     <CardHeader>
                       <CardTitle>Utilizadores interessados</CardTitle>
@@ -645,7 +644,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       </div>
                     </CardContent>
                   </Card>
-                )}
+                </div>
+              )}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardHeader>
                     <CardTitle>Editar ticket</CardTitle>
