@@ -655,196 +655,208 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                          <Label htmlFor="assunto" className="text-slate-300">Assunto</Label>
-                          <input
-                            id="assunto"
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                            {...register("assunto")}
-                          />
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Identificação</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="lg:col-span-2">
+                              <Label htmlFor="assunto" className="text-slate-300">Assunto</Label>
+                              <input
+                                id="assunto"
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                {...register("assunto")}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="estado" className="text-slate-300">Estado</Label>
+                              <select
+                                id="estado"
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                {...register("estado")}
+                                defaultValue={ticket.estado}
+                              >
+                                <option value="novo">Novo</option>
+                                <option value="em_curso">Em curso</option>
+                                <option value="em_analise">Em análise</option>
+                                <option value="em_validacao">Em validação</option>
+                                <option value="Aguardando 3ºs">Aguardando 3ºs</option>
+                                <option value="Standby">Standby</option>
+                                <option value="concluido">Concluído</option>
+                                <option value="rejeitado">Rejeitado</option>
+                                <option value="bloqueado">Bloqueado</option>
+                              </select>
+                            </div>
+                            <div>
+                              <Label htmlFor="pedido_por" className="text-slate-300">Pedido por</Label>
+                              <input
+                                id="pedido_por"
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                {...register("pedido_por")}
+                                disabled={!canEditAllFields}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="data_pedido" className="text-slate-300">Data do pedido</Label>
+                              <input
+                                id="data_pedido"
+                                type="date"
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                {...register("data_pedido")}
+                                disabled={!canEditAllFields}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="estado" className="text-slate-300">Estado</Label>
-                          <select
-                            id="estado"
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                            {...register("estado")}
-                            defaultValue={ticket.estado}
-                          >
-                            <option value="novo">Novo</option>
-                            <option value="em_curso">Em curso</option>
-                            <option value="em_analise">Em análise</option>
-                            <option value="em_validacao">Em validação</option>
-                            <option value="Aguardando 3ºs">Aguardando 3ºs</option>
-                            <option value="Standby">Standby</option>
-                            <option value="concluido">Concluído</option>
-                            <option value="rejeitado">Rejeitado</option>
-                            <option value="bloqueado">Bloqueado</option>
-                          </select>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                          <Label htmlFor="pedido_por" className="text-slate-300">Pedido por</Label>
-                          <input
-                            id="pedido_por"
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                            {...register("pedido_por")}
-                            disabled={!canEditAllFields}
-                          />
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Classificação e Prioridade</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                            <div>
+                              <Label htmlFor="entrega_tipo" className="text-slate-300">Tipo de Entrega</Label>
+                              <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'}>
+                                {entregaTipoValues.map(v => (<option key={v} value={v}>{v}</option>))}
+                              </select>
+                            </div>
+                            <div>
+                              <Label htmlFor="natureza" className="text-slate-300">Natureza</Label>
+                              <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'}>
+                                {naturezaValues.map(v => (<option key={v} value={v}>{v}</option>))}
+                              </select>
+                            </div>
+                            <div>
+                              <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
+                              <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
+                                <option value="1">1 - Baixa</option>
+                                <option value="2">2 - Média</option>
+                                <option value="3">3 - Elevada</option>
+                              </select>
+                            </div>
+                            <div>
+                              <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
+                              <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
+                                <option value="1">1 - Baixa</option>
+                                <option value="2">2 - Média</option>
+                                <option value="3">3 - Elevada</option>
+                              </select>
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">Prioridade</Label>
+                              <input
+                                value={ticket.prioridade ?? ""}
+                                readOnly
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="data_pedido" className="text-slate-300">Data do pedido</Label>
-                          <input
-                            id="data_pedido"
-                            type="date"
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                            {...register("data_pedido")}
-                            disabled={!canEditAllFields}
-                          />
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                          <Label className="text-slate-300">Prioridade (calculada)</Label>
-                          <input
-                            value={ticket.prioridade ?? ""}
-                            readOnly
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Descrição</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="md:col-span-2 space-y-2">
+                              <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
+                              <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
+                              {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                              <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido *</Label>
+                              <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} />
+                              {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                              <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
+                              <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} />
+                            </div>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="entrega_tipo" className="text-slate-300">Por tipo de Entrega</Label>
-                          <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'}>
-                            {entregaTipoValues.map(v => (<option key={v} value={v}>{v}</option>))}
-                          </select>
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Datas</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                              <Label htmlFor="data_esperada" className="text-slate-300">Data conclusão esperada</Label>
+                              <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} />
+                            </div>
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
+                                <Label htmlFor="data_prevista_conclusao" className="text-slate-300">Data prevista de conclusão</Label>
+                                <input id="data_prevista_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_prevista_conclusao")} />
+                              </div>
+                            )}
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
+                                <Label htmlFor="data_primeiro_contacto" className="text-slate-300">Data de primeiro contacto</Label>
+                                <input id="data_primeiro_contacto" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_primeiro_contacto")} />
+                              </div>
+                            )}
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
+                                <Label htmlFor="data_inicio" className="text-slate-300">Data de início</Label>
+                                <input id="data_inicio" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_inicio")} />
+                              </div>
+                            )}
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
+                                <Label htmlFor="data_conclusao" className="text-slate-300">Data de conclusão</Label>
+                                <input id="data_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_conclusao")} />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="natureza" className="text-slate-300">Por natureza</Label>
-                          <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'}>
-                            {naturezaValues.map(v => (<option key={v} value={v}>{v}</option>))}
-                          </select>
-                        </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
-                        <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
-                        {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
-                      </div>
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Auditoria</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div>
+                              <Label className="text-slate-300">Criado em</Label>
+                              <input
+                                value={ticket.created_at ? formatDate(ticket.created_at) : ""}
+                                readOnly
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">Atualizado em</Label>
+                              <input
+                                value={ticket.updated_at ? formatDate(ticket.updated_at) : ""}
+                                readOnly
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">Criado por (ID)</Label>
+                              <input
+                                value={ticket.created_by ?? ""}
+                                readOnly
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-slate-300">Gestor (ID)</Label>
+                              <input
+                                value={ticket.gestor_id ?? ""}
+                                readOnly
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido *</Label>
-                        <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} />
-                        {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
-                      </div>
-
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
-                          <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
-                            <option value="1">1 - Baixa</option>
-                            <option value="2">2 - Média</option>
-                            <option value="3">3 - Elevada</option>
-                          </select>
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-200">Retrabalhos</h4>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                              <Label htmlFor="retrabalhos_ticket" className="text-slate-300">Retrabalhos neste ticket</Label>
+                              <input
+                                id="retrabalhos_ticket"
+                                type="number"
+                                min={0}
+                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                {...register("retrabalhos_ticket", { valueAsNumber: true })}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
-                          <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
-                            <option value="1">1 - Baixa</option>
-                            <option value="2">2 - Média</option>
-                            <option value="3">3 - Elevada</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="data_esperada" className="text-slate-300">Data conclusão esperada</Label>
-                        <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} />
-                      </div>
-
-                      {(currentRole === 'admin' || currentRole === 'bi') && (
-                        <div className="space-y-2">
-                          <Label htmlFor="data_prevista_conclusao" className="text-slate-300">Data prevista de conclusão</Label>
-                          <input id="data_prevista_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_prevista_conclusao")} />
-                        </div>
-                      )}
-                      {(currentRole === 'admin' || currentRole === 'bi') && (
-                        <div className="space-y-2">
-                          <Label htmlFor="data_primeiro_contacto" className="text-slate-300">Data de primeiro contacto</Label>
-                          <input id="data_primeiro_contacto" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_primeiro_contacto")} />
-                        </div>
-                      )}
-                      {(currentRole === 'admin' || currentRole === 'bi') && (
-                        <div className="space-y-2">
-                          <Label htmlFor="data_conclusao" className="text-slate-300">Data de conclusão</Label>
-                          <input id="data_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_conclusao")} />
-                        </div>
-                      )}
-                      {(currentRole === 'admin' || currentRole === 'bi') && (
-                        <div className="space-y-2">
-                          <Label htmlFor="data_inicio" className="text-slate-300">Data de início</Label>
-                          <input id="data_inicio" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_inicio")} />
-                        </div>
-                      )}
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                          <Label className="text-slate-300">Criado em</Label>
-                          <input
-                            value={ticket.created_at ? formatDate(ticket.created_at) : ""}
-                            readOnly
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-slate-300">Atualizado em</Label>
-                          <input
-                            value={ticket.updated_at ? formatDate(ticket.updated_at) : ""}
-                            readOnly
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                          <Label className="text-slate-300">Criado por (ID)</Label>
-                          <input
-                            value={ticket.created_by ?? ""}
-                            readOnly
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-slate-300">Gestor (ID)</Label>
-                          <input
-                            value={ticket.gestor_id ?? ""}
-                            readOnly
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
-                        <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="retrabalhos_ticket" className="text-slate-300">Retrabalhos neste ticket</Label>
-                        <input
-                          id="retrabalhos_ticket"
-                          type="number"
-                          min={0}
-                          className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                          {...register("retrabalhos_ticket", { valueAsNumber: true })}
-                        />
                       </div>
 
                       <div className="flex items-center gap-3">
