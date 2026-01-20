@@ -753,12 +753,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <div className="space-y-3">
                           <h4 className="text-sm font-semibold text-slate-200">Descrição</h4>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="md:col-span-2 space-y-2">
+                            <div className="space-y-2">
                               <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
                               <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
                               {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                             </div>
-                            <div className="md:col-span-2 space-y-2">
+                            <div className="space-y-2">
                               <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido *</Label>
                               <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} />
                               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
