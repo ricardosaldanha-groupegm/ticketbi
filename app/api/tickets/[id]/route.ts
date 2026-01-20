@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
@@ -19,6 +19,8 @@ import { z } from 'zod'
   importancia: z.number().min(1).max(3).optional(),
   estado: z.string().optional(),
   data_esperada: z.string().optional(),
+  data_primeiro_contacto: z.string().optional(),
+  data_prevista_conclusao: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -49,6 +51,8 @@ export async function GET(
         importancia: 1,
         prioridade: 1,
         data_esperada: null,
+        data_primeiro_contacto: null,
+        data_prevista_conclusao: null,
         sla_date: null,
         internal_notes: null,
         created_at: new Date().toISOString(),
@@ -185,6 +189,8 @@ export async function PATCH(
         importancia: 1,
         prioridade: 1,
         data_esperada: null,
+        data_primeiro_contacto: null,
+        data_prevista_conclusao: null,
         sla_date: null,
         internal_notes: null,
         created_at: now,
@@ -198,6 +204,13 @@ export async function PATCH(
         ...(Object.prototype.hasOwnProperty.call(body, 'gestor_id') ? { gestor_id: body.gestor_id ?? null } : {}),
         prioridade: (((validatedData as any) && ('urgencia' in (validatedData as any)) ? (validatedData as any).urgencia : mockCurrent.urgencia) * (((validatedData as any) && ('importancia' in (validatedData as any)) ? (validatedData as any).importancia : mockCurrent.importancia))),
         updated_at: now,
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(merged, 'data_prevista_conclusao') &&
+        (merged as any).data_prevista_conclusao &&
+        !(mockCurrent as any).data_primeiro_contacto
+      ) {
+        (merged as any).data_primeiro_contacto = now
       }
       return NextResponse.json(merged)
     }
@@ -263,6 +276,13 @@ export async function PATCH(
       if (hasGestorUpdate && fieldsToUpdate.length > 0 && user.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
+      if (
+        Object.prototype.hasOwnProperty.call(validatedData, 'data_primeiro_contacto') &&
+        user.role !== 'admin' &&
+        user.role !== 'bi'
+      ) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     // Update ticket
@@ -270,6 +290,22 @@ export async function PATCH(
     const updatePayload: any = { ...validatedData }
     if (typeof updatePayload.data_esperada === 'string' && updatePayload.data_esperada.trim() === '') {
       updatePayload.data_esperada = null
+    }
+    if (typeof updatePayload.data_primeiro_contacto === 'string' && updatePayload.data_primeiro_contacto.trim() === '') {
+      updatePayload.data_primeiro_contacto = null
+    }
+    if (typeof updatePayload.data_prevista_conclusao === 'string' && updatePayload.data_prevista_conclusao.trim() === '') {
+      updatePayload.data_prevista_conclusao = null
+    }
+    const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
+    if (
+      hasDataPrevistaUpdate &&
+      updatePayload.data_prevista_conclusao &&
+      !Object.prototype.hasOwnProperty.call(updatePayload, 'data_primeiro_contacto') &&
+      !(currentTicket as any).data_primeiro_contacto &&
+      (user.role === 'bi' || user.role === 'admin')
+    ) {
+      updatePayload.data_primeiro_contacto = new Date().toISOString()
     }
 
     const { data: ticket, error } = await (supabase as any)

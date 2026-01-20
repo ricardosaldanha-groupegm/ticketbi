@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useState } from "react"
 import { supabase } from '@/lib/supabase'
@@ -33,6 +33,8 @@ interface Ticket {
   pedido_por: string
   data_pedido: string
   data_esperada: string | null
+  data_prevista_conclusao: string | null
+  data_primeiro_contacto: string | null
   sla_date: string | null
   internal_notes: string | null
   created_at: string
@@ -61,6 +63,7 @@ const updateTicketSchema = z.object({
   importancia: z.number().int().min(1).max(3).optional(),
   estado: z.string().optional(),
   data_esperada: z.string().optional(),
+  data_prevista_conclusao: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -193,6 +196,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         importancia: data.importancia ?? 1,
         estado: data.estado ?? 'novo',
         data_esperada: data.data_esperada ?? '',
+        data_prevista_conclusao: data.data_prevista_conclusao ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -361,6 +365,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         urgencia: ticket.urgencia ?? 1,
         importancia: ticket.importancia ?? 1,
         estado: ticket.estado ?? 'novo',
+        data_esperada: ticket.data_esperada ?? "",
+        data_prevista_conclusao: ticket.data_prevista_conclusao ?? "",
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
@@ -479,6 +485,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div>
                 <p className="text-slate-500">Data esperada</p>
                 <p>{formatDate(ticket.data_esperada)}</p>
+              </div>
+            )}
+            {ticket.data_prevista_conclusao && (
+              <div>
+                <p className="text-slate-500">Data prevista de conclusão</p>
+                <p>{formatDate(ticket.data_prevista_conclusao)}</p>
               </div>
             )}
             {ticket.sla_date && (
@@ -703,6 +715,13 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} />
                       </div>
 
+                      {(currentRole === 'admin' || currentRole === 'bi') && (
+                        <div className="space-y-2">
+                          <Label htmlFor="data_prevista_conclusao" className="text-slate-300">Data prevista de conclusão</Label>
+                          <input id="data_prevista_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_prevista_conclusao")} />
+                        </div>
+                      )}
+
                       <div className="space-y-2">
                         <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
                         <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} />
@@ -874,6 +893,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                 <p className="text-slate-400">Atualizado em</p>
                 <p>{formatDate(ticket.updated_at)}</p>
               </div>
+              {ticket.data_primeiro_contacto && (
+                <div>
+                  <p className="text-slate-400">Primeiro contacto</p>
+                  <p>{formatDate(ticket.data_primeiro_contacto)}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

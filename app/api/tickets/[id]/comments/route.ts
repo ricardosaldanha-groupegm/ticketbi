@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import type { Database } from '@/lib/supabase'
@@ -177,6 +177,17 @@ export async function POST(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    if (
+      !(ticket as any).data_primeiro_contacto &&
+      (user.role === 'bi' || user.role === 'admin')
+    ) {
+      await (supabase as any)
+        .from('tickets')
+        .update({ data_primeiro_contacto: new Date().toISOString() })
+        .eq('id', params.id)
+        .is('data_primeiro_contacto', null)
     }
 
     return NextResponse.json(comment, { status: 201 })

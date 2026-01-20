@@ -48,6 +48,8 @@ export type Database = {
           importancia: number
           prioridade: number
           data_esperada: string | null
+          data_primeiro_contacto: string | null
+          data_prevista_conclusao: string | null
           sla_date: string | null
           internal_notes: string | null
           created_at: string
@@ -66,6 +68,8 @@ export type Database = {
           urgencia?: number
           importancia?: number
           data_esperada?: string | null
+          data_primeiro_contacto?: string | null
+          data_prevista_conclusao?: string | null
           sla_date?: string | null
           internal_notes?: string | null
           created_at?: string
@@ -84,6 +88,8 @@ export type Database = {
           urgencia?: number
           importancia?: number
           data_esperada?: string | null
+          data_primeiro_contacto?: string | null
+          data_prevista_conclusao?: string | null
           sla_date?: string | null
           internal_notes?: string | null
           created_at?: string

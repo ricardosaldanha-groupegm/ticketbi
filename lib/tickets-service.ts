@@ -19,6 +19,7 @@ export const createTicketSchema = z.object({
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
+  data_prevista_conclusao: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
   natureza: z.enum(naturezaValues).default('Novo'),
 })
@@ -95,6 +96,7 @@ export async function createTicket(data: CreateTicketInput) {
     urgencia: data.urgencia,
     importancia: data.importancia,
     data_esperada: normalizedDate,
+    data_prevista_conclusao: data.data_prevista_conclusao ?? null,
     created_by: createdById,
     entrega_tipo: data.entrega_tipo,
     natureza: data.natureza,
