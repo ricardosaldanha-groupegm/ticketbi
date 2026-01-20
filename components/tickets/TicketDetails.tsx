@@ -540,11 +540,10 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <TabsTrigger value="tasks" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Tarefas</TabsTrigger>
               <TabsTrigger value="comments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Comentários</TabsTrigger>
               <TabsTrigger value="attachments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Anexos</TabsTrigger>
-              {isEditing && (<TabsTrigger value="edit" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Editar</TabsTrigger>)}
+              <TabsTrigger value="edit" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Editar</TabsTrigger>
             </TabsList>
 
-            {isEditing && (
-              <TabsContent value="edit" className="space-y-4">
+            <TabsContent value="edit" className="space-y-4">
                 {(currentRole === 'admin' || currentRole === 'bi') && (
                   <Card className="bg-slate-800 border-slate-700">
                     <CardHeader>
@@ -902,8 +901,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                     </form>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            )}
+            </TabsContent>
 
             <TabsContent value="tasks">
               <TasksList ticketId={ticketId} onEditTicket={() => { setIsEditing(true); setActiveTab('edit') }} />
