@@ -140,7 +140,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("tasks")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -361,7 +360,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       }
       const updated = await response.json()
       setTicket(updated)
-      setIsEditing(false)
       setActiveTab('tasks')
       toast({ title: "Sucesso", description: "Ticket atualizado com sucesso." })
     } catch (error: any) {
@@ -370,8 +368,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       setIsSaving(false)
     }
   }
-
-  const handleEdit = () => { setIsEditing(true); setActiveTab('edit') }
 
   const handleCancel = () => {
     if (ticket) {
@@ -394,7 +390,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
-    setIsEditing(false)
     setActiveTab('tasks')
   }
 
@@ -540,7 +535,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <TabsTrigger value="tasks" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Tarefas</TabsTrigger>
               <TabsTrigger value="comments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Comentários</TabsTrigger>
               <TabsTrigger value="attachments" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Anexos</TabsTrigger>
-              <TabsTrigger value="edit" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Editar</TabsTrigger>
+              <TabsTrigger value="edit" className="bg-slate-700 text-slate-200 hover:bg-slate-700/80 border border-slate-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:border-amber-600">Detalhes</TabsTrigger>
             </TabsList>
 
             <TabsContent value="edit" className="space-y-4">
@@ -904,7 +899,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
             </TabsContent>
 
             <TabsContent value="tasks">
-              <TasksList ticketId={ticketId} onEditTicket={() => { setIsEditing(true); setActiveTab('edit') }} />
+              <TasksList ticketId={ticketId} />
             </TabsContent>
 
             <TabsContent value="comments">

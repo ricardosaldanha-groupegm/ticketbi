@@ -90,7 +90,7 @@ const formatDateWithDiff = (value: string | null, start: string | null) => {
   return diff ? `${label} (${diff})` : label
 }
 
-export default function TasksList({ ticketId, onEditTicket }: { ticketId: string, onEditTicket?: () => void }) {
+export default function TasksList({ ticketId }: { ticketId: string }) {
   const { toast } = useToast()
 
   const [tasks, setTasks] = useState<Task[]>([])
@@ -438,15 +438,6 @@ export default function TasksList({ ticketId, onEditTicket }: { ticketId: string
               <CardDescription>Gestor de tarefas para este ticket</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Editar ticket"
-                onClick={() => onEditTicket && onEditTicket()}
-                className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
               <Button className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openCreate}>
                 Nova Tarefa
               </Button>
