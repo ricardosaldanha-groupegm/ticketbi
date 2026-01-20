@@ -54,7 +54,6 @@ const mockTicket = {
   pedido_por: 'Test User',
   data_pedido: '2024-01-01',
   data_esperada: null,
-  sla_date: null,
   internal_notes: null,
   created_at: '2024-01-01',
   updated_at: '2024-01-01',

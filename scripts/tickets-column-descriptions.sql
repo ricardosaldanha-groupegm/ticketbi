@@ -18,7 +18,6 @@ comment on column public.tickets.data_prevista_conclusao is 'Data prevista de co
 comment on column public.tickets.data_primeiro_contacto is 'Data do primeiro contacto do BI com o pedido.';
 comment on column public.tickets.data_inicio is 'Data de início do trabalho no ticket.';
 comment on column public.tickets.data_conclusao is 'Data de conclusão do ticket.';
-comment on column public.tickets.sla_date is 'Data limite do SLA (prazo de serviço).';
 comment on column public.tickets.entrega_tipo is 'Tipo de entrega (BI, PHC, Salesforce, etc.).';
 comment on column public.tickets.natureza is 'Natureza do ticket (Novo, Correção, Retrabalho, etc.).';
 comment on column public.tickets.retrabalhos_ticket is 'Número de retrabalhos registados no ticket.';

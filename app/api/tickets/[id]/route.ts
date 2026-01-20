@@ -26,7 +26,6 @@ import { z } from 'zod'
   data_prevista_conclusao: z.string().optional(),
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
-  sla_date: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -61,7 +60,6 @@ export async function GET(
         data_prevista_conclusao: null,
         data_conclusao: null,
         data_inicio: null,
-        sla_date: null,
         internal_notes: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -201,7 +199,6 @@ export async function PATCH(
         data_prevista_conclusao: null,
         data_conclusao: null,
         data_inicio: null,
-        sla_date: null,
         internal_notes: null,
         created_at: now,
         updated_at: now,
@@ -315,9 +312,6 @@ export async function PATCH(
     }
     if (typeof updatePayload.data_inicio === 'string' && updatePayload.data_inicio.trim() === '') {
       updatePayload.data_inicio = null
-    }
-    if (typeof updatePayload.sla_date === 'string' && updatePayload.sla_date.trim() === '') {
-      updatePayload.sla_date = null
     }
     const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
     if (

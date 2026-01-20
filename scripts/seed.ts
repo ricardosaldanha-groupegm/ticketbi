@@ -65,7 +65,6 @@ async function seedDatabase() {
         urgencia: 3,
         importancia: 4,
         data_esperada: '2024-02-15',
-        sla_date: '2024-02-20',
       },
       {
         id: '55555555-5555-5555-5555-555555555555',
@@ -78,7 +77,6 @@ async function seedDatabase() {
         urgencia: 4,
         importancia: 5,
         data_esperada: '2024-02-28',
-        sla_date: '2024-03-05',
       },
       {
         id: '66666666-6666-6666-6666-666666666666',
@@ -91,7 +89,6 @@ async function seedDatabase() {
         urgencia: 2,
         importancia: 3,
         data_esperada: '2024-03-10',
-        sla_date: '2024-03-15',
       },
     ]
 

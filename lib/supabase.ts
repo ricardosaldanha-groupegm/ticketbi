@@ -52,7 +52,6 @@ export type Database = {
           data_prevista_conclusao: string | null
           data_conclusao: string | null
           data_inicio: string | null
-          sla_date: string | null
           internal_notes: string | null
           created_at: string
           updated_at: string
@@ -74,7 +73,6 @@ export type Database = {
           data_prevista_conclusao?: string | null
           data_conclusao?: string | null
           data_inicio?: string | null
-          sla_date?: string | null
           internal_notes?: string | null
           created_at?: string
           updated_at?: string
@@ -96,7 +94,6 @@ export type Database = {
           data_prevista_conclusao?: string | null
           data_conclusao?: string | null
           data_inicio?: string | null
-          sla_date?: string | null
           internal_notes?: string | null
           created_at?: string
           updated_at?: string

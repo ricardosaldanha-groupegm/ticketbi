@@ -37,7 +37,6 @@ interface Ticket {
   data_primeiro_contacto: string | null
   data_conclusao: string | null
   data_inicio: string | null
-  sla_date: string | null
   created_at: string
   updated_at: string
   created_by: string
@@ -72,7 +71,6 @@ const updateTicketSchema = z.object({
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
   data_primeiro_contacto: z.string().optional(),
-  sla_date: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -212,7 +210,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         data_conclusao: data.data_conclusao ?? '',
         data_inicio: data.data_inicio ?? '',
         data_primeiro_contacto: data.data_primeiro_contacto ?? '',
-        sla_date: data.sla_date ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -386,7 +383,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         data_conclusao: ticket.data_conclusao ?? "",
         data_inicio: ticket.data_inicio ?? "",
         data_primeiro_contacto: ticket.data_primeiro_contacto ?? "",
-        sla_date: ticket.sla_date ?? "",
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
@@ -516,12 +512,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div>
                 <p className="text-slate-500">Data de conclusão</p>
                 <p>{formatDate(ticket.data_conclusao)}</p>
-              </div>
-            )}
-            {ticket.sla_date && (
-              <div>
-                <p className="text-slate-500">SLA</p>
-                <p>{formatDate(ticket.sla_date)}</p>
               </div>
             )}
           </div>
@@ -724,16 +714,6 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             value={ticket.prioridade ?? ""}
                             readOnly
                             className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="sla_date" className="text-slate-300">SLA</Label>
-                          <input
-                            id="sla_date"
-                            type="date"
-                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                            {...register("sla_date")}
-                            disabled={!canEditAllFields}
                           />
                         </div>
                       </div>

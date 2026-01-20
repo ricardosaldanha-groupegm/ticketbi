@@ -29,7 +29,6 @@ CREATE TABLE tickets (
     importancia INTEGER CHECK (importancia >= 1 AND importancia <= 5) DEFAULT 1,
     prioridade INTEGER GENERATED ALWAYS AS (urgencia * importancia) STORED,
     data_esperada DATE,
-    sla_date DATE,
     internal_notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
