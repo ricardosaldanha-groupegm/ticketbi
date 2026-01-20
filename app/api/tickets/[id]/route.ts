@@ -12,6 +12,9 @@ import { z } from 'zod'
 ] as const
 
  const updateTicketSchema = z.object({
+  assunto: z.string().min(1, 'Campo obrigatorio').optional(),
+  pedido_por: z.string().min(1, 'Campo obrigatorio').optional(),
+  data_pedido: z.string().optional(),
   descricao: z.string().min(1, 'Campo obrigatorio'),
   objetivo: z.string().min(1, 'Campo obrigatorio'),
   internal_notes: z.string().optional(),
@@ -23,6 +26,7 @@ import { z } from 'zod'
   data_prevista_conclusao: z.string().optional(),
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
+  sla_date: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -297,6 +301,9 @@ export async function PATCH(
     if (typeof updatePayload.data_esperada === 'string' && updatePayload.data_esperada.trim() === '') {
       updatePayload.data_esperada = null
     }
+    if (typeof updatePayload.data_pedido === 'string' && updatePayload.data_pedido.trim() === '') {
+      updatePayload.data_pedido = null
+    }
     if (typeof updatePayload.data_primeiro_contacto === 'string' && updatePayload.data_primeiro_contacto.trim() === '') {
       updatePayload.data_primeiro_contacto = null
     }
@@ -308,6 +315,9 @@ export async function PATCH(
     }
     if (typeof updatePayload.data_inicio === 'string' && updatePayload.data_inicio.trim() === '') {
       updatePayload.data_inicio = null
+    }
+    if (typeof updatePayload.sla_date === 'string' && updatePayload.sla_date.trim() === '') {
+      updatePayload.sla_date = null
     }
     const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
     if (

@@ -38,10 +38,10 @@ interface Ticket {
   data_conclusao: string | null
   data_inicio: string | null
   sla_date: string | null
-  internal_notes: string | null
   created_at: string
   updated_at: string
   created_by: string
+  internal_notes: string | null
   gestor_id: string | null
   created_by_user: { name: string; email: string }
   gestor: { name: string; email: string } | null
@@ -58,6 +58,9 @@ const naturezaValues = [
 ] as const
 
 const updateTicketSchema = z.object({
+  assunto: z.string().min(1, "Campo obrigatorio").optional(),
+  pedido_por: z.string().min(1, "Campo obrigatorio").optional(),
+  data_pedido: z.string().optional(),
   descricao: z.string().min(1, "Campo obrigatorio"),
   objetivo: z.string().min(1, "Campo obrigatorio"),
   internal_notes: z.string().optional(),
@@ -68,6 +71,8 @@ const updateTicketSchema = z.object({
   data_prevista_conclusao: z.string().optional(),
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
+  data_primeiro_contacto: z.string().optional(),
+  sla_date: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
@@ -153,6 +158,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   // Dropdown de interessados (edição)
   const [openInterestedEdit, setOpenInterestedEdit] = useState(false)
   const [interestedQuery, setInterestedQuery] = useState("")
+  const canEditAllFields = currentRole === 'admin' || currentRole === 'bi'
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
@@ -193,6 +199,9 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       setTicket(data)
       setSelectedGestorId(data.gestor_id ?? "")
       reset({
+        assunto: data.assunto ?? "",
+        pedido_por: data.pedido_por ?? "",
+        data_pedido: data.data_pedido ?? "",
         descricao: data.descricao ?? "",
         objetivo: data.objetivo ?? "",
         internal_notes: data.internal_notes ?? "",
@@ -203,6 +212,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         data_prevista_conclusao: data.data_prevista_conclusao ?? '',
         data_conclusao: data.data_conclusao ?? '',
         data_inicio: data.data_inicio ?? '',
+        data_primeiro_contacto: data.data_primeiro_contacto ?? '',
+        sla_date: data.sla_date ?? '',
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -365,6 +376,9 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const handleCancel = () => {
     if (ticket) {
       reset({
+        assunto: ticket.assunto ?? "",
+        pedido_por: ticket.pedido_por ?? "",
+        data_pedido: ticket.data_pedido ?? "",
         descricao: ticket.descricao ?? "",
         objetivo: ticket.objetivo ?? "",
         internal_notes: ticket.internal_notes ?? "",
@@ -375,6 +389,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         data_prevista_conclusao: ticket.data_prevista_conclusao ?? "",
         data_conclusao: ticket.data_conclusao ?? "",
         data_inicio: ticket.data_inicio ?? "",
+        data_primeiro_contacto: ticket.data_primeiro_contacto ?? "",
+        sla_date: ticket.sla_date ?? "",
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
@@ -649,16 +665,20 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                 <Card className="bg-slate-800 border-slate-700">
                   <CardHeader>
                     <CardTitle>Editar ticket</CardTitle>
-                    <CardDescription>
-                      Pode editar descrição, objetivo e notas internas. Os restantes campos são apenas de leitura.
-                    </CardDescription>
+                  <CardDescription>
+                    Pode editar todos os campos permitidos pelo seu perfil. Alguns campos são apenas de leitura.
+                  </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                          <Label className="text-slate-300">Assunto</Label>
-                          <div className="rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-200">{ticket.assunto}</div>
+                          <Label htmlFor="assunto" className="text-slate-300">Assunto</Label>
+                          <input
+                            id="assunto"
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                            {...register("assunto")}
+                          />
                         </div>
                         <div>
                           <Label htmlFor="estado" className="text-slate-300">Estado</Label>
@@ -669,12 +689,58 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             defaultValue={ticket.estado}
                           >
                             <option value="novo">Novo</option>
-                            <option value="em_curso">Em curso</option>`n                            <option value="em_analise">Em análise</option>
+                            <option value="em_curso">Em curso</option>
+                            <option value="em_analise">Em análise</option>
+                            <option value="em_validacao">Em validação</option>
                             <option value="Aguardando 3ºs">Aguardando 3ºs</option>
                             <option value="Standby">Standby</option>
-                            <option value="concluido">Concluído</option>`n                            <option value="rejeitado">Rejeitado</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="rejeitado">Rejeitado</option>
                             <option value="bloqueado">Bloqueado</option>
                           </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <Label htmlFor="pedido_por" className="text-slate-300">Pedido por</Label>
+                          <input
+                            id="pedido_por"
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                            {...register("pedido_por")}
+                            disabled={!canEditAllFields}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="data_pedido" className="text-slate-300">Data do pedido</Label>
+                          <input
+                            id="data_pedido"
+                            type="date"
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                            {...register("data_pedido")}
+                            disabled={!canEditAllFields}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <Label className="text-slate-300">Prioridade (calculada)</Label>
+                          <input
+                            value={ticket.prioridade ?? ""}
+                            readOnly
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="sla_date" className="text-slate-300">SLA</Label>
+                          <input
+                            id="sla_date"
+                            type="date"
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                            {...register("sla_date")}
+                            disabled={!canEditAllFields}
+                          />
                         </div>
                       </div>
 
@@ -737,6 +803,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       )}
                       {(currentRole === 'admin' || currentRole === 'bi') && (
                         <div className="space-y-2">
+                          <Label htmlFor="data_primeiro_contacto" className="text-slate-300">Data de primeiro contacto</Label>
+                          <input id="data_primeiro_contacto" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_primeiro_contacto")} />
+                        </div>
+                      )}
+                      {(currentRole === 'admin' || currentRole === 'bi') && (
+                        <div className="space-y-2">
                           <Label htmlFor="data_conclusao" className="text-slate-300">Data de conclusão</Label>
                           <input id="data_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_conclusao")} />
                         </div>
@@ -747,6 +819,43 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <input id="data_inicio" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_inicio")} />
                         </div>
                       )}
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <Label className="text-slate-300">Criado em</Label>
+                          <input
+                            value={ticket.created_at ? formatDate(ticket.created_at) : ""}
+                            readOnly
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-slate-300">Atualizado em</Label>
+                          <input
+                            value={ticket.updated_at ? formatDate(ticket.updated_at) : ""}
+                            readOnly
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <Label className="text-slate-300">Criado por (ID)</Label>
+                          <input
+                            value={ticket.created_by ?? ""}
+                            readOnly
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-slate-300">Gestor (ID)</Label>
+                          <input
+                            value={ticket.gestor_id ?? ""}
+                            readOnly
+                            className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-300 cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
