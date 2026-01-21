@@ -100,11 +100,32 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   }
 
   const handleDownload = async (attachment: Attachment) => {
-    if (attachment.storage_path) {
-      window.open(`/api/files/open?attachmentId=${attachment.id}`, '_blank')
-      return
+    try {
+      if (attachment.storage_path) {
+        const headers: HeadersInit = {}
+        if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+        const resp = await fetch(`/api/files/open?attachmentId=${attachment.id}`, {
+          headers,
+          redirect: 'manual',
+        })
+        if (resp.status === 307 || resp.status === 302) {
+          const url = resp.headers.get('Location')
+          if (url) {
+            window.open(url, '_blank')
+            return
+          }
+        }
+        const payload = await resp.json().catch(() => null)
+        throw new Error(payload?.error || 'Erro ao preparar download')
+      }
+      if (attachment.url) {
+        window.open(attachment.url, '_blank')
+        return
+      }
+      throw new Error('Anexo sem URL disponível')
+    } catch (err: any) {
+      toast({ title: 'Erro', description: err?.message || 'Falha ao fazer download', variant: 'destructive' })
     }
-    if (attachment.url) window.open(attachment.url, '_blank')
   }
 
   const handleAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
