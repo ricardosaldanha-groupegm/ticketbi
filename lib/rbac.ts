@@ -13,10 +13,18 @@ export interface AuthUser {
   role: UserRole
 }
 
+const normalizeValue = (value?: string | null) => (value ?? '').trim().toLowerCase()
+
+const isRequestedByUser = (user: AuthUser, ticket: Ticket) => {
+  const pedidoPor = normalizeValue((ticket as any).pedido_por)
+  if (!pedidoPor) return false
+  return pedidoPor === normalizeValue(user.name) || pedidoPor === normalizeValue(user.email)
+}
+
 // RBAC Functions
 export function canReadTicket(user: AuthUser, ticket: Ticket): boolean {
   if (user.role === 'admin' || user.role === 'bi') return true
-  return ticket.created_by === user.id
+  return ticket.created_by === user.id || isRequestedByUser(user, ticket)
 }
 
 export function canEditTicket(user: AuthUser, ticket: Ticket, fields?: string[]): boolean {
@@ -56,6 +64,7 @@ export function canCommentOnTicket(user: AuthUser, ticket: Ticket): boolean {
   if (user.role === 'admin') return true
   if (user.role === 'bi' && ticket.gestor_id === user.id) return true
   if (user.id === ticket.created_by) return true
+  if (isRequestedByUser(user, ticket)) return true
   return false
 }
 

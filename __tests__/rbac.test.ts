@@ -92,6 +92,11 @@ describe('RBAC Functions', () => {
       const otherTicket = { ...mockTicket, created_by: 'other-requester' }
       expect(canReadTicket(mockRequester, otherTicket)).toBe(false)
     })
+
+    it('should allow requester to read ticket requested by them (name)', () => {
+      const requestedTicket = { ...mockTicket, created_by: 'other-requester', pedido_por: mockRequester.name }
+      expect(canReadTicket(mockRequester, requestedTicket)).toBe(true)
+    })
   })
 
   describe('canEditTicket', () => {
@@ -209,6 +214,11 @@ describe('RBAC Functions', () => {
       const otherTicket = { ...mockTicket, created_by: 'other-requester' }
       expect(canCommentOnTicket(mockRequester, otherTicket)).toBe(false)
     })
+
+    it('should allow requester to comment on ticket requested by them (email)', () => {
+      const requestedTicket = { ...mockTicket, created_by: 'other-requester', pedido_por: mockRequester.email }
+      expect(canCommentOnTicket(mockRequester, requestedTicket)).toBe(true)
+    })
   })
 
   describe('canCommentOnSubticket', () => {
@@ -238,6 +248,8 @@ describe('RBAC Functions', () => {
       
       const otherTicket = { ...mockTicket, created_by: 'other-requester' }
       expect(canUploadToTicket(mockRequester, otherTicket)).toBe(false)
+      const requestedTicket = { ...mockTicket, created_by: 'other-requester', pedido_por: mockRequester.name }
+      expect(canUploadToTicket(mockRequester, requestedTicket)).toBe(true)
     })
   })
 

@@ -36,16 +36,20 @@ export async function GET(request: NextRequest) {
 
     // Resolve role from DB when possible; also consider header as hint (for admin/bi)
     let resolvedRole: string | null = null
+    let requesterName: string | null = null
+    let requesterEmail: string | null = null
     const hintedRole = (request.headers.get('x-user-role') || request.headers.get('X-User-Role') || '')
       .toString()
       .toLowerCase()
     if (userId) {
       const { data: roleRow } = await supabase
         .from('users')
-        .select('role')
+        .select('role, name, email')
         .eq('id', userId)
         .maybeSingle()
       resolvedRole = (roleRow as any)?.role ?? null
+      requesterName = (roleRow as any)?.name ?? null
+      requesterEmail = (roleRow as any)?.email ?? null
     }
     // Compute effective role:
     // - If DB says admin/bi/requester, use that
@@ -73,6 +77,23 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false })
 
       if (e1) error = e1
+
+      // 1b) Tickets onde "pedido_por" corresponde ao utilizador
+      let byRequester: any[] = []
+      const pedidoPorValues = [requesterName, requesterEmail].filter(Boolean)
+      if (pedidoPorValues.length > 0) {
+        const { data: requested, error: e1b } = await supabase
+          .from('tickets')
+          .select(`
+            *,
+            created_by_user:users!tickets_created_by_fkey(name, email),
+            gestor:users!tickets_gestor_id_fkey(name, email)
+          `)
+          .in('pedido_por', pedidoPorValues as any)
+          .order('created_at', { ascending: false })
+        if (e1b && !error) error = e1b
+        byRequester = requested || []
+      }
 
       // 2) Tickets onde o utilizador tem subtarefas atribuÃ­das
       const { data: mySubs, error: e2 } = await supabase
@@ -135,7 +156,7 @@ export async function GET(request: NextRequest) {
         byWatched = extraW || []
       }
 
-      const combined = [...(mine || []), ...byAssigned, ...(managed || []), ...byWatched]
+      const combined = [...(mine || []), ...byRequester, ...byAssigned, ...(managed || []), ...byWatched]
       // dedupe by id
       const seen = new Set<string>()
       ticketsData = combined.filter((t: any) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
