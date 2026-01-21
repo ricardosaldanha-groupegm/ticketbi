@@ -101,9 +101,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
 
   const handleDownload = async (attachment: Attachment) => {
     if (attachment.storage_path) {
-      const resp = await fetch(`/api/files/open?attachmentId=${attachment.id}`)
-      if (!resp.ok) return
-      // redireciona pelo 307
+      window.open(`/api/files/open?attachmentId=${attachment.id}`, '_blank')
       return
     }
     if (attachment.url) window.open(attachment.url, '_blank')
