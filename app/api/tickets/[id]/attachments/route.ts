@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
-import { canReadTicket, canUploadToTicket } from '@/lib/rbac'
+import { canReadTicket, canUploadToTicket, createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
 const createAttachmentSchema = z.object({
@@ -29,15 +29,11 @@ export async function GET(
 
     // Production mode - use Supabase with auth (fallback to header in preview/dev)
     const supabase = createServerSupabaseClient()
-    let user: any = null
+    let user: AuthUser | null = null
     try {
       user = await requireAuth()
     } catch (_) {
-      const hdrId = request.headers.get('x-user-id')
-      if (hdrId) {
-        const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
-        if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
-      }
+      user = await resolveAuthUser(request, supabase)
       if (!user) {
         // Soft-fail to empty list to avoid breaking UI when unauthenticated
         return NextResponse.json([])
@@ -60,7 +56,14 @@ export async function GET(
     }
 
     if (!canReadTicket(user, ticket)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const { data: w } = await supabase
+        .from('ticket_watchers')
+        .select('user_id')
+        .eq('ticket_id', params.id)
+        .eq('user_id', user.id)
+      if (!w || w.length === 0) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     // Get attachments
@@ -91,15 +94,11 @@ export async function POST(
 ) {
   try {
     const supabase = createServerSupabaseClient()
-    let user: any = null
+    let user: AuthUser | null = null
     try {
       user = await requireAuth()
     } catch (_) {
-      const hdrId = request.headers.get('x-user-id')
-      if (hdrId) {
-        const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
-        if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
-      }
+      user = await resolveAuthUser(request, supabase)
       if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
@@ -174,5 +173,20 @@ export async function POST(
     console.error('Error creating attachment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+}
+
+async function resolveAuthUser(
+  request: NextRequest,
+  supabase: ReturnType<typeof createServerSupabaseClient>
+): Promise<AuthUser | null> {
+  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+  if (!userId) return null
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+  if (!dbUser) return null
+  return createAuthUser(dbUser as any)
 }
 
