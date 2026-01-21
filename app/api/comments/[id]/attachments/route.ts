@@ -71,9 +71,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const { error: lErr } = await supabase.from('comment_attachments').insert(links as any)
     if (lErr) return NextResponse.json({ error: lErr.message }, { status: 500 })
 
+    // Generate signed URLs for comment links (1 year expiration)
+    const signedUrls: string[] = []
+    for (const att of created || []) {
+      const { data: signed, error: sErr } = await supabase.storage
+        .from('attachments')
+        .createSignedUrl(att.storage_path, 31536000) // 1 year in seconds
+      if (!sErr && signed?.signedUrl) {
+        signedUrls.push(signed.signedUrl)
+      } else {
+        // Fallback to public URL
+        signedUrls.push(att.url || '')
+      }
+    }
+
     // Update comment body to include attachment links
     const currentBody = (comment as any).body || ''
-    const attachmentLinks = (created || []).map((att: any) => `- [${att.filename}](${att.url})`).join('\n')
+    const attachmentLinks = (created || []).map((att: any, idx: number) => `- [${att.filename}](${signedUrls[idx] || att.url})`).join('\n')
     const newBody = currentBody + (currentBody.trim() ? '\n\n' : '') + 'Anexos enviados:\n' + attachmentLinks
     const { error: uErr } = await (supabase as any)
       .from('comments')
