@@ -52,13 +52,14 @@ export async function GET(request: NextRequest) {
         .eq('id', att.subticket_id)
         .maybeSingle()
       if (subticket) {
-        if (user.role === 'admin' || user.role === 'bi' || subticket.assignee_bi_id === user.id) {
+        const st: any = subticket as any
+        if (user.role === 'admin' || user.role === 'bi' || st.assignee_bi_id === user.id) {
           allowed = true
-        } else if (subticket.ticket_id) {
+        } else if (st.ticket_id) {
           const { data: ticket } = await supabase
             .from('tickets')
             .select('*')
-            .eq('id', subticket.ticket_id)
+            .eq('id', st.ticket_id)
             .maybeSingle()
           if (ticket) {
             allowed = canReadTicket(user, ticket as any)
