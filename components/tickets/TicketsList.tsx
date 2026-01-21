@@ -191,7 +191,9 @@ export default function TicketsList() {
     }
 
     if (responsavelFilter === "me" && currentUserId) {
-      arr = arr.filter((t) => t.gestor_id === currentUserId)
+      if (currentUserRole === "admin" || currentUserRole === "bi") {
+        arr = arr.filter((t) => t.gestor_id === currentUserId)
+      }
     } else if (responsavelFilter === "none") {
       arr = arr.filter((t) => !t.gestor_id)
     }

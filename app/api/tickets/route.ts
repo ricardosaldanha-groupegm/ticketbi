@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
         byWatched = extraW || []
       }
 
-      const combined = [...(mine || []), ...byAssigned, ...(managed || [])]
+      const combined = [...(mine || []), ...byAssigned, ...(managed || []), ...byWatched]
       // dedupe by id
       const seen = new Set<string>()
       ticketsData = combined.filter((t: any) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
