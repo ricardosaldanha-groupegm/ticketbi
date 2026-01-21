@@ -157,7 +157,14 @@ export async function POST(
     }
 
     if (!canCommentOnTicket(user, ticket)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const { data: w } = await supabase
+        .from('ticket_watchers')
+        .select('user_id')
+        .eq('ticket_id', params.id)
+        .eq('user_id', user.id)
+      if (!w || w.length === 0) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const commentData = {
