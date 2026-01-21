@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -29,7 +29,9 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
   const fetchAttachments = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/tickets/${ticketId}/attachments`)
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      const response = await fetch(`/api/tickets/${ticketId}/attachments`, { headers })
       const data = await response.json()
 
       if (!response.ok) {
@@ -50,7 +52,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
 
   useEffect(() => {
     fetchAttachments()
-  }, [ticketId])
+  }, [ticketId, currentUserId])
 
   useEffect(() => {
     (async () => {
