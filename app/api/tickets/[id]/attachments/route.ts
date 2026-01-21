@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canUploadToTicket } from '@/lib/rbac'
@@ -144,6 +144,11 @@ export async function POST(
       ...validatedData,
       ticket_id: params.id,
       uploaded_by: user.id,
+      url: supabase.storage.from('attachments').getPublicUrl(validatedData.storage_path).data.publicUrl,
+    }
+
+    if (!attachmentData.url) {
+      return NextResponse.json({ error: 'Não foi possível gerar o URL do anexo' }, { status: 500 })
     }
 
     const { data: attachment, error } = await (supabase as any)
