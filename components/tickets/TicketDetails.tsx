@@ -665,6 +665,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                                 id="assunto"
                                 className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
                                 {...register("assunto")}
+                                disabled={!canEditAllFields}
                               />
                             </div>
                             <div>
@@ -674,6 +675,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                                 className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
                                 {...register("estado")}
                                 defaultValue={ticket.estado}
+                                disabled={!canEditAllFields}
                               >
                                 <option value="novo">Novo</option>
                                 <option value="em_curso">Em curso</option>
@@ -728,19 +730,19 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
                             <div>
                               <Label htmlFor="entrega_tipo" className="text-slate-300">Tipo de Entrega</Label>
-                              <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'}>
+                              <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'} disabled={!canEditAllFields}>
                                 {entregaTipoValues.map(v => (<option key={v} value={v}>{v}</option>))}
                               </select>
                             </div>
                             <div>
                               <Label htmlFor="natureza" className="text-slate-300">Natureza</Label>
-                              <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'}>
+                              <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'} disabled={!canEditAllFields}>
                                 {naturezaValues.map(v => (<option key={v} value={v}>{v}</option>))}
                               </select>
                             </div>
                             <div>
                               <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
-                              <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })}>
+                              <select id="urgencia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("urgencia", { valueAsNumber: true })} disabled={!canEditAllFields}>
                                 <option value="1">1 - Baixa</option>
                                 <option value="2">2 - Média</option>
                                 <option value="3">3 - Elevada</option>
@@ -748,7 +750,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             </div>
                             <div>
                               <Label htmlFor="importancia" className="text-slate-300">Importância (1-3)</Label>
-                              <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })}>
+                              <select id="importancia" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("importancia", { valueAsNumber: true })} disabled={!canEditAllFields}>
                                 <option value="1">1 - Baixa</option>
                                 <option value="2">2 - Média</option>
                                 <option value="3">3 - Elevada</option>
@@ -770,17 +772,17 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                               <Label htmlFor="descricao" className="text-slate-300">Descrição *</Label>
-                              <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} />
+                              <Textarea id="descricao" rows={4} className="bg-slate-700 text-slate-100" {...register("descricao")} disabled={!canEditAllFields} />
                               {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido *</Label>
-                              <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} />
+                              <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} disabled={!canEditAllFields} />
                               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
                             </div>
                             <div className="md:col-span-2 space-y-2">
                               <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
-                              <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} />
+                              <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} disabled={!canEditAllFields} />
                             </div>
                           </div>
                         </div>
@@ -790,7 +792,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             <div>
                               <Label htmlFor="data_esperada" className="text-slate-300">Data conclusão esperada</Label>
-                              <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} />
+                              <input id="data_esperada" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_esperada")} disabled={!canEditAllFields} />
                             </div>
                             {(currentRole === 'admin' || currentRole === 'bi') && (
                               <div>
@@ -868,6 +870,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                                 min={0}
                                 className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
                                 {...register("retrabalhos_ticket", { valueAsNumber: true })}
+                                disabled={!canEditAllFields}
                               />
                             </div>
                           </div>
@@ -877,7 +880,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                       <div className="flex items-center gap-3">
                         <Button
                           type="submit"
-                          disabled={isSaving}
+                          disabled={isSaving || !canEditAllFields}
                           variant="outline"
                           size="icon"
                           aria-label="Guardar"
