@@ -251,6 +251,41 @@ const fetchComments = useCallback(async () => {
     if (Number.isNaN(d.getTime())) return ''
     return d.toLocaleDateString('pt-PT')
   }
+
+  const renderCommentBody = (body: string) => {
+    // Convert markdown links [text](url) to clickable links
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+    const parts: (string | JSX.Element)[] = []
+    let lastIndex = 0
+    let match
+    let key = 0
+
+    while ((match = linkRegex.exec(body)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(body.substring(lastIndex, match.index))
+      }
+      // Add the link
+      parts.push(
+        <a
+          key={key++}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-amber-400 hover:text-amber-300 underline"
+        >
+          {match[1]}
+        </a>
+      )
+      lastIndex = match.index + match[0].length
+    }
+    // Add remaining text
+    if (lastIndex < body.length) {
+      parts.push(body.substring(lastIndex))
+    }
+
+    return parts.length > 0 ? parts : body
+  }
   if (authReady && !currentUser) {
     return (
       <Card className="bg-slate-800 border-slate-700">
@@ -354,7 +389,7 @@ const fetchComments = useCallback(async () => {
                     </p>
                   </div>
                 </div>
-                <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
+                <p className="text-sm whitespace-pre-wrap">{renderCommentBody(comment.body)}</p>
               </div>
             ))
           )}
