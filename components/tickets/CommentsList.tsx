@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -37,6 +37,7 @@ export default function CommentsList({ ticketId, subticketId, hideForm = false }
   // Files to attach to the comment (uploaded before submit)
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
 
 
@@ -202,6 +203,10 @@ const fetchComments = useCallback(async () => {
       }
 
       reset()
+      setFiles([])
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
       fetchComments()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao criar comentario'
@@ -306,7 +311,7 @@ const fetchComments = useCallback(async () => {
         { !hideForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Input type="file" multiple className="bg-slate-700 border border-slate-600 text-slate-100 file:text-slate-100" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
+            <Input ref={fileInputRef} type="file" multiple className="bg-slate-700 border border-slate-600 text-slate-100 file:text-slate-100" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
             <Textarea
               {...register('body')}
               placeholder="Escreva um comentario..."

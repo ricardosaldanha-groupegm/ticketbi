@@ -71,6 +71,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const { error: lErr } = await supabase.from('comment_attachments').insert(links as any)
     if (lErr) return NextResponse.json({ error: lErr.message }, { status: 500 })
 
+    // Update comment body to include attachment links
+    const currentBody = (comment as any).body || ''
+    const attachmentLinks = (created || []).map((att: any) => `- [${att.filename}](/api/files/open?attachmentId=${att.id})`).join('\n')
+    const newBody = currentBody + (currentBody.trim() ? '\n\n' : '') + 'Anexos enviados:\n' + attachmentLinks
+    const { error: uErr } = await supabase
+      .from('comments')
+      .update({ body: newBody })
+      .eq('id', params.id)
+    if (uErr) {
+      // Non-fatal: attachments are linked, just the comment body update failed
+      console.warn('Failed to update comment body with attachment links:', uErr)
+    }
+
     return NextResponse.json({ attachments: created }, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
