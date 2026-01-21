@@ -688,12 +688,27 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             </div>
                             <div>
                               <Label htmlFor="pedido_por" className="text-slate-300">Pedido por</Label>
-                              <input
-                                id="pedido_por"
-                                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                                {...register("pedido_por")}
-                                disabled={!canEditAllFields}
-                              />
+                              {canEditAllFields ? (
+                                <select
+                                  id="pedido_por"
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                  {...register("pedido_por")}
+                                  defaultValue={ticket.pedido_por}
+                                >
+                                  {allUsers.map((u) => (
+                                    <option key={u.id} value={u.name}>
+                                      {u.name} ({u.email})
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <input
+                                  id="pedido_por"
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                  {...register("pedido_por")}
+                                  disabled
+                                />
+                              )}
                             </div>
                             <div>
                               <Label htmlFor="data_pedido" className="text-slate-300">Data do pedido</Label>
