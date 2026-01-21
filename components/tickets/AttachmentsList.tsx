@@ -195,7 +195,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Tipo</TableHead>
+                <TableHead className="w-[140px]">Tipo</TableHead>
                 <TableHead>Tamanho</TableHead>
                 <TableHead>Enviado por</TableHead>
                 <TableHead>Data</TableHead>
@@ -211,7 +211,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
                       {attachment.filename}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[140px] truncate">
                     <span className="text-sm text-slate-400">
                       {attachment.mimetype}
                     </span>
