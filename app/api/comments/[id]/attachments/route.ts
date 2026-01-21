@@ -75,7 +75,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const currentBody = (comment as any).body || ''
     const attachmentLinks = (created || []).map((att: any) => `- [${att.filename}](/api/files/open?attachmentId=${att.id})`).join('\n')
     const newBody = currentBody + (currentBody.trim() ? '\n\n' : '') + 'Anexos enviados:\n' + attachmentLinks
-    const { error: uErr } = await supabase
+    const { error: uErr } = await (supabase as any)
       .from('comments')
       .update({ body: newBody })
       .eq('id', params.id)
