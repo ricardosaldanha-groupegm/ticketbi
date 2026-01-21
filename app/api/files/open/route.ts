@@ -85,6 +85,11 @@ export async function GET(request: NextRequest) {
       .createSignedUrl(att.storage_path as string, expires)
     if (sErr || !signed?.signedUrl) return NextResponse.json({ error: sErr?.message || 'Failed to sign url' }, { status: 500 })
 
+    const wantsJson = request.headers.get('x-return-json') === '1'
+    if (wantsJson) {
+      return NextResponse.json({ url: signed.signedUrl })
+    }
+
     return NextResponse.redirect(signed.signedUrl, { status: 307 })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Internal server error' }, { status: 500 })

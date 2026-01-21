@@ -105,18 +105,14 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
         const headers: HeadersInit = {}
         if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
         const resp = await fetch(`/api/files/open?attachmentId=${attachment.id}`, {
-          headers,
-          redirect: 'manual',
+          headers: { ...headers, 'X-Return-Json': '1' },
         })
-        if (resp.status === 307 || resp.status === 302) {
-          const url = resp.headers.get('Location')
-          if (url) {
-            window.open(url, '_blank')
-            return
-          }
-        }
         const payload = await resp.json().catch(() => null)
-        throw new Error(payload?.error || 'Erro ao preparar download')
+        if (!resp.ok || !payload?.url) {
+          throw new Error(payload?.error || 'Erro ao preparar download')
+        }
+        window.open(payload.url, '_blank')
+        return
       }
       if (attachment.url) {
         window.open(attachment.url, '_blank')
@@ -203,7 +199,7 @@ export default function AttachmentsList({ ticketId }: { ticketId: string }) {
                 <TableHead>Tamanho</TableHead>
                 <TableHead>Enviado por</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead>AÃ§Ãµes</TableHead>
+                <TableHead>Anexos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
