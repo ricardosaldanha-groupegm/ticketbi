@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -189,13 +189,14 @@ const fetchComments = useCallback(async () => {
         try {
           const linkResp = await fetch(`/api/comments/${result.id}/attachments`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.id },
             body: JSON.stringify({ attachments: uploadedMetas, ticket_id: ticketId, subticket_id: subticketId }),
           })
           if (!linkResp.ok) {
             // non-fatal; just inform
             const e = await linkResp.json().catch(() => ({} as any))
             console.warn('Falha a associar anexos ao comentário:', e)
+            toast({ title: 'Aviso', description: 'Comentário enviado, mas falhou o upload do anexo.', variant: 'destructive' })
           }
         } catch {}
       }

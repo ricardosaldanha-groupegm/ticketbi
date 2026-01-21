@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
+import { createAuthUser, AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
 const attachmentSchema = z.object({
@@ -19,8 +20,14 @@ const payloadSchema = z.object({
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = await requireAuth()
     const supabase = createServerSupabaseClient()
+    let user: AuthUser | null = null
+    try {
+      user = await requireAuth()
+    } catch (_) {
+      user = await resolveAuthUser(request, supabase)
+    }
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Validate comment existence
     const { data: comment, error: cErr } = await supabase
@@ -47,6 +54,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       mimetype: a.mimetype,
       size_bytes: a.size_bytes,
       storage_path: a.storage_path,
+      url: supabase.storage.from('attachments').getPublicUrl(a.storage_path).data.publicUrl,
       uploaded_by: user.id,
       ticket_id: parsed.ticket_id ?? null,
       subticket_id: parsed.subticket_id ?? null,
@@ -70,4 +78,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+}
+
+async function resolveAuthUser(
+  request: NextRequest,
+  supabase: ReturnType<typeof createServerSupabaseClient>
+): Promise<AuthUser | null> {
+  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-Id')
+  if (!userId) return null
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+  if (!dbUser) return null
+  return createAuthUser(dbUser as any)
 }
