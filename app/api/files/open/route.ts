@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
               const { data: w } = await supabase
                 .from('ticket_watchers')
                 .select('user_id')
-                .eq('ticket_id', subticket.ticket_id)
+                .eq('ticket_id', st.ticket_id)
                 .eq('user_id', user.id)
               if (w && w.length > 0) allowed = true
             }
