@@ -23,6 +23,7 @@ interface UserInfo {
 
 export default function Header() {
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [pendingCount, setPendingCount] = useState<number>(0)
 
   useEffect(() => {
     let cancelled = false
@@ -66,6 +67,37 @@ export default function Header() {
     load()
     return () => { cancelled = true }
   }, [])
+
+  // Fetch pending access requests count for admins
+  useEffect(() => {
+    if (user?.role !== 'admin') {
+      setPendingCount(0)
+      return
+    }
+
+    let cancelled = false
+    const fetchPendingCount = async () => {
+      try {
+        const response = await fetch('/api/access-requests/pending-count')
+        if (!response.ok) return
+        const data = await response.json()
+        if (!cancelled) {
+          setPendingCount(data.count || 0)
+        }
+      } catch (error) {
+        console.error('Error fetching pending count:', error)
+      }
+    }
+
+    fetchPendingCount()
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000)
+
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [user?.role])
 
   if (!user) {
     return null
@@ -126,8 +158,15 @@ export default function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-slate-300">
+            <div className="text-sm text-slate-300 flex items-center gap-2">
               <span className="text-amber-400">{user.name}</span>
+              {user.role === 'admin' && pendingCount > 0 && (
+                <Link href="/admin/access-requests" className="relative">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors">
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                </Link>
+              )}
               <span className="mx-2">|</span>
               <span>{user.role === 'requester' ? 'Utilizador' : user.role === 'bi' ? 'BI' : user.role === 'admin' ? 'Admin' : user.role}</span>
             </div>
