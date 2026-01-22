@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, getPedidoPorEmail, sendTicketWebhook } from '@/lib/webhook'
+import { getTicketNotificationRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
  const entregaTipoValues = [
@@ -377,6 +377,7 @@ export async function PATCH(
 
         if (filteredRecipients.length > 0) {
           const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
+          const origin = request.headers.get('origin') || undefined
           const ticketData = {
             id: params.id,
             assunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
@@ -384,6 +385,7 @@ export async function PATCH(
             pedido_por_email: pedidoPorEmail || undefined,
             estado: (ticket as any).estado,
             data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
+            url: getTicketUrl(params.id, origin),
           }
 
           // Status change notification

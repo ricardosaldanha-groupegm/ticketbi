@@ -14,6 +14,7 @@ interface TicketWebhookData {
     pedido_por_email?: string
     estado?: string
     data_prevista_conclusao?: string | null
+    url: string
   }
   recipients: WebhookRecipient[]
   eventDetails: {
@@ -48,6 +49,22 @@ export async function getPedidoPorEmail(
 
   const req = requester as { email: string; name: string } | null
   return req?.email || null
+}
+
+/**
+ * Get ticket URL based on environment
+ */
+export function getTicketUrl(ticketId: string, baseUrl?: string): string {
+  // Try to get base URL from environment variable, request origin, or default
+  const siteUrl = baseUrl || process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || 'https://ticketbi.vercel.app'
+  
+  // Ensure URL has protocol
+  const url = siteUrl.startsWith('http') ? siteUrl : `https://${siteUrl}`
+  
+  // Remove trailing slash if present
+  const cleanUrl = url.replace(/\/$/, '')
+  
+  return `${cleanUrl}/tickets/${ticketId}`
 }
 
 /**

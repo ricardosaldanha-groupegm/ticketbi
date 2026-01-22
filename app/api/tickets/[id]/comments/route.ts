@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, getPedidoPorEmail, sendTicketWebhook } from '@/lib/webhook'
+import { getTicketNotificationRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import type { Database } from '@/lib/supabase'
 import { z } from 'zod'
 
@@ -212,6 +212,7 @@ export async function POST(
         const filteredRecipients = recipients.filter((r) => r.email !== authorEmail)
         if (filteredRecipients.length > 0) {
           const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
+          const origin = request.headers.get('origin') || undefined
           await sendTicketWebhook({
             event: 'comment',
             ticket: {
@@ -220,6 +221,7 @@ export async function POST(
               pedido_por: pedidoPor,
               pedido_por_email: pedidoPorEmail || undefined,
               estado: (ticket as any).estado,
+              url: getTicketUrl(params.id, origin),
             },
             recipients: filteredRecipients,
             eventDetails: {
