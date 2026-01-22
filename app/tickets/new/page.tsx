@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
+import { supabase } from "@/lib/supabase"
 
 const entregaTipoValues = [
   'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
@@ -69,14 +70,56 @@ export default function NewTicketPage() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const devUser = typeof window !== "undefined" ? localStorage.getItem("dev-user") : null
-        if (devUser) {
-          const userInfo: User = JSON.parse(devUser)
+        // 1) Try Supabase session first
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          // Try fetch by id
+          let profile: any = null
+          {
+            const { data } = await supabase.from('users').select('name, email, role').eq('id', user.id).maybeSingle()
+            profile = data as any
+          }
+          // Fallback by email if not found
+          if (!profile && user.email) {
+            const { data } = await supabase.from('users').select('name, email, role').eq('email', user.email).maybeSingle()
+            profile = data as any
+          }
+          // Final fallback: env-configured admin emails
+          let role = profile?.role as string | undefined
+          if (!role && user.email) {
+            const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+            if (admins.includes(user.email.toLowerCase())) role = 'admin'
+          }
+          if (!role) role = 'requester'
+
+          const userInfo: User = {
+            id: user.id,
+            email: profile?.email || user.email || '',
+            name: profile?.name || user.user_metadata?.name || user.email || '',
+            role: role as "requester" | "bi" | "admin",
+          }
           setCurrentUser(userInfo)
+          
+          // Auto-fill pedido_por for requesters
           if (userInfo.role === "requester") {
             setValue("pedido_por", userInfo.name)
           }
+          
+          // Ensure dev-user doesn't mask real session
+          if (typeof window !== 'undefined') localStorage.removeItem('dev-user')
+        } else {
+          // 2) Fallback to dev-user in localStorage
+          const devUser = typeof window !== "undefined" ? localStorage.getItem("dev-user") : null
+          if (devUser) {
+            const userInfo: User = JSON.parse(devUser)
+            setCurrentUser(userInfo)
+            if (userInfo.role === "requester") {
+              setValue("pedido_por", userInfo.name)
+            }
+          }
         }
+        
+        // Load all users for BI/Admin dropdown
         const response = await fetch("/api/users-fresh")
         const data = await response.json()
         if (response.ok && Array.isArray(data.users)) {
@@ -95,6 +138,11 @@ export default function NewTicketPage() {
   const onSubmit = async (data: CreateTicketForm) => {
     setIsLoading(true)
     try {
+      // Ensure pedido_por is set for requesters
+      if (currentUser?.role === "requester" && currentUser.name) {
+        data.pedido_por = currentUser.name
+      }
+      
       const response = await fetch("/api/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -135,7 +183,16 @@ export default function NewTicketPage() {
                 {isLoadingUsers ? (
                   <div className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-400">A carregar utilizadores...</div>
                 ) : currentUser?.role === "requester" ? (
-                  <Input id="pedido_por" value={currentUser.name} disabled className="bg-slate-600 border-slate-500 text-slate-300 cursor-not-allowed" />
+                  <>
+                    <Input 
+                      id="pedido_por" 
+                      value={currentUser.name} 
+                      disabled 
+                      readOnly
+                      className="bg-slate-600 border-slate-500 text-slate-300 cursor-not-allowed" 
+                    />
+                    <input type="hidden" {...register("pedido_por")} value={currentUser.name} />
+                  </>
                 ) : (
                   <Select value={watch("pedido_por")} onValueChange={(value) => setValue("pedido_por", value)}>
                     <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">

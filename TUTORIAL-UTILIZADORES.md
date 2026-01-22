@@ -26,14 +26,48 @@ Este tutorial irá guiá-lo através das funcionalidades principais do sistema, 
 
 ## Acesso ao Sistema
 
-### Como Fazer Login
+### Primeiro Acesso - Pedir Acesso
+
+Se ainda não tem uma conta no sistema, precisa de solicitar acesso primeiro:
 
 1. Aceda ao endereço do TicketBI: [https://ticketbi.vercel.app/](https://ticketbi.vercel.app/)
-2. Clique em **"Login"** ou **"Entrar"**
-3. Introduza o seu **email** e **palavra-passe**
+2. Na página de login, clique no tab **"Pedir Acesso"**
+3. Preencha o formulário de pedido de acesso:
+   - **Nome:** O seu nome completo
+   - **Email:** O seu email profissional (apenas emails profissionais são aceites)
+   - **Mensagem:** (Opcional) Pode adicionar uma mensagem explicando o motivo do pedido
+4. Clique em **"Enviar Pedido"** ou **"Submeter"**
+
+> **Importante:** 
+> - Apenas emails profissionais são aceites (ex: @groupegm.com)
+> - O seu pedido será analisado por um administrador
+> - Receberá uma notificação por email quando o seu pedido for aprovado ou rejeitado
+> - Após aprovação, poderá fazer login no sistema
+
+### Emails de Autenticação
+
+Quando o seu pedido de acesso for aprovado, receberá um email de autenticação do sistema:
+
+- **Remetente:** `Supabase Auth <noreply@mail.app.supabase.io>`
+- **Assunto:** `O Pedido de acesso ao TicketBI foi aprovado`
+
+> **⚠️ Atenção - Verificar Pasta de Spam:**
+> 
+> - Os emails de autenticação podem ser classificados como **spam** pelo seu cliente de email
+> - **Verifique sempre a pasta de Spam/Lixo Eletrónico** se não receber o email na sua caixa de entrada
+> - **Recomendação:** Marque o email como **"Não é Spam"** ou adicione o remetente `noreply@mail.app.supabase.io` à sua lista de contactos seguros
+> - Isto garante que receberá todos os emails futuros do sistema na sua caixa de entrada
+
+### Como Fazer Login
+
+Após ter o seu pedido de acesso aprovado:
+
+1. Aceda ao endereço do TicketBI: [https://ticketbi.vercel.app/](https://ticketbi.vercel.app/)
+2. Clique no tab **"Login"** ou **"Entrar"**
+3. Introduza o seu **email profissional** e **palavra-passe**
 4. Clique em **"Iniciar Sessão"**
 
-> **Nota:** Se não tiver uma conta, contacte o administrador do sistema para solicitar acesso.
+> **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente `noreply@mail.app.supabase.io`
 
 ### Primeira Vez no Sistema
 
@@ -68,8 +102,9 @@ Todos os campos marcados com **asterisco (*)** são obrigatórios e devem ser pr
 ### Campos Obrigatórios
 
 #### **Pedido por**
-- Este campo é preenchido automaticamente com o seu nome
-- Não pode ser alterado por utilizadores comuns
+- Este campo é **preenchido automaticamente** com o seu nome quando cria um ticket
+- **Não pode ser alterado** por utilizadores comuns (apenas Admin e BI podem alterar)
+- O campo aparece desabilitado e bloqueado com o seu nome
 
 #### **Assunto**
 - Título breve e descritivo do seu pedido
@@ -309,6 +344,8 @@ Quando ocorrem eventos importantes no seu ticket, receberá notificações por e
 - Verifique regularmente a página de tickets
 - Leia os comentários quando receber notificações
 - Responda prontamente a perguntas do gestor BI
+
+> **💡 Dica:** Se não receber notificações por email, verifique a pasta de Spam. Os emails do sistema podem ser classificados como spam pelo seu cliente de email.
 
 ---
 
