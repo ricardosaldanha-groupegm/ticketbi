@@ -74,14 +74,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // Generate signed URLs for comment links (1 year expiration)
     const signedUrls: string[] = []
     for (const att of created || []) {
-      const { data: signed, error: sErr } = await supabase.storage
-        .from('attachments')
-        .createSignedUrl(att.storage_path, 31536000) // 1 year in seconds
-      if (!sErr && signed?.signedUrl) {
-        signedUrls.push(signed.signedUrl)
-      } else {
-        // Fallback to public URL
-        signedUrls.push(att.url || '')
+      try {
+        const { data: signed, error: sErr } = await supabase.storage
+          .from('attachments')
+          .createSignedUrl(att.storage_path, 31536000) // 1 year in seconds
+        if (!sErr && signed?.signedUrl) {
+          signedUrls.push(signed.signedUrl)
+        } else {
+          console.warn('Failed to create signed URL for attachment:', att.id, sErr)
+          // Fallback: use the endpoint with attachment ID (will need auth, but better than nothing)
+          signedUrls.push(`/api/files/open?attachmentId=${att.id}`)
+        }
+      } catch (err) {
+        console.error('Error generating signed URL:', err)
+        // Fallback: use the endpoint with attachment ID
+        signedUrls.push(`/api/files/open?attachmentId=${att.id}`)
       }
     }
 
