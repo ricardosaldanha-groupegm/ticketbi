@@ -17,11 +17,13 @@ export default function TutorialPage() {
   const [activeSection, setActiveSection] = useState<string>('')
   const [tutorialContent, setTutorialContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [language, setLanguage] = useState<'pt' | 'es'>('pt')
   const contentRef = useRef<HTMLDivElement>(null)
 
   // Load tutorial content
   useEffect(() => {
-    fetch('/api/tutorial/content')
+    setLoading(true)
+    fetch(`/api/tutorial/content?lang=${language}`)
       .then(res => res.json())
       .then(data => {
         if (data.content) {
@@ -33,7 +35,7 @@ export default function TutorialPage() {
         console.error('Error loading tutorial:', err)
         setLoading(false)
       })
-  }, [])
+  }, [language])
 
   // Parse markdown content into sections
   const sections = useMemo(() => {
@@ -301,7 +303,9 @@ export default function TutorialPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400 mx-auto mb-4"></div>
-            <p className="text-slate-300">A carregar tutorial...</p>
+            <p className="text-slate-300">
+              {language === 'pt' ? 'A carregar tutorial...' : 'Cargando tutorial...'}
+            </p>
           </div>
         </div>
       </AuthenticatedLayout>
@@ -313,10 +317,42 @@ export default function TutorialPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100 mb-2">Tutorial para Utilizadores</h1>
+            <h1 className="text-3xl font-bold text-slate-100 mb-2">
+              {language === 'pt' ? 'Tutorial para Utilizadores' : 'Tutorial para Usuarios'}
+            </h1>
             <p className="text-slate-400">
-              Guia completo sobre como utilizar o TicketBI
+              {language === 'pt' 
+                ? 'Guia completo sobre como utilizar o TicketBI'
+                : 'Guía completa sobre cómo utilizar TicketBI'}
             </p>
+          </div>
+          
+          {/* Language Toggle */}
+          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg p-1">
+            <button
+              onClick={() => setLanguage('pt')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                language === 'pt'
+                  ? 'bg-amber-600 text-white'
+                  : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700'
+              }`}
+              title="Português"
+            >
+              <span className="text-lg">🇵🇹</span>
+              <span>PT</span>
+            </button>
+            <button
+              onClick={() => setLanguage('es')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                language === 'es'
+                  ? 'bg-amber-600 text-white'
+                  : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700'
+              }`}
+              title="Español"
+            >
+              <span className="text-lg">🇪🇸</span>
+              <span>ES</span>
+            </button>
           </div>
         </div>
       </div>
@@ -325,7 +361,9 @@ export default function TutorialPage() {
         {/* Sidebar Navigation */}
         <aside className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-24 bg-slate-800 border border-slate-700 rounded-lg p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
-            <h2 className="text-lg font-semibold text-slate-100 mb-4">Índice</h2>
+            <h2 className="text-lg font-semibold text-slate-100 mb-4">
+              {language === 'pt' ? 'Índice' : 'Índice'}
+            </h2>
             <nav className="space-y-1">
               {allSections.map((section) => (
                 <button
@@ -354,7 +392,7 @@ export default function TutorialPage() {
           <div className="mb-6">
             <Input
               type="text"
-              placeholder="Pesquisar no tutorial..."
+              placeholder={language === 'pt' ? 'Pesquisar no tutorial...' : 'Buscar en el tutorial...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500"
@@ -365,12 +403,16 @@ export default function TutorialPage() {
           <div ref={contentRef} className="bg-slate-800 border border-slate-700 rounded-lg p-8 prose prose-invert max-w-none">
             {filteredSections.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-400 text-lg">Nenhum resultado encontrado para "{searchTerm}"</p>
+                <p className="text-slate-400 text-lg">
+                  {language === 'pt' 
+                    ? `Nenhum resultado encontrado para "${searchTerm}"`
+                    : `No se encontraron resultados para "${searchTerm}"`}
+                </p>
                 <button
                   onClick={() => setSearchTerm('')}
                   className="mt-4 text-amber-400 hover:text-amber-300 underline"
                 >
-                  Limpar pesquisa
+                  {language === 'pt' ? 'Limpar pesquisa' : 'Limpiar búsqueda'}
                 </button>
               </div>
             ) : (

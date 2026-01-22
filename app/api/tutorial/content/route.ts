@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-export async function GET() {
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: Request) {
   try {
-    const filePath = join(process.cwd(), 'TUTORIAL-UTILIZADORES.md')
+    const { searchParams } = new URL(request.url)
+    const lang = searchParams.get('lang') || 'pt'
+    
+    const fileName = lang === 'es' ? 'TUTORIAL-UTILIZADORES-ES.md' : 'TUTORIAL-UTILIZADORES.md'
+    const filePath = join(process.cwd(), fileName)
     const content = readFileSync(filePath, 'utf-8')
     return NextResponse.json({ content })
   } catch (error) {
