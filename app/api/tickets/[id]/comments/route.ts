@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, sendTicketWebhook } from '@/lib/webhook'
+import { getTicketNotificationRecipients, getPedidoPorEmail, sendTicketWebhook } from '@/lib/webhook'
 import type { Database } from '@/lib/supabase'
 import { z } from 'zod'
 
@@ -201,21 +201,24 @@ export async function POST(
     // Send webhook notification (non-blocking)
     ;(async () => {
       try {
+        const pedidoPor = (ticket as any).pedido_por || ''
         const recipients = await getTicketNotificationRecipients(
           supabase,
           params.id,
-          (ticket as any).pedido_por || ''
+          pedidoPor
         )
         // Exclude comment author from recipients
         const authorEmail = (comment as any).author?.email
         const filteredRecipients = recipients.filter((r) => r.email !== authorEmail)
         if (filteredRecipients.length > 0) {
+          const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
           await sendTicketWebhook({
             event: 'comment',
             ticket: {
               id: params.id,
               assunto: (ticket as any).assunto || 'Ticket',
-              pedido_por: (ticket as any).pedido_por || '',
+              pedido_por: pedidoPor,
+              pedido_por_email: pedidoPorEmail || undefined,
               estado: (ticket as any).estado,
             },
             recipients: filteredRecipients,

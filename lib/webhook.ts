@@ -11,6 +11,7 @@ interface TicketWebhookData {
     id: string
     assunto: string
     pedido_por: string
+    pedido_por_email?: string
     estado?: string
     data_prevista_conclusao?: string | null
   }
@@ -28,6 +29,25 @@ interface TicketWebhookData {
     email: string
     role: string
   }
+}
+
+/**
+ * Get email for pedido_por user
+ */
+export async function getPedidoPorEmail(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  pedidoPor: string
+): Promise<string | null> {
+  if (!pedidoPor) return null
+
+  const { data: requester } = await supabase
+    .from('users')
+    .select('email, name')
+    .or(`name.eq.${pedidoPor},email.eq.${pedidoPor}`)
+    .maybeSingle()
+
+  const req = requester as { email: string; name: string } | null
+  return req?.email || null
 }
 
 /**

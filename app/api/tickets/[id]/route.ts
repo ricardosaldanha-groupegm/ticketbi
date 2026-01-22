@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, sendTicketWebhook } from '@/lib/webhook'
+import { getTicketNotificationRecipients, getPedidoPorEmail, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
  const entregaTipoValues = [
@@ -365,20 +365,23 @@ export async function PATCH(
     // Send webhook notifications (non-blocking)
     ;(async () => {
       try {
+        const pedidoPor = (ticket as any).pedido_por || (currentTicket as any).pedido_por || ''
         const recipients = await getTicketNotificationRecipients(
           supabase,
           params.id,
-          (ticket as any).pedido_por || (currentTicket as any).pedido_por || ''
+          pedidoPor
         )
         // Exclude the user who made the change
         const changerEmail = user.email
         const filteredRecipients = recipients.filter((r) => r.email !== changerEmail)
 
         if (filteredRecipients.length > 0) {
+          const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
           const ticketData = {
             id: params.id,
             assunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
-            pedido_por: (ticket as any).pedido_por || (currentTicket as any).pedido_por || '',
+            pedido_por: pedidoPor,
+            pedido_por_email: pedidoPorEmail || undefined,
             estado: (ticket as any).estado,
             data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
           }
