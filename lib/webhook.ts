@@ -45,12 +45,13 @@ export async function getTicketNotificationRecipients(
     .from('users')
     .select('email, name')
     .or(`name.eq.${pedidoPor},email.eq.${pedidoPor}`)
-    .maybeSingle() as { email: string; name: string } | null
+    .maybeSingle()
 
-  if (requester && requester.email) {
+  const req = requester as { email: string; name: string } | null
+  if (req && req.email) {
     recipients.push({
-      email: requester.email,
-      name: requester.name || requester.email,
+      email: req.email,
+      name: req.name || req.email,
     })
   }
 
