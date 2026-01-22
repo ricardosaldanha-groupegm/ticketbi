@@ -13,6 +13,7 @@
 9. [Notificações e Comunicação](#notificações-e-comunicação)
 10. [Permissões e Limitações](#permissões-e-limitações)
 11. [Dicas e Boas Práticas](#dicas-e-boas-práticas)
+12. [Funcionalidades Futuras](#funcionalidades-futuras)
 
 ---
 
@@ -120,16 +121,22 @@ Todos os campos marcados com **asterisco (*)** são obrigatórios e devem ser pr
 - Para que será utilizado o resultado
 - Qual o problema que pretende resolver
 
+**Exemplos:**
+- *"Preciso de um relatório mensal de vendas por região para apresentar na reunião de gestão e tomar decisões estratégicas sobre alocação de recursos."*
+- *"Quero analisar a evolução do número de clientes nos últimos 6 meses para identificar tendências e ajustar a estratégia de marketing."*
+- *"Necessito de dados sobre o tempo médio de resposta a pedidos de suporte para avaliar a eficiência da equipa e identificar áreas de melhoria."*
+- *"Preciso de uma dashboard com indicadores de performance para monitorizar em tempo real o desempenho das vendas e tomar ações corretivas quando necessário."*
+
 ### Campos Opcionais
 
 #### **Urgência**
-- **1 - Baixa:** Pode aguardar alguns dias
+- **1 - Baixa:** Pode aguardar mais do que um mês
 - **2 - Média:** Necessário nas próximas semanas
-- **3 - Alta:** Necessário com urgência
+- **3 - Alta:** Necessário nos próximos dias
 
 #### **Importância**
 - **1 - Baixa:** Não crítico para as operações
-- **2 - Média:** Importante mas não urgente
+- **2 - Média:** Importante mas existem outros mais importantes
 - **3 - Alta:** Crítico para as operações
 
 > **Nota:** A prioridade do ticket é calculada automaticamente multiplicando Urgência × Importância (máximo 9).
@@ -139,6 +146,14 @@ Todos os campos marcados com **asterisco (*)** são obrigatórios e devem ser pr
 - Formato: DD/MM/AAAA
 - Deixe em branco se não tiver uma data específica
 
+> **⚠️ Importante sobre Data Esperada:**
+> 
+> - Este campo é uma **indicação** para o DSI sobre quando gostaria de receber o resultado
+> - **Use principalmente** para tickets **importantes e urgentes** que têm prazos críticos
+> - **Não abuse** deste campo - evite definir datas para todos os tickets
+> - O abuso de datas pode prejudicar o planeamento de trabalho do DSI e a gestão eficiente de recursos
+> - Se o seu pedido não tem uma data crítica, deixe este campo em branco para permitir que o DSI organize o trabalho da melhor forma
+
 #### **Tipo de Entrega**
 - **BI:** Business Intelligence
 - **PHC:** Sistema PHC
@@ -146,7 +161,7 @@ Todos os campos marcados com **asterisco (*)** são obrigatórios e devem ser pr
 - **Automação:** Processos automatizados
 - **Suporte:** Suporte técnico
 - **Dados/Análises:** Análise de dados
-- **Interno:** Outros serviços internos
+- **Interno:** Outros serviços internos (mais usado dentro do  DSI)
 
 #### **Natureza**
 - **Novo:** Novo pedido/projeto
@@ -154,7 +169,7 @@ Todos os campos marcados com **asterisco (*)** são obrigatórios e devem ser pr
 - **Retrabalho:** Refazer trabalho anterior
 - **Esclarecimento:** Pedido de esclarecimento
 - **Ajuste:** Ajuste de funcionalidade existente
-- **Suporte:** Pedido de suporte
+- **Suporte:** Pedido de suporte e ajuda
 - **Reunião/Discussão:** Agendamento de reunião
 - **Interno:** Outros
 
@@ -328,9 +343,10 @@ Ao clicar num ticket, verá:
 
 ### Como Recebe Notificações
 
-Quando ocorrem eventos importantes no seu ticket, receberá notificações por email (se configurado):
+Quando ocorrem eventos importantes no seu ticket, receberá notificações por email:
 
 - **Novo comentário:** Quando alguém adiciona um comentário
+  - A notificação inclui um **resumo da conversa** do ticket, permitindo-lhe entender o contexto sem ter de aceder ao sistema
 - **Mudança de estado:** Quando o estado do ticket muda
 - **Data de conclusão:** Quando uma data prevista de conclusão é definida ou alterada
 
@@ -413,6 +429,34 @@ Após o ticket passar para **Em Curso** ou estados posteriores, não pode mais e
 
 ---
 
+## Funcionalidades Futuras
+
+O TicketBI está em constante evolução. As seguintes funcionalidades estão em desenvolvimento e serão disponibilizadas em breve:
+
+### Criação de Tickets via Email
+
+**Em fase de conclusão** - Em breve poderá criar tickets simplesmente enviando um email.
+
+**Como funcionará:**
+- Envie um email para o endereço dedicado do TicketBI (a ser comunicado)
+- O sistema irá automaticamente criar um ticket com base no conteúdo do seu email
+- O assunto do email será usado como "Assunto" do ticket
+- O corpo do email será usado como "Descrição" do ticket
+- Anexos do email serão automaticamente adicionados ao ticket
+
+**Vantagens:**
+- **Ganho de tempo:** Grande parte dos tickets abertos no DSI advêm de conversas e contexto já escritos por email
+- **Facilidade:** Não precisa de preencher manualmente os campos do formulário
+- **Contexto preservado:** Todo o histórico da conversa por email fica disponível no ticket
+- **Anexos automáticos:** Ficheiros enviados por email são automaticamente anexados ao ticket
+
+**Quando estiver disponível:**
+- Receberá instruções sobre o endereço de email a utilizar
+- O endereço será único para cada utilizador ou departamento
+- Poderá continuar a usar o formulário web normalmente
+
+---
+
 ## Conclusão
 
 O TicketBI foi criado para facilitar a comunicação entre utilizadores e o Departamento de Sistemas de Informação. Ao seguir este tutorial e as boas práticas sugeridas, poderá utilizar o sistema de forma eficiente e obter os melhores resultados dos seus pedidos.
@@ -423,7 +467,7 @@ Se tiver dúvidas ou problemas:
 1. Consulte este tutorial novamente
 2. Verifique os comentários no ticket para orientações
 3. Contacte o administrador do sistema
-4. Consulte a página de ajuda (se disponível)
+
 
 ---
 
