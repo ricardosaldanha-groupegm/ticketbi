@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, sendTicketNotification } from '@/lib/email'
+import { getTicketNotificationRecipients, sendTicketWebhook } from '@/lib/webhook'
 import type { Database } from '@/lib/supabase'
 import { z } from 'zod'
 
@@ -198,7 +198,7 @@ export async function POST(
         .is('data_primeiro_contacto', null)
     }
 
-    // Send email notification (non-blocking)
+    // Send webhook notification (non-blocking)
     ;(async () => {
       try {
         const recipients = await getTicketNotificationRecipients(
@@ -210,19 +210,29 @@ export async function POST(
         const authorEmail = (comment as any).author?.email
         const filteredRecipients = recipients.filter((r) => r.email !== authorEmail)
         if (filteredRecipients.length > 0) {
-          await sendTicketNotification(filteredRecipients, {
-            ticketId: params.id,
-            ticketAssunto: (ticket as any).assunto || 'Ticket',
-            ticketUrl: '',
-            eventType: 'comment',
+          await sendTicketWebhook({
+            event: 'comment',
+            ticket: {
+              id: params.id,
+              assunto: (ticket as any).assunto || 'Ticket',
+              pedido_por: (ticket as any).pedido_por || '',
+              estado: (ticket as any).estado,
+            },
+            recipients: filteredRecipients,
             eventDetails: {
               commentAuthor: (comment as any).author?.name || user.name || 'Utilizador',
               commentBody: validatedData.body,
             },
+            changedBy: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            },
           })
         }
       } catch (err) {
-        console.error('[Email] Error sending comment notification:', err)
+        console.error('[Webhook] Error sending comment notification:', err)
       }
     })()
 

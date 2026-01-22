@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
-import { getTicketNotificationRecipients, sendTicketNotification } from '@/lib/email'
+import { getTicketNotificationRecipients, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
  const entregaTipoValues = [
@@ -362,7 +362,7 @@ export async function PATCH(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Send email notifications (non-blocking)
+    // Send webhook notifications (non-blocking)
     ;(async () => {
       try {
         const recipients = await getTicketNotificationRecipients(
@@ -375,16 +375,29 @@ export async function PATCH(
         const filteredRecipients = recipients.filter((r) => r.email !== changerEmail)
 
         if (filteredRecipients.length > 0) {
+          const ticketData = {
+            id: params.id,
+            assunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
+            pedido_por: (ticket as any).pedido_por || (currentTicket as any).pedido_por || '',
+            estado: (ticket as any).estado,
+            data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
+          }
+
           // Status change notification
           if (hasEstadoUpdate && updatePayload.estado !== (currentTicket as any).estado) {
-            await sendTicketNotification(filteredRecipients, {
-              ticketId: params.id,
-              ticketAssunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
-              ticketUrl: '',
-              eventType: 'status_change',
+            await sendTicketWebhook({
+              event: 'status_change',
+              ticket: ticketData,
+              recipients: filteredRecipients,
               eventDetails: {
                 oldStatus: (currentTicket as any).estado || '',
                 newStatus: updatePayload.estado || '',
+              },
+              changedBy: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
               },
             })
           }
@@ -396,21 +409,25 @@ export async function PATCH(
             const oldDate = (currentTicket as any).data_prevista_conclusao
             // Only notify if date was added or changed (not removed)
             if (newDate && newDate !== oldDate) {
-              const formattedDate = newDate ? new Date(newDate).toLocaleDateString('pt-PT') : ''
-              await sendTicketNotification(filteredRecipients, {
-                ticketId: params.id,
-                ticketAssunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
-                ticketUrl: '',
-                eventType: 'completion_date_change',
+              await sendTicketWebhook({
+                event: 'completion_date_change',
+                ticket: ticketData,
+                recipients: filteredRecipients,
                 eventDetails: {
-                  completionDate: formattedDate,
+                  completionDate: newDate,
+                },
+                changedBy: {
+                  id: user.id,
+                  name: user.name,
+                  email: user.email,
+                  role: user.role,
                 },
               })
             }
           }
         }
       } catch (err) {
-        console.error('[Email] Error sending ticket update notification:', err)
+        console.error('[Webhook] Error sending ticket update notification:', err)
       }
     })()
 
