@@ -87,9 +87,9 @@ export async function sendTicketWebhook(data: TicketWebhookData): Promise<void> 
   if (data.recipients.length === 0) return
 
   // Skip if webhook URL is not configured
-  const webhookUrl = process.env.N8N_WEBHOOK_URL
+  const webhookUrl = process.env.N8N_WEBHOOK_URL_TICKET_NOTIFICATIONS
   if (!webhookUrl) {
-    console.log('[Webhook] Skipping notification - N8N_WEBHOOK_URL not configured')
+    console.log('[Webhook] Skipping notification - N8N_WEBHOOK_URL_TICKET_NOTIFICATIONS not configured')
     return
   }
 
