@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
     const expires = Math.max(60, Math.min(3600, Number(searchParams.get('expires') || 600)))
     if (!id) return NextResponse.json({ error: 'attachmentId required' }, { status: 400 })
 
-    const supabase = createServerSupabaseClient()
     const { data: att, error } = await supabase
       .from('attachments')
       .select('id, storage_path, ticket_id, subticket_id')
