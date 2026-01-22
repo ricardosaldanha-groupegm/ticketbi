@@ -328,30 +328,28 @@ export default function TutorialPage() {
           </div>
           
           {/* Language Toggle */}
-          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg p-1">
             <button
               onClick={() => setLanguage('pt')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`p-2 rounded-md transition-all flex items-center justify-center ${
                 language === 'pt'
-                  ? 'bg-amber-600 text-white'
-                  : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700'
+                  ? 'bg-amber-600 shadow-md scale-110'
+                  : 'hover:bg-slate-700 opacity-70 hover:opacity-100'
               }`}
               title="Português"
             >
-              <span className="text-lg">🇵🇹</span>
-              <span>PT</span>
+              <span className="text-2xl">🇵🇹</span>
             </button>
             <button
               onClick={() => setLanguage('es')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`p-2 rounded-md transition-all flex items-center justify-center ${
                 language === 'es'
-                  ? 'bg-amber-600 text-white'
-                  : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700'
+                  ? 'bg-amber-600 shadow-md scale-110'
+                  : 'hover:bg-slate-700 opacity-70 hover:opacity-100'
               }`}
               title="Español"
             >
-              <span className="text-lg">🇪🇸</span>
-              <span>ES</span>
+              <span className="text-2xl">🇪🇸</span>
             </button>
           </div>
         </div>
