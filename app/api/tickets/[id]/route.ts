@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
+import { getTicketNotificationRecipients, sendTicketNotification } from '@/lib/email'
 import { z } from 'zod'
 
  const entregaTipoValues = [
@@ -360,6 +361,58 @@ export async function PATCH(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    // Send email notifications (non-blocking)
+    ;(async () => {
+      try {
+        const recipients = await getTicketNotificationRecipients(
+          supabase,
+          params.id,
+          (ticket as any).pedido_por || (currentTicket as any).pedido_por || ''
+        )
+        // Exclude the user who made the change
+        const changerEmail = user.email
+        const filteredRecipients = recipients.filter((r) => r.email !== changerEmail)
+
+        if (filteredRecipients.length > 0) {
+          // Status change notification
+          if (hasEstadoUpdate && updatePayload.estado !== (currentTicket as any).estado) {
+            await sendTicketNotification(filteredRecipients, {
+              ticketId: params.id,
+              ticketAssunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
+              ticketUrl: '',
+              eventType: 'status_change',
+              eventDetails: {
+                oldStatus: (currentTicket as any).estado || '',
+                newStatus: updatePayload.estado || '',
+              },
+            })
+          }
+
+          // Completion date change notification
+          const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
+          if (hasDataPrevistaUpdate) {
+            const newDate = updatePayload.data_prevista_conclusao
+            const oldDate = (currentTicket as any).data_prevista_conclusao
+            // Only notify if date was added or changed (not removed)
+            if (newDate && newDate !== oldDate) {
+              const formattedDate = newDate ? new Date(newDate).toLocaleDateString('pt-PT') : ''
+              await sendTicketNotification(filteredRecipients, {
+                ticketId: params.id,
+                ticketAssunto: (ticket as any).assunto || (currentTicket as any).assunto || 'Ticket',
+                ticketUrl: '',
+                eventType: 'completion_date_change',
+                eventDetails: {
+                  completionDate: formattedDate,
+                },
+              })
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[Email] Error sending ticket update notification:', err)
+      }
+    })()
 
     return NextResponse.json(ticket)
   } catch (error) {

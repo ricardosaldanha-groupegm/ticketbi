@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { canReadTicket, canCommentOnTicket, createAuthUser, AuthUser } from '@/lib/rbac'
+import { getTicketNotificationRecipients, sendTicketNotification } from '@/lib/email'
 import type { Database } from '@/lib/supabase'
 import { z } from 'zod'
 
@@ -196,6 +197,34 @@ export async function POST(
         .eq('id', params.id)
         .is('data_primeiro_contacto', null)
     }
+
+    // Send email notification (non-blocking)
+    ;(async () => {
+      try {
+        const recipients = await getTicketNotificationRecipients(
+          supabase,
+          params.id,
+          (ticket as any).pedido_por || ''
+        )
+        // Exclude comment author from recipients
+        const authorEmail = (comment as any).author?.email
+        const filteredRecipients = recipients.filter((r) => r.email !== authorEmail)
+        if (filteredRecipients.length > 0) {
+          await sendTicketNotification(filteredRecipients, {
+            ticketId: params.id,
+            ticketAssunto: (ticket as any).assunto || 'Ticket',
+            ticketUrl: '',
+            eventType: 'comment',
+            eventDetails: {
+              commentAuthor: (comment as any).author?.name || user.name || 'Utilizador',
+              commentBody: validatedData.body,
+            },
+          })
+        }
+      } catch (err) {
+        console.error('[Email] Error sending comment notification:', err)
+      }
+    })()
 
     return NextResponse.json(comment, { status: 201 })
   } catch (error) {
