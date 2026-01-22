@@ -1,4 +1,4 @@
-# Tutorial para Utilizadores - TicketBI
+3# Tutorial para Utilizadores - TicketBI
 
 ## 📋 Índice
 
@@ -18,7 +18,7 @@
 
 ## Introdução
 
-O **TicketBI** é uma plataforma que permite aos utilizadores solicitar serviços e suporte ao Departamento de Sistemas de Informação (DSI). Através deste sistema, pode criar tickets para pedidos de BI, PHC, Salesforce, Automação, Suporte, Dados/Análises e outros serviços internos.
+O **TicketBI** é uma plataforma que permite aos utilizadores solicitar serviços e suporte ao Departamento de Sistemas e Inteligência (DSI). Através deste sistema, pode criar tickets para pedidos de BI, PHC, Salesforce, Automação, Suporte, Dados/Análises e outros serviços internos.
 
 Este tutorial irá guiá-lo através das funcionalidades principais do sistema, desde a criação de um ticket até ao acompanhamento do seu progresso.
 
@@ -28,7 +28,7 @@ Este tutorial irá guiá-lo através das funcionalidades principais do sistema, 
 
 ### Como Fazer Login
 
-1. Aceda ao endereço do TicketBI (fornecido pelo administrador)
+1. Aceda ao endereço do TicketBI: [https://ticketbi.vercel.app/](https://ticketbi.vercel.app/)
 2. Clique em **"Login"** ou **"Entrar"**
 3. Introduza o seu **email** e **palavra-passe**
 4. Clique em **"Iniciar Sessão"**
