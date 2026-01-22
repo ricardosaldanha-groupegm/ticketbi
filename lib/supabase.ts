@@ -182,6 +182,7 @@ export type Database = {
           ticket_id: string | null
           subticket_id: string | null
           author_id: string
+          author_name: string | null
           body: string
           created_at: string
         }
@@ -190,6 +191,7 @@ export type Database = {
           ticket_id?: string | null
           subticket_id?: string | null
           author_id: string
+          author_name?: string | null
           body: string
           created_at?: string
         }
@@ -198,6 +200,7 @@ export type Database = {
           ticket_id?: string | null
           subticket_id?: string | null
           author_id?: string
+          author_name?: string | null
           body?: string
           created_at?: string
         }
