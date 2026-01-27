@@ -125,7 +125,11 @@ export async function createTicket(data: CreateTicketInput) {
       .from('users')
       .select('id, email, role')
       .eq('email', data.gestor_email)
-      .maybeSingle()
+      .maybeSingle<{
+        id: string
+        email: string
+        role: 'requester' | 'bi' | 'admin'
+      }>()
 
     if (gestorError) {
       throw new Error(gestorError.message || 'Error looking up gestor by email')
