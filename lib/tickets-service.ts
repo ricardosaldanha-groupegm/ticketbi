@@ -27,6 +27,26 @@ export const createTicketSchema = z.object({
 export type CreateTicketInput = z.infer<typeof createTicketSchema>
 type TicketInsert = Database['public']['Tables']['tickets']['Insert']
 
+function normalizeDateInput(value?: string | null): string | null {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+
+  // Se já vier no formato YYYY-MM-DD, aceita diretamente
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed
+  }
+
+  // Tenta converter qualquer outra string para Date válida
+  const d = new Date(trimmed)
+  if (!Number.isNaN(d.getTime())) {
+    return d.toISOString().slice(0, 10) // YYYY-MM-DD
+  }
+
+  // Caso não seja uma data válida (ex: "Não tenho deadline..."), devolve null
+  return null
+}
+
 export function isSupabaseConfigured() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -79,10 +99,8 @@ export async function createTicket(data: CreateTicketInput) {
     if ((adminUser as any)?.id) createdById = (adminUser as any).id
   }
 
-  const normalizedDate =
-    data.data_esperada && data.data_esperada.trim() !== ''
-      ? data.data_esperada
-      : null
+  const normalizedDate = normalizeDateInput(data.data_esperada)
+  const normalizedPrevistaConclusao = normalizeDateInput(data.data_prevista_conclusao)
 
   if (!createdById) {
     throw new Error('Unable to resolve requester user for ticket')
@@ -96,7 +114,7 @@ export async function createTicket(data: CreateTicketInput) {
     urgencia: data.urgencia,
     importancia: data.importancia,
     data_esperada: normalizedDate,
-    data_prevista_conclusao: data.data_prevista_conclusao ?? null,
+    data_prevista_conclusao: normalizedPrevistaConclusao,
     created_by: createdById,
     entrega_tipo: data.entrega_tipo,
     natureza: data.natureza,
