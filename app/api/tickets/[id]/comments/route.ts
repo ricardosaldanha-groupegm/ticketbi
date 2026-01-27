@@ -207,10 +207,7 @@ export async function POST(
           params.id,
           pedidoPor
         )
-        // Exclude comment author from recipients
-        const authorEmail = (comment as any).author?.email
-        const filteredRecipients = recipients.filter((r) => r.email !== authorEmail)
-        if (filteredRecipients.length > 0) {
+        if (recipients.length > 0) {
           const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
           const origin = request.headers.get('origin') || undefined
           await sendTicketWebhook({
@@ -223,7 +220,7 @@ export async function POST(
               estado: (ticket as any).estado,
               url: getTicketUrl(params.id, origin),
             },
-            recipients: filteredRecipients,
+            recipients,
             eventDetails: {
               commentAuthor: (comment as any).author?.name || user.name || 'Utilizador',
               commentBody: validatedData.body,
