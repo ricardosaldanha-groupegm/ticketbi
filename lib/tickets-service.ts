@@ -12,15 +12,27 @@ export const naturezaValues = [
 ] as const
 
 export const createTicketSchema = z.object({
+  // Utilizador que faz o pedido (nome ou email, hoje usamos o nome no UI)
   pedido_por: z.string().min(1),
+  // Assunto / título do ticket
   assunto: z.string().min(1),
+  // Descrição detalhada do pedido
   descricao: z.string().min(1),
+  // Objetivo de negócio do pedido
   objetivo: z.string().min(1),
+  // Email do gestor a atribuir ao ticket (opcional, usado sobretudo na integração n8n)
+  // Deve corresponder a um `users.email` válido; caso contrário o backend devolve erro.
+  gestor_email: z.string().email().optional(),
+  // Urgência (1–3)
   urgencia: z.number().min(1).max(3),
+  // Importância (1–3)
   importancia: z.number().min(1).max(3),
+  // Data esperada (string no formato YYYY-MM-DD; o backend faz a normalização)
   data_esperada: z.string().optional(),
+  // Data prevista de conclusão (string YYYY-MM-DD; opcional)
   data_prevista_conclusao: z.string().optional(),
-  entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
+  // Tipo de entrega e natureza (strings pré-definidas)
+  entrega_tipo: z.enum(entregaTipoValues),
   natureza: z.enum(naturezaValues).default('Novo'),
 })
 
@@ -79,6 +91,7 @@ export async function createTicket(data: CreateTicketInput) {
 
   // Map pedido_por (nome) -> created_by (uuid)
   let createdById: string | null = null
+  let gestorId: string | null = null
 
   const { data: userByName } = await supabase
     .from('users')
@@ -106,6 +119,34 @@ export async function createTicket(data: CreateTicketInput) {
     throw new Error('Unable to resolve requester user for ticket')
   }
 
+  // Se vier gestor_email, tentar resolver para gestor_id
+  if (data.gestor_email) {
+    const { data: gestorUser, error: gestorError } = await supabase
+      .from('users')
+      .select('id, email, role')
+      .eq('email', data.gestor_email)
+      .maybeSingle()
+
+    if (gestorError) {
+      throw new Error(gestorError.message || 'Error looking up gestor by email')
+    }
+
+    if (!gestorUser) {
+      throw new Error(
+        `Nenhum utilizador encontrado com o email do gestor: ${data.gestor_email}`,
+      )
+    }
+
+    // Opcional: garantir que o gestor é BI ou Admin
+    if (gestorUser.role !== 'bi' && gestorUser.role !== 'admin') {
+      throw new Error(
+        `O email indicado para Gestor (${data.gestor_email}) não pertence a um utilizador BI/Admin`,
+      )
+    }
+
+    gestorId = gestorUser.id
+  }
+
   const insertPayload: any = {
     pedido_por: data.pedido_por,
     assunto: data.assunto,
@@ -118,6 +159,10 @@ export async function createTicket(data: CreateTicketInput) {
     created_by: createdById,
     entrega_tipo: data.entrega_tipo,
     natureza: data.natureza,
+  }
+
+  if (gestorId) {
+    insertPayload.gestor_id = gestorId
   }
 
   const { data: ticket, error } = await (supabase as any)
