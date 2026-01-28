@@ -222,7 +222,12 @@ export async function POST(request: NextRequest) {
           .from('users')
           .select('id, name, email, role')
           .eq('id', createdById)
-          .maybeSingle()
+          .maybeSingle<{
+            id: string
+            name: string | null
+            email: string | null
+            role: 'requester' | 'bi' | 'admin'
+          }>()
 
         if (!creator) return
 
