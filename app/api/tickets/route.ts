@@ -204,13 +204,12 @@ export async function POST(request: NextRequest) {
 
     const { ticket, source } = await createTicket(validatedData)
 
-    // Fire-and-forget webhook when ticket is created sem gestor definido
+    // Fire-and-forget webhook quando ticket é criado
     ;(async () => {
       try {
-        // Only in Supabase mode and when gestor_id não foi definido
+        // Only in Supabase mode
         const supabaseEnabled = isSupabaseConfigured()
         if (!supabaseEnabled) return
-        if ((ticket as any).gestor_id) return
 
         const supabase = createServerSupabaseClient()
 
@@ -231,37 +230,63 @@ export async function POST(request: NextRequest) {
 
         if (!creator) return
 
-        // All BI/Admin users serão destinatários
-        const { data: privilegedUsers } = await supabase
-          .from('users')
-          .select('id, name, email, role')
-          .in('role', ['bi', 'admin'])
-
-        const recipients =
-          (privilegedUsers || [])
-            .filter((u: any) => u.email)
-            .map((u: any) => ({
-              email: u.email as string,
-              name: (u.name as string) || (u.email as string),
-            })) || []
-
-        if (recipients.length === 0) return
-
         const pedidoPor = ((ticket as any).pedido_por || '') as string
         const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
         const origin = request.headers.get('origin') || undefined
 
+        const ticketPayload = {
+          id: (ticket as any).id as string,
+          assunto: (ticket as any).assunto || 'Ticket',
+          pedido_por: pedidoPor,
+          pedido_por_email: pedidoPorEmail || undefined,
+          estado: (ticket as any).estado,
+          data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
+          url: getTicketUrl((ticket as any).id as string, origin),
+        }
+
+        const gestorId = (ticket as any).gestor_id as string | null | undefined
+
+        let recipients: { email: string; name: string }[] = []
+
+        if (gestorId) {
+          // Caso 1: ticket criado já com Gestor — notificar apenas esse Gestor
+          const { data: gestorUser } = await supabase
+            .from('users')
+            .select('id, name, email, role')
+            .eq('id', gestorId)
+            .maybeSingle()
+
+          if (gestorUser && (gestorUser as any).email) {
+            recipients = [
+              {
+                email: (gestorUser as any).email as string,
+                name:
+                  ((gestorUser as any).name as string) ||
+                  ((gestorUser as any).email as string),
+              },
+            ]
+          }
+        } else {
+          // Caso 2: ticket sem Gestor — notificar todos os BI/Admin (regra anterior)
+          const { data: privilegedUsers } = await supabase
+            .from('users')
+            .select('id, name, email, role')
+            .in('role', ['bi', 'admin'])
+
+          recipients =
+            (privilegedUsers || [])
+              .filter((u: any) => u.email)
+              .map((u: any) => ({
+                email: u.email as string,
+                name: (u.name as string) || (u.email as string),
+              })) || []
+        }
+
+        if (recipients.length === 0) return
+
         await sendTicketWebhook({
           event: 'created',
-          ticket: {
-            id: (ticket as any).id as string,
-            assunto: (ticket as any).assunto || 'Ticket',
-            pedido_por: pedidoPor,
-            pedido_por_email: pedidoPorEmail || undefined,
-            estado: (ticket as any).estado,
-            data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
-            url: getTicketUrl((ticket as any).id as string, origin),
-          },
+          ticket: ticketPayload,
           recipients,
           eventDetails: {},
           changedBy: {
