@@ -40,6 +40,8 @@ const createTicketSchema = z.object({
   data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
   natureza: z.enum(naturezaValues).default('Novo'),
+  // Email do Gestor (apenas preenchido por perfis BI/Admin)
+  gestor_email: z.string().email().optional(),
 })
 
 type CreateTicketForm = z.infer<typeof createTicketSchema>
@@ -64,6 +66,7 @@ export default function NewTicketPage() {
       data_esperada: "",
       entrega_tipo: 'Interno',
       natureza: 'Novo',
+      gestor_email: "",
     },
   })
 
@@ -220,6 +223,43 @@ export default function NewTicketPage() {
                 <Input id="assunto" {...register("assunto")} placeholder="Resumo do pedido" className="bg-slate-700 border-slate-600 text-slate-100" />
                 {errors.assunto && (<p className="text-sm text-red-400">{errors.assunto.message}</p>)}
               </div>
+            </div>
+
+            {/* Campo Gestor – apenas BI/Admin podem escolher, requester não define */}
+            <div className="space-y-2">
+              <Label htmlFor="gestor_email" className="text-slate-300">Gestor</Label>
+              {isLoadingUsers ? (
+                <div className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-400">
+                  A carregar utilizadores...
+                </div>
+              ) : currentUser?.role === "requester" ? (
+                <div className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-400 cursor-not-allowed">
+                  O Gestor será atribuído pelo DSI.
+                </div>
+              ) : (
+                <Select
+                  value={watch("gestor_email") || ""}
+                  onValueChange={(value) => setValue("gestor_email", value)}
+                >
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
+                    <SelectValue placeholder="Selecionar gestor (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users
+                      .filter((user) => user.role === "bi" || user.role === "admin")
+                      .map((user) => (
+                        <SelectItem key={user.id} value={user.email}>
+                          {user.name} ({user.email}) {user.role === "admin" ? "- Admin" : "- BI"}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-xs text-slate-400">
+                {currentUser?.role === "requester"
+                  ? "Utilizadores comuns não definem Gestor; será definido internamente pelo DSI."
+                  : "Opcional: escolha o Gestor responsável por este ticket (apenas perfis BI/Admin)."}
+              </p>
             </div>
 
             <div className="space-y-2">
