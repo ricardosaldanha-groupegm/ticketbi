@@ -7,6 +7,7 @@ import {
   isSupabaseConfigured,
   listTicketsInMemory,
 } from '@/lib/tickets-service'
+import { getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 
 // GET /api/tickets - List tickets
 export async function GET(request: NextRequest) {
@@ -201,7 +202,74 @@ export async function POST(request: NextRequest) {
 
     const validatedData = createTicketSchema.parse(body)
 
-    const { ticket } = await createTicket(validatedData)
+    const { ticket, source } = await createTicket(validatedData)
+
+    // Fire-and-forget webhook when ticket is created sem gestor definido
+    ;(async () => {
+      try {
+        // Only in Supabase mode and when gestor_id não foi definido
+        const supabaseEnabled = isSupabaseConfigured()
+        if (!supabaseEnabled) return
+        if ((ticket as any).gestor_id) return
+
+        const supabase = createServerSupabaseClient()
+
+        // Find user who criou o ticket (created_by)
+        const createdById = (ticket as any).created_by as string | undefined
+        if (!createdById) return
+
+        const { data: creator } = await supabase
+          .from('users')
+          .select('id, name, email, role')
+          .eq('id', createdById)
+          .maybeSingle()
+
+        if (!creator) return
+
+        // All BI/Admin users serão destinatários
+        const { data: privilegedUsers } = await supabase
+          .from('users')
+          .select('id, name, email, role')
+          .in('role', ['bi', 'admin'])
+
+        const recipients =
+          (privilegedUsers || [])
+            .filter((u: any) => u.email)
+            .map((u: any) => ({
+              email: u.email as string,
+              name: (u.name as string) || (u.email as string),
+            })) || []
+
+        if (recipients.length === 0) return
+
+        const pedidoPor = ((ticket as any).pedido_por || '') as string
+        const pedidoPorEmail = await getPedidoPorEmail(supabase, pedidoPor)
+        const origin = request.headers.get('origin') || undefined
+
+        await sendTicketWebhook({
+          event: 'created',
+          ticket: {
+            id: (ticket as any).id as string,
+            assunto: (ticket as any).assunto || 'Ticket',
+            pedido_por: pedidoPor,
+            pedido_por_email: pedidoPorEmail || undefined,
+            estado: (ticket as any).estado,
+            data_prevista_conclusao: (ticket as any).data_prevista_conclusao,
+            url: getTicketUrl((ticket as any).id as string, origin),
+          },
+          recipients,
+          eventDetails: {},
+          changedBy: {
+            id: creator.id as string,
+            name: (creator as any).name || (creator as any).email || 'Utilizador',
+            email: (creator as any).email || '',
+            role: (creator as any).role || '',
+          },
+        })
+      } catch (err) {
+        console.error('[Webhook] Error sending created-ticket notification:', err)
+      }
+    })()
 
     return NextResponse.json(ticket, { status: 201 })
 
