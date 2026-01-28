@@ -21,8 +21,11 @@ export const createTicketSchema = z.object({
   // Objetivo de negócio do pedido
   objetivo: z.string().min(1),
   // Email do gestor a atribuir ao ticket (opcional, usado sobretudo na integração n8n)
+  // Aceita string vazia e trata como "sem gestor"
   // Deve corresponder a um `users.email` válido; caso contrário o backend devolve erro.
-  gestor_email: z.string().email().optional(),
+  gestor_email: z
+    .union([z.string().email(), z.literal('')])
+    .optional(),
   // Urgência (1–3)
   urgencia: z.number().min(1).max(3),
   // Importância (1–3)
@@ -120,12 +123,15 @@ export async function createTicket(data: CreateTicketInput) {
     throw new Error('Unable to resolve requester user for ticket')
   }
 
-  // Se vier gestor_email, tentar resolver para gestor_id
-  if (data.gestor_email) {
+  // Se vier gestor_email (não vazio), tentar resolver para gestor_id
+  const rawGestorEmail = (data as any).gestor_email as string | undefined
+  const gestorEmail = rawGestorEmail && rawGestorEmail.trim() !== '' ? rawGestorEmail.trim() : undefined
+
+  if (gestorEmail) {
     const { data: gestorUser, error: gestorError } = await supabase
       .from('users')
       .select('id, email, role')
-      .eq('email', data.gestor_email)
+      .eq('email', gestorEmail)
       .maybeSingle<{
         id: string
         email: string
@@ -138,14 +144,14 @@ export async function createTicket(data: CreateTicketInput) {
 
     if (!gestorUser) {
       throw new Error(
-        `Nenhum utilizador encontrado com o email do gestor: ${data.gestor_email}`,
+        `Nenhum utilizador encontrado com o email do gestor: ${gestorEmail}`,
       )
     }
 
     // Opcional: garantir que o gestor é BI ou Admin
     if (gestorUser.role !== 'bi' && gestorUser.role !== 'admin') {
       throw new Error(
-        `O email indicado para Gestor (${data.gestor_email}) não pertence a um utilizador BI/Admin`,
+        `O email indicado para Gestor (${gestorEmail}) não pertence a um utilizador BI/Admin`,
       )
     }
 

@@ -40,8 +40,8 @@ const createTicketSchema = z.object({
   data_esperada: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
   natureza: z.enum(naturezaValues).default('Novo'),
-  // Email do Gestor (apenas preenchido por perfis BI/Admin)
-  gestor_email: z.string().email().optional(),
+  // Email do Gestor (apenas preenchido por perfis BI/Admin) – string vazia é permitido e tratada como "sem gestor"
+  gestor_email: z.union([z.string().email(), z.literal('')]).optional(),
 })
 
 type CreateTicketForm = z.infer<typeof createTicketSchema>
@@ -144,6 +144,10 @@ export default function NewTicketPage() {
       // Ensure pedido_por is set for requesters
       if (currentUser?.role === "requester" && currentUser.name) {
         data.pedido_por = currentUser.name
+      }
+      // Normalizar gestor_email vazio para não enviar campo inválido
+      if (!data.gestor_email || data.gestor_email.trim() === "") {
+        (data as any).gestor_email = ""
       }
       
       const response = await fetch("/api/tickets", {
