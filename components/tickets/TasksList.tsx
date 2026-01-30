@@ -457,7 +457,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
 
             {timeline.rows.length === 0 ? (
               <div className="rounded-md border border-dashed border-slate-700 p-4 text-center text-xs text-muted-foreground">
-                Sem dados suficientes para desenhar o cronograma. Defina data in?cio planeada e data conclus?o esperada nas tarefas.
+                Sem dados suficientes para desenhar o cronograma. Defina data início planeada e data conclusão esperada nas tarefas.
               </div>
             ) : (
               <div className="rounded-md border border-slate-700 bg-slate-900/60 p-4">

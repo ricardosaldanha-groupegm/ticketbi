@@ -80,11 +80,14 @@ export function listTicketsInMemory() {
 
 export async function createTicket(data: CreateTicketInput) {
   if (!isSupabaseConfigured()) {
+    const now = new Date().toISOString()
     const ticket = {
       id: `ticket-${Date.now()}`,
       ...data,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      // Garante que a data do pedido fica sempre preenchida em modo dev
+      data_pedido: now,
+      created_at: now,
+      updated_at: now,
       estado: 'novo',
     }
     addTicket(ticket)
@@ -118,6 +121,7 @@ export async function createTicket(data: CreateTicketInput) {
 
   const normalizedDate = normalizeDateInput(data.data_esperada)
   const normalizedPrevistaConclusao = normalizeDateInput(data.data_prevista_conclusao)
+  const now = new Date().toISOString()
 
   if (!createdById) {
     throw new Error('Unable to resolve requester user for ticket')
@@ -167,6 +171,8 @@ export async function createTicket(data: CreateTicketInput) {
     importancia: data.importancia,
     data_esperada: normalizedDate,
     data_prevista_conclusao: normalizedPrevistaConclusao,
+    // Garante que a data do pedido fica sempre preenchida na criação
+    data_pedido: now,
     created_by: createdById,
     entrega_tipo: data.entrega_tipo,
     natureza: data.natureza,
