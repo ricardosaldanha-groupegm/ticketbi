@@ -132,6 +132,14 @@ const formatDate = (value: string) => {
   return `${day}/${month}/${year}`
 }
 
+// Normaliza valores vindos da API (ISO, TIMESTAMPTZ) para o formato aceite por <input type="date">
+const toDateInputValue = (value?: string | null) => {
+  if (!value) return ""
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return ""
+  return d.toISOString().slice(0, 10) // YYYY-MM-DD
+}
+
 export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const router = useRouter()
   const { toast } = useToast()
@@ -198,18 +206,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       reset({
         assunto: data.assunto ?? "",
         pedido_por: data.pedido_por ?? "",
-        data_pedido: data.data_pedido ?? "",
+        data_pedido: toDateInputValue(data.data_pedido),
         descricao: data.descricao ?? "",
         objetivo: data.objetivo ?? "",
         internal_notes: data.internal_notes ?? "",
         urgencia: data.urgencia ?? 1,
         importancia: data.importancia ?? 1,
         estado: data.estado ?? 'novo',
-        data_esperada: data.data_esperada ?? '',
-        data_prevista_conclusao: data.data_prevista_conclusao ?? '',
-        data_conclusao: data.data_conclusao ?? '',
-        data_inicio: data.data_inicio ?? '',
-        data_primeiro_contacto: data.data_primeiro_contacto ?? '',
+        data_esperada: toDateInputValue(data.data_esperada),
+        data_prevista_conclusao: toDateInputValue(data.data_prevista_conclusao),
+        data_conclusao: toDateInputValue(data.data_conclusao),
+        data_inicio: toDateInputValue(data.data_inicio),
+        data_primeiro_contacto: toDateInputValue(data.data_primeiro_contacto),
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -371,18 +379,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       reset({
         assunto: ticket.assunto ?? "",
         pedido_por: ticket.pedido_por ?? "",
-        data_pedido: ticket.data_pedido ?? "",
+        data_pedido: toDateInputValue(ticket.data_pedido),
         descricao: ticket.descricao ?? "",
         objetivo: ticket.objetivo ?? "",
         internal_notes: ticket.internal_notes ?? "",
         urgencia: ticket.urgencia ?? 1,
         importancia: ticket.importancia ?? 1,
         estado: ticket.estado ?? 'novo',
-        data_esperada: ticket.data_esperada ?? "",
-        data_prevista_conclusao: ticket.data_prevista_conclusao ?? "",
-        data_conclusao: ticket.data_conclusao ?? "",
-        data_inicio: ticket.data_inicio ?? "",
-        data_primeiro_contacto: ticket.data_primeiro_contacto ?? "",
+        data_esperada: toDateInputValue(ticket.data_esperada),
+        data_prevista_conclusao: toDateInputValue(ticket.data_prevista_conclusao),
+        data_conclusao: toDateInputValue(ticket.data_conclusao),
+        data_inicio: toDateInputValue(ticket.data_inicio),
+        data_primeiro_contacto: toDateInputValue(ticket.data_primeiro_contacto),
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
