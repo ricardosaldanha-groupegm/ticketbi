@@ -1,7 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { canCommentOnSubticket, createAuthUser, type AuthUser } from '@/lib/rbac'
-import type { Database } from '@/lib/supabase'
+import { canCommentOnSubticket, canReadTicket, createAuthUser, type AuthUser } from '@/lib/rbac'
 import { z } from 'zod'
 
 const createCommentSchema = z.object({
@@ -45,7 +44,49 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Subticket not found' }, { status: 404 })
     }
 
-    if (!canCommentOnSubticket(user, subticket)) {
+    // Load parent ticket to aplicar regras de leitura semelhantes às dos comentários de ticket
+    const ticketId = (subticket as any).ticket_id
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('id', ticketId)
+      .single()
+
+    if (ticketError) {
+      return NextResponse.json({ error: ticketError.message }, { status: 500 })
+    }
+
+    if (!ticket) {
+      return NextResponse.json({ error: 'Parent ticket not found' }, { status: 404 })
+    }
+
+    // Regras de visualização:
+    // - quem pode comentar subtickets (admin / BI responsável) pode sempre ver
+    // - quem pode ler o ticket também pode ver
+    // - watchers do ticket também podem ver
+    // - o próprio responsável BI da tarefa também pode ver
+    let allowView = false
+
+    if (canCommentOnSubticket(user, subticket as any)) {
+      allowView = true
+    } else if (canReadTicket(user, ticket as any)) {
+      allowView = true
+    } else {
+      // verificar watchers do ticket
+      const { data: watchers } = await supabase
+        .from('ticket_watchers')
+        .select('user_id')
+        .eq('ticket_id', ticketId)
+        .eq('user_id', user.id)
+
+      if (watchers && watchers.length > 0) {
+        allowView = true
+      } else if ((subticket as any).assignee_bi_id === user.id) {
+        allowView = true
+      }
+    }
+
+    if (!allowView) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
