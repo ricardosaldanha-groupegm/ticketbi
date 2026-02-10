@@ -56,6 +56,13 @@ export function canDeleteTicket(user: AuthUser, ticket: Ticket): boolean {
   return false
 }
 
+export function canDuplicateTicket(user: AuthUser, ticket: Ticket): boolean {
+  // Apenas perfis internos (admin ou BI gestor do ticket) podem duplicar
+  if (user.role === 'admin') return true
+  if (user.role === 'bi' && ticket.gestor_id === user.id) return true
+  return false
+}
+
 export function canDeleteSubticket(user: AuthUser, subticket: Subticket, ticket: Ticket): boolean {
   return user.role === 'admin' || (user.role === 'bi' && ticket.gestor_id === user.id)
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase-server"
-import { createAuthUser, canReadTicket } from "@/lib/rbac"
+import { createAuthUser, canDuplicateTicket } from "@/lib/rbac"
 import { createTicket, createTicketSchema, isSupabaseConfigured } from "@/lib/tickets-service"
 
 // POST /api/tickets/[id]/duplicate - Create a new ticket as a copy of an existing one
@@ -52,8 +52,8 @@ export async function POST(
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 })
     }
 
-    // Check read permission – duplicar só é permitido se o utilizador puder ver o ticket
-    if (!canReadTicket(user, sourceTicket as any)) {
+    // Check permission – apenas perfis internos (admin ou gestor BI) podem duplicar tickets
+    if (!canDuplicateTicket(user, sourceTicket as any)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

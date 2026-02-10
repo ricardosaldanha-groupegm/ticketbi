@@ -210,6 +210,13 @@ export default function TicketsList() {
     return arr
   }, [tickets, estadoFilter, responsavelFilter, search, currentUserId])
 
+  const canDuplicate = (t: Ticket) => {
+    if (!currentUserId) return false
+    if (currentUserRole === 'admin') return true
+    if (currentUserRole === 'bi' && t.gestor_id === currentUserId) return true
+    return false
+  }
+
   const canDelete = (t: Ticket) => {
     if (!currentUserId) return false
     if (currentUserRole === 'admin') return true
@@ -471,15 +478,17 @@ if (tickets.length === 0) {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            aria-label="Duplicar"
-                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-                            onClick={() => handleDuplicate(ticket)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
+                          {canDuplicate(ticket) && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              aria-label="Duplicar"
+                              className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                              onClick={() => handleDuplicate(ticket)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          )}
                           {canDelete(ticket) && (
                             <Button
                               variant="destructive"

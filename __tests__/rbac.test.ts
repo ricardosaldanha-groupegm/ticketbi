@@ -15,6 +15,7 @@ import {
   canAssignSubticketAssignee,
   canViewInternalNotes,
   canEditInternalNotes,
+  canDuplicateTicket,
   AuthUser,
 } from '@/lib/rbac'
 
@@ -175,6 +176,25 @@ describe('RBAC Functions', () => {
 
     it('should not allow requester to delete tickets', () => {
       expect(canDeleteTicket(mockRequester, mockTicket)).toBe(false)
+    })
+  })
+
+  describe('canDuplicateTicket', () => {
+    it('should allow admin to duplicate any ticket', () => {
+      expect(canDuplicateTicket(mockAdmin, mockTicket as any)).toBe(true)
+    })
+
+    it('should allow BI user to duplicate tickets they manage', () => {
+      expect(canDuplicateTicket(mockBIUser, mockTicket as any)).toBe(true)
+    })
+
+    it('should not allow BI user to duplicate tickets they do not manage', () => {
+      const otherTicket = { ...mockTicket, gestor_id: 'other-bi' }
+      expect(canDuplicateTicket(mockBIUser, otherTicket as any)).toBe(false)
+    })
+
+    it('should not allow requester to duplicate tickets', () => {
+      expect(canDuplicateTicket(mockRequester, mockTicket as any)).toBe(false)
     })
   })
 

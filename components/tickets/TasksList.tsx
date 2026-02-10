@@ -98,6 +98,8 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [sortBy, setSortBy] = useState<'titulo' | 'estado' | 'prioridade' | 'responsavel' | 'inicio_planeado' | 'esperada'>('esperada')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
 
   // Create modal state
   const [createOpen, setCreateOpen] = useState(false)
@@ -154,6 +156,69 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
   }
 
   useEffect(() => { loadTasks() }, [ticketId])
+
+  // Resolver utilizador atual e perfil (para controlar permissões de gestão de tarefas)
+  useEffect(() => {
+    const resolveUser = async () => {
+      try {
+        let resolvedId: string | null = null
+        let resolvedRole: string | null = null
+
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            // Tentar resolver utilizador na tabela users por id
+            const { data: byId } = await supabase.from('users').select('id, role, email').eq('id', user.id).maybeSingle()
+            if (byId) {
+              resolvedId = (byId as any).id
+              resolvedRole = (byId as any)?.role ?? null
+            } else if (user.email) {
+              const { data: byEmail } = await supabase.from('users').select('id, role').eq('email', user.email).maybeSingle()
+              resolvedId = (byEmail as any)?.id ?? null
+              if (!resolvedRole) resolvedRole = (byEmail as any)?.role ?? null
+            }
+
+            // Fallback por email para admin (sem registo em users)
+            if (!resolvedRole && user.email) {
+              const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '')
+                .split(',')
+                .map(s => s.trim().toLowerCase())
+                .filter(Boolean)
+              if (admins.includes(user.email.toLowerCase())) resolvedRole = 'admin'
+            }
+
+            if (!resolvedId) {
+              resolvedId = user.id
+            }
+          }
+        } catch {
+          // Ignorar erros de resolução via Supabase
+        }
+
+        // Modo desenvolvimento: ler de localStorage se ainda não tivermos id/role
+        if ((!resolvedId || !resolvedRole) && typeof window !== 'undefined') {
+          const raw = localStorage.getItem('dev-user')
+          if (raw) {
+            try {
+              const dev = JSON.parse(raw)
+              if (!resolvedId) resolvedId = dev?.id ?? null
+              if (!resolvedRole) resolvedRole = dev?.role ?? null
+            } catch {
+              // ignore
+            }
+          }
+        }
+
+        setCurrentUserId(resolvedId)
+        setCurrentUserRole(resolvedRole)
+      } catch {
+        setCurrentUserId(null)
+        setCurrentUserRole(null)
+      }
+    }
+
+    resolveUser()
+  }, [])
 
   const loadBIUsers = async () => {
     try {
@@ -263,6 +328,20 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     }
     return { rows: items, domainStart, domainEnd, totalDays, todayPercent }
   }, [tasks])
+
+  const canManageTasks = useMemo(() => {
+    if (!currentUserRole) return false
+    if (currentUserRole === 'admin') return true
+    if (currentUserRole === 'bi') return true
+    return false
+  }, [currentUserRole])
+
+  const canEditTask = (task: Task) => {
+    if (!currentUserId) return false
+    if (currentUserRole === 'admin') return true
+    if (currentUserRole === 'bi' && task.assignee_bi_id === currentUserId) return true
+    return false
+  }
 
   const openTaskDetail = (id: string) => {
     const t = tasks.find((x) => x.id === id) || null
@@ -437,11 +516,13 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
               <CardTitle>Tarefas ({tasks.length})</CardTitle>
               <CardDescription>Gestor de tarefas para este ticket</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openCreate}>
-                Nova Tarefa
-              </Button>
-            </div>
+            {canManageTasks && (
+              <div className="flex items-center gap-2">
+                <Button className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openCreate}>
+                  Nova Tarefa
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -577,15 +658,17 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            aria-label="Editar tarefa"
-                            onClick={() => openEdit(task.id)}
-                            className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {canEditTask(task) && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              aria-label="Editar tarefa"
+                              onClick={() => openEdit(task.id)}
+                              className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
