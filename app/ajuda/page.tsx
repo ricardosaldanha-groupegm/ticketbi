@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from "next/link"
+import Image from 'next/image'
 
 const contentPT = {
   title: 'Ajuda ao Utilizador',
@@ -234,11 +235,14 @@ export default function AjudaPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       <div className="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-lg p-6 md:p-8 text-slate-100">
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">{content.title}</h1>
+          <div className="flex items-center gap-3">
+            <Image src="/ticketbi-icon.png" alt="TicketBI" width={48} height={48} className="h-12 w-12 flex-shrink-0" />
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2">{content.title}</h1>
             <p className="text-slate-400">
-              {content.subtitle}
-            </p>
+                {content.subtitle}
+              </p>
+            </div>
           </div>
           
           {/* Language Toggle */}

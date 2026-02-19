@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -172,6 +173,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex justify-center mb-2">
+            <Image src="/ticketbi-icon.png" alt="TicketBI" width={64} height={64} className="h-16 w-16" />
+          </div>
           <CardTitle className="text-2xl font-bold text-slate-100">TicketBI</CardTitle>
           <CardDescription className="text-slate-400">
             Sistema de Gestão de Tickets BI
