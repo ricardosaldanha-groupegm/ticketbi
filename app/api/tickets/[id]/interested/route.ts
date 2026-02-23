@@ -59,12 +59,46 @@ export async function PUT(
     if (delErr) return NextResponse.json({ error: delErr.message }, { status: 500 })
     if (users.length === 0) return NextResponse.json({ users: [] })
 
-    const rows = users.map((uid: string) => ({ ticket_id: params.id, user_id: uid }))
+    // Normalize UUIDs (trim whitespace) and dedupe
+    const userIds = Array.from(new Set(users.map((u: string) => (u && typeof u === 'string' ? u.trim() : '').toLowerCase()).filter(Boolean)))
+
+    // Validate that all user_ids exist in users table (prevents FK violation)
+    const { data: existingUsers } = await supabase
+      .from('users')
+      .select('id')
+      .in('id', userIds)
+    const validIds = new Set((existingUsers || []).map((u: any) => (u?.id || '').toLowerCase()))
+    const invalidIds = userIds.filter((uid: string) => !validIds.has(uid))
+    if (invalidIds.length > 0) {
+      console.warn('[interested] Invalid user ids (not in users table):', invalidIds)
+      return NextResponse.json(
+        {
+          error:
+            'Um ou mais utilizadores selecionados não existem na base de dados. Atualize a página e volte a selecionar.',
+        },
+        { status: 400 }
+      )
+    }
+
+    // Use original case from DB for insert (Postgres UUID is case-insensitive but keep consistency)
+    const idMap = new Map((existingUsers || []).map((u: any) => [(u?.id || '').toLowerCase(), u.id]))
+    const rows = userIds.map((uid: string) => ({
+      ticket_id: params.id,
+      user_id: idMap.get(uid) || uid,
+    }))
+
     const { data, error } = await (supabase as any)
       .from('ticket_watchers')
       .insert(rows as any)
       .select('user_id')
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      console.error('[interested] Insert error:', error)
+      const isFk = (error.message || '').toLowerCase().includes('foreign key')
+      return NextResponse.json(
+        { error: isFk ? 'Um ou mais utilizadores não existem na base de dados. Atualize a página e tente novamente.' : error.message },
+        { status: 500 }
+      )
+    }
     return NextResponse.json({ users: data?.map((r: any) => r.user_id) || [] })
   } catch (e: any) {
     if (e instanceof z.ZodError) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
