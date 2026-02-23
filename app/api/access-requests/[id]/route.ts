@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { getAccessRequest, updateAccessRequest } from '@/lib/dev-storage'
@@ -137,74 +137,85 @@ export async function PATCH(
     
     const newStatus = validatedData.action === 'approve' ? 'approved' : 'rejected'
     
-    // Update the access request (leaving approved_by as null for now since we don't have proper auth)
-    const { data: updatedRequest, error: updateError } = await (supabase as any)
-      .from('access_requests')
-      .update({
-        status: newStatus,
-        approved_by: null, // Will be null until proper Supabase Auth is implemented
-        approved_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single()
-    
-    if (updateError) {
-      console.error('Error updating access request:', updateError)
-      return NextResponse.json(
-        { error: 'Erro ao processar pedido' },
-        { status: 500 }
-      )
-    }
-    
-    // If approved, create the user account and send invite email
+    // If approving: create Auth user + invite email FIRST, before updating status
     if (validatedData.action === 'approve') {
       const email = (accessRequest as any).email as string
       const name = (accessRequest as any).name as string
-
-      // 1) Send Supabase Auth invite email (same flow as /api/admin/users)
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
       const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
       if (!supabaseUrl || !serviceKey) {
-        console.warn('Supabase config missing; cannot send invite email')
-      } else {
-        const admin = createClient(supabaseUrl, serviceKey)
-        const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || undefined
-        const redirectTo = origin ? `${origin}/alterar-password` : undefined
-        const { data: invited, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, {
-          data: { must_change_password: true, name },
-          redirectTo,
-        })
-        if (inviteErr) {
-          console.error('Error sending invite email:', inviteErr)
-          // Do not fail the whole request because of email; continue to DB upsert
-        }
+        return NextResponse.json(
+          { error: 'Configuração Supabase em falta. Não foi possível enviar o convite.' },
+          { status: 500 }
+        )
       }
 
-      // 2) Upsert into users table (ensure app mapping exists)
+      // 1) Invite user via Supabase Auth (creates user + sends email) - MUST succeed before approving
+      const admin = createClient(supabaseUrl, serviceKey)
+      const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || undefined
+      const redirectTo = origin ? `${origin}/alterar-password` : undefined
+      const { data: invited, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, {
+        data: { must_change_password: true, name },
+        redirectTo,
+      })
+
+      if (inviteErr) {
+        console.error('Error sending invite email:', inviteErr)
+        const msg = inviteErr.message || ''
+        const isUserExists = /already (registered|exists|been invited)/i.test(msg) || msg.includes('duplicate') || msg.includes('unique')
+        return NextResponse.json(
+          {
+            error: isUserExists
+              ? 'Este email já foi utilizado no sistema (utilizador anterior pode ter sido eliminado). Elimine o registo em Supabase Auth (SQL Editor: DELETE FROM auth.identities WHERE user_id IN (SELECT id FROM auth.users WHERE email = \'...\'); DELETE FROM auth.users WHERE email = \'...\') e tente novamente.'
+              : `Erro ao enviar convite por email: ${inviteErr.message}`,
+          },
+          { status: 500 }
+        )
+      }
+
+      // 2) Upsert into users table (app mapping)
       const { error: upsertErr } = await (supabase as any)
         .from('users')
-        .upsert({
-          // If the invited user already exists in auth, we might not know their id here; rely on email uniqueness
-          email,
-          name,
-          role: 'requester',
-        } as any, { onConflict: 'email' })
+        .upsert(
+          {
+            id: invited?.user?.id,
+            email,
+            name,
+            role: 'requester',
+          } as any,
+          { onConflict: 'email' }
+        )
 
       if (upsertErr) {
         console.error('Error upserting user:', upsertErr)
-        // Rollback to pending only if it's a hard failure unrelated to unique conflict
         if ((upsertErr as any).code && (upsertErr as any).code !== '23505') {
-          await (supabase as any)
-            .from('access_requests')
-            .update({ status: 'pending' } as any)
-            .eq('id', id)
           return NextResponse.json(
-            { error: 'Erro ao criar utilizador' },
+            { error: 'Utilizador criado no Auth, mas falha ao registar na aplicação. Verifique os logs.' },
             { status: 500 }
           )
         }
       }
+    }
+
+    // 3) Update access request status (only after invite + users upsert succeed)
+    const { data: updatedRequest, error: updateError } = await (supabase as any)
+      .from('access_requests')
+      .update({
+        status: newStatus,
+        approved_by: null,
+        approved_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('Error updating access request:', updateError)
+      return NextResponse.json(
+        { error: 'Erro ao atualizar pedido' },
+        { status: 500 }
+      )
     }
     
     return NextResponse.json({

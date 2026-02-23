@@ -90,8 +90,9 @@ export default function AccessRequestsPage() {
       console.error('Error processing request:', error)
       toast({
         title: 'Erro',
-        description: 'Erro ao processar pedido',
+        description: error instanceof Error ? error.message : 'Erro ao processar pedido',
         variant: 'destructive',
+        duration: 8000,
       })
     } finally {
       setProcessingId(null)
