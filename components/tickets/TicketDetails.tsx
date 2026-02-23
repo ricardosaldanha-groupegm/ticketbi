@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react"
 import { supabase } from '@/lib/supabase'
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -165,7 +166,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [interestedQuery, setInterestedQuery] = useState("")
   const canEditAllFields = currentRole === 'admin' || currentRole === 'bi'
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateTicketForm>({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
   })
 
@@ -461,6 +462,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     fetchBIUsers()
   }, [currentRole])
 
+  // Garantir que pedido_por está no form quando ticket ou allUsers carregam
+  useEffect(() => {
+    if (!ticket?.pedido_por) return
+    setValue("pedido_por", ticket.pedido_por)
+  }, [ticket?.pedido_por, setValue])
+
   if (!isAuthenticated) return null
 
   if (loading || !ticket) {
@@ -699,24 +706,40 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             <div>
                               <Label htmlFor="pedido_por" className="text-slate-300">Pedido por</Label>
                               {canEditAllFields ? (
-                                <select
-                                  id="pedido_por"
-                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                                  {...register("pedido_por")}
-                                  defaultValue={ticket.pedido_por}
-                                >
-                                  {allUsers.map((u) => (
-                                    <option key={u.id} value={u.name}>
-                                      {u.name} ({u.email})
-                                    </option>
-                                  ))}
-                                </select>
+                                <Controller
+                                  name="pedido_por"
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      value={field.value || ticket.pedido_por || ""}
+                                      onValueChange={field.onChange}
+                                    >
+                                      <SelectTrigger id="pedido_por" className="w-full rounded-md border border-slate-600 bg-slate-700 text-slate-100">
+                                        <SelectValue placeholder="Selecionar utilizador" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {ticket.pedido_por && !allUsers.some((u) => u.name === ticket.pedido_por) && (
+                                          <SelectItem key="current" value={ticket.pedido_por}>
+                                            {ticket.pedido_por} (atual)
+                                          </SelectItem>
+                                        )}
+                                        {allUsers.map((u) => (
+                                          <SelectItem key={u.id} value={u.name}>
+                                            {u.name} ({u.email})
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                />
                               ) : (
                                 <input
                                   id="pedido_por"
-                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                                  {...register("pedido_por")}
+                                  type="text"
+                                  readOnly
                                   disabled
+                                  value={ticket.pedido_por ?? ""}
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100 cursor-not-allowed"
                                 />
                               )}
                             </div>
