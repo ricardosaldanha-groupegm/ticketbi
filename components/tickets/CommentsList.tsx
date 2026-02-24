@@ -249,7 +249,15 @@ const fetchComments = useCallback(async () => {
   const formatDate = (dateString: string) => {
     const d = new Date(dateString)
     if (Number.isNaN(d.getTime())) return ''
-    return d.toLocaleDateString('pt-PT')
+    // Mostrar data e hora no fuso de Lisboa
+    return new Intl.DateTimeFormat('pt-PT', {
+      timeZone: 'Europe/Lisbon',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(d)
   }
 
   const renderCommentBody = (body: string) => {
