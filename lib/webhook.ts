@@ -92,6 +92,23 @@ export async function getTicketNotificationRecipients(
     })
   }
 
+  // Get ticket manager (gestor)
+  const { data: ticketWithManager } = await supabase
+    .from('tickets')
+    .select('gestor:users!tickets_gestor_id_fkey(email, name)')
+    .eq('id', ticketId)
+    .maybeSingle()
+
+  const gestorUser = (ticketWithManager as any)?.gestor as { email: string; name: string } | null
+  if (gestorUser && gestorUser.email) {
+    if (!recipients.find((r) => r.email === gestorUser.email)) {
+      recipients.push({
+        email: gestorUser.email,
+        name: gestorUser.name || gestorUser.email,
+      })
+    }
+  }
+
   // Get watchers/interessados
   const { data: watchers } = await supabase
     .from('ticket_watchers')
