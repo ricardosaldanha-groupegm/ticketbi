@@ -416,7 +416,7 @@ export default function TutorialPage() {
             ) : (
               filteredSections.map((section) => (
                 <div key={section.id} data-section-id={section.id} className="scroll-mt-24">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4 mt-8 first:mt-0 border-b border-slate-700 pb-2">
+                  <h2 className="text-2xl font-bold text-white mb-4 mt-8 first:mt-0 bg-amber-600 -mx-8 px-8 py-3 rounded-r border-l-4 border-amber-500">
                     {highlightText(section.title)}
                   </h2>
                   
@@ -424,7 +424,7 @@ export default function TutorialPage() {
 
                   {section.subsections.map((subsection) => (
                     <div key={subsection.id} data-section-id={subsection.id} className="scroll-mt-24">
-                      <h3 className="text-xl font-semibold text-slate-100 mb-3 mt-6">
+                      <h3 className="text-xl font-semibold text-white mb-3 mt-6 bg-amber-600/90 -mx-8 px-8 py-2.5 rounded-r border-l-4 border-amber-500">
                         {highlightText(subsection.title)}
                       </h3>
                       
@@ -432,7 +432,7 @@ export default function TutorialPage() {
 
                       {subsection.subsections.map((subsubsection) => (
                         <div key={subsubsection.id} data-section-id={subsubsection.id} className="scroll-mt-24">
-                          <h4 className="text-lg font-medium text-slate-100 mb-2 mt-4">
+                          <h4 className="text-lg font-medium text-white mb-2 mt-4 bg-amber-600/75 -mx-8 px-8 py-2 rounded-r border-l-4 border-amber-400">
                             {highlightText(subsubsection.title)}
                           </h4>
                           

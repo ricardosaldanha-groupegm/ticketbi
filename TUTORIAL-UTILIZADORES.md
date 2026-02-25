@@ -49,14 +49,14 @@ Se ainda não tem uma conta no sistema, precisa de solicitar acesso primeiro:
 
 Quando o seu pedido de acesso for aprovado, receberá um email de autenticação do sistema:
 
-- **Remetente:** `Supabase Auth <noreply@mail.app.supabase.io>`
+- **Remetente:** `Bot GGMPI <botpi@groupegm.com>`
 - **Assunto:** `O Pedido de acesso ao TicketBI foi aprovado`
 
 > **⚠️ Atenção - Verificar Pasta de Spam:**
 > 
 > - Os emails de autenticação podem ser classificados como **spam** pelo seu cliente de email
 > - **Verifique sempre a pasta de Spam/Lixo Eletrónico** se não receber o email na sua caixa de entrada
-> - **Recomendação:** Marque o email como **"Não é Spam"** ou adicione o remetente `noreply@mail.app.supabase.io` à sua lista de contactos seguros
+> - **Recomendação:** Marque o email como **"Não é Spam"** ou adicione o remetente `botpi@groupegm.com` à sua lista de contactos seguros
 > - Isto garante que receberá todos os emails futuros do sistema na sua caixa de entrada
 
 ### Como Fazer Login
@@ -68,7 +68,7 @@ Após ter o seu pedido de acesso aprovado:
 3. Introduza o seu **email profissional** e **palavra-passe**
 4. Clique em **"Iniciar Sessão"**
 
-> **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente `noreply@mail.app.supabase.io`
+> **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente `botpi@groupegm.com`
 
 ### Primeira Vez no Sistema
 
@@ -522,13 +522,13 @@ Mostrar a um utilizador novo como:
 
 - **Ação no ecrã**  
   - Mostrar rapidamente um exemplo de email (screenshot ou mock):  
-    - Remetente: `Supabase Auth <noreply@mail.app.supabase.io>`  
+    - Remetente: `Bot GGMPI <botpi@groupegm.com>`  
     - Assunto: `O Pedido de acesso ao TicketBI foi aprovado`
 - **Narração sugerida**  
   “Quando o seu pedido for aprovado, recebe um email com o assunto ‘O Pedido de acesso ao TicketBI foi aprovado’.  
   Esse email contém o link ou as instruções para concluir o acesso.”
 - **Texto de apoio**  
-  - `Remetente: noreply@mail.app.supabase.io`  
+  - `Remetente: botpi@groupegm.com`  
   - `Assunto: "O Pedido de acesso ao TicketBI foi aprovado"`
 
 #### 4. Login no TicketBI
@@ -769,4 +769,4 @@ Se tiver dúvidas ou problemas:
 
 ---
 
-**Última atualização:** Janeiro 2026
+**Última atualização:** Fevereiro 2025

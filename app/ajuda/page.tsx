@@ -37,14 +37,14 @@ Este tutorial irá guiá-lo através das funcionalidades principais do sistema, 
       title: 'Emails de Autenticação',
       content: `Quando o seu pedido de acesso for aprovado, receberá um email de autenticação do sistema:
 
-- **Remetente:** \`Supabase Auth <noreply@mail.app.supabase.io>\`
+- **Remetente:** \`Bot GGMPI <botpi@groupegm.com>\`
 - **Assunto:** \`O Pedido de acesso ao TicketBI foi aprovado\`
 
 > **⚠️ Atenção - Verificar Pasta de Spam:**
 > 
 > - Os emails de autenticação podem ser classificados como **spam** pelo seu cliente de email
 > - **Verifique sempre a pasta de Spam/Lixo Eletrónico** se não receber o email na sua caixa de entrada
-> - **Recomendação:** Marque o email como **"Não é Spam"** ou adicione o remetente \`noreply@mail.app.supabase.io\` à sua lista de contactos seguros
+> - **Recomendação:** Marque o email como **"Não é Spam"** ou adicione o remetente \`botpi@groupegm.com\` à sua lista de contactos seguros
 > - Isto garante que receberá todos os emails futuros do sistema na sua caixa de entrada`
     },
     login: {
@@ -56,7 +56,7 @@ Este tutorial irá guiá-lo através das funcionalidades principais do sistema, 
 3. Introduza o seu **email profissional** e **palavra-passe**
 4. Clique em **"Iniciar Sessão"**
 
-> **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente \`noreply@mail.app.supabase.io\``
+> **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente \`botpi@groupegm.com\``
     },
     firstTime: {
       title: 'Primeira Vez no Sistema',
@@ -101,14 +101,14 @@ Este tutorial le guiará a través de las funcionalidades principales del sistem
       title: 'Emails de Autenticación',
       content: `Cuando su solicitud de acceso sea aprobada, recibirá un email de autenticación del sistema:
 
-- **Remetente:** \`Supabase Auth <noreply@mail.app.supabase.io>\`
+- **Remetente:** \`Bot GGMPI <botpi@groupegm.com>\`
 - **Assunto:** \`O Pedido de acesso ao TicketBI foi aprovado\`
 
 > **⚠️ Atención - Verificar Carpeta de Spam:**
 > 
 > - Los emails de autenticación pueden ser clasificados como **spam** por su cliente de email
 > - **Verifique siempre la carpeta de Spam/Correo no deseado** si no recibe el email en su bandeja de entrada
-> - **Recomendación:** Marque el email como **"No es Spam"** o agregue el remitente \`noreply@mail.app.supabase.io\` a su lista de contactos seguros
+> - **Recomendación:** Marque el email como **"No es Spam"** o agregue el remitente \`botpi@groupegm.com\` a su lista de contactos seguros
 > - Esto garantiza que recibirá todos los emails futuros del sistema en su bandeja de entrada`
     },
     login: {
@@ -120,7 +120,7 @@ Este tutorial le guiará a través de las funcionalidades principales del sistem
 3. Introduzca su **email profissional** y **palavra-passe**
 4. Haga clic en **"Iniciar Sessão"**
 
-> **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente \`noreply@mail.app.supabase.io\``
+> **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente \`botpi@groupegm.com\``
     },
     firstTime: {
       title: 'Primera Vez en el Sistema',

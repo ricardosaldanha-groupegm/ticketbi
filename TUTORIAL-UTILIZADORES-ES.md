@@ -49,14 +49,14 @@ Si aún no tiene una cuenta en el sistema, necesita solicitar acceso primero:
 
 Cuando su solicitud de acceso sea aprobada, recibirá un email de autenticación del sistema:
 
-- **Remetente:** `Supabase Auth <noreply@mail.app.supabase.io>`
+- **Remetente:** `Bot GGMPI <botpi@groupegm.com>`
 - **Assunto:** `O Pedido de acesso ao TicketBI foi aprovado`
 
 > **⚠️ Atención - Verificar Carpeta de Spam:**
 > 
 > - Los emails de autenticación pueden ser clasificados como **spam** por su cliente de email
 > - **Verifique siempre la carpeta de Spam/Correo no deseado** si no recibe el email en su bandeja de entrada
-> - **Recomendación:** Marque el email como **"No es Spam"** o agregue el remitente `noreply@mail.app.supabase.io` a su lista de contactos seguros
+> - **Recomendación:** Marque el email como **"No es Spam"** o agregue el remitente `botpi@groupegm.com` a su lista de contactos seguros
 > - Esto garantiza que recibirá todos los emails futuros del sistema en su bandeja de entrada
 
 ### Cómo Iniciar Sesión
@@ -68,7 +68,7 @@ Después de que su solicitud de acceso sea aprobada:
 3. Introduzca su **email profissional** y **palavra-passe**
 4. Haga clic en **"Iniciar Sessão"**
 
-> **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente `noreply@mail.app.supabase.io`
+> **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente `botpi@groupegm.com`
 
 ### Primera Vez en el Sistema
 
@@ -471,4 +471,4 @@ Si tiene dudas o problemas:
 
 ---
 
-**Última atualização:** Enero 2026
+**Última actualización:** Febrero 2025
