@@ -1,15 +1,16 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { supabase } from '@/lib/supabase'
 import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye, Trash, Copy } from "lucide-react"
+import { Eye, Trash, Copy, ChevronDown } from "lucide-react"
 
 interface Ticket {
   id: string
@@ -45,6 +46,11 @@ const statusLabels: Record<string, string> = {
 
 const allEstados = Object.keys(statusLabels)
 const defaultEstados = allEstados.filter(
+  (s) => !["concluido", "rejeitado", "bloqueado"].includes(s)
+)
+
+// Estados considerados "não concluídos" para listar responsáveis
+const estadosNaoConcluidos = allEstados.filter(
   (s) => !["concluido", "rejeitado", "bloqueado"].includes(s)
 )
 
@@ -116,8 +122,11 @@ export default function TicketsList() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   const [estadoFilter, setEstadoFilter] = useState<string[]>(defaultEstados)
-  const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none">("me")
+  const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none" | string>("me")
   const [search, setSearch] = useState<string>("")
+  const [responsavelSearch, setResponsavelSearch] = useState<string>("")
+  const [responsavelOpen, setResponsavelOpen] = useState(false)
+  const responsavelRef = useRef<HTMLDivElement>(null)
 
   const fetchTickets = async () => {
     try {
@@ -183,6 +192,61 @@ export default function TicketsList() {
 
   useEffect(() => { fetchTickets() }, [])
 
+  useEffect(() => {
+    if (!responsavelOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (responsavelRef.current && !responsavelRef.current.contains(e.target as Node)) {
+        setResponsavelOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [responsavelOpen])
+
+  // Responsáveis com pelo menos um ticket não concluído
+  const responsaveisComTicketsNaoConcluidos = useMemo(() => {
+    const ticketsNaoConcluidos = tickets.filter((t) =>
+      t.gestor_id && estadosNaoConcluidos.includes(t.estado)
+    )
+    const seen = new Map<string, { id: string; name: string }>()
+    for (const t of ticketsNaoConcluidos) {
+      if (t.gestor_id && !seen.has(t.gestor_id)) {
+        seen.set(t.gestor_id, {
+          id: t.gestor_id,
+          name: t.gestor?.name || t.gestor?.email || t.gestor_id,
+        })
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "")
+    )
+  }, [tickets])
+
+  const opcoesResponsavel = useMemo(() => {
+    const fixas = [
+      { value: "me", label: "Meus tickets" },
+      { value: "all", label: "Todos" },
+      { value: "none", label: "Sem responsável" },
+    ]
+    const gestores = responsaveisComTicketsNaoConcluidos.map((g) => ({
+      value: g.id,
+      label: g.name || g.id,
+    }))
+    return [...fixas, ...gestores]
+  }, [responsaveisComTicketsNaoConcluidos])
+
+  const opcoesResponsavelFiltradas = useMemo(() => {
+    const q = responsavelSearch.trim().toLowerCase()
+    if (!q) return opcoesResponsavel
+    return opcoesResponsavel.filter((o) =>
+      o.label.toLowerCase().includes(q)
+    )
+  }, [opcoesResponsavel, responsavelSearch])
+
+  const labelResponsavelSelecionado = useMemo(() => {
+    return opcoesResponsavel.find((o) => o.value === responsavelFilter)?.label ?? responsavelFilter
+  }, [opcoesResponsavel, responsavelFilter])
+
   const filteredTickets = useMemo(() => {
     let arr = tickets
 
@@ -196,6 +260,8 @@ export default function TicketsList() {
       }
     } else if (responsavelFilter === "none") {
       arr = arr.filter((t) => !t.gestor_id)
+    } else if (responsavelFilter && !["me", "all"].includes(responsavelFilter)) {
+      arr = arr.filter((t) => t.gestor_id === responsavelFilter)
     }
 
     const q = search.trim().toLowerCase()
@@ -208,7 +274,7 @@ export default function TicketsList() {
     }
 
     return arr
-  }, [tickets, estadoFilter, responsavelFilter, search, currentUserId])
+  }, [tickets, estadoFilter, responsavelFilter, search, currentUserId, currentUserRole])
 
   const canDuplicate = (t: Ticket) => {
     if (!currentUserId) return false
@@ -380,15 +446,61 @@ if (tickets.length === 0) {
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end text-sm">
           <div className="flex items-center gap-2">
             <span className="text-slate-300">Responsável:</span>
-            <select
-              value={responsavelFilter}
-              onChange={(e) => setResponsavelFilter(e.target.value as any)}
-              className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
-            >
-              <option value="me">Meus tickets</option>
-              <option value="all">Todos</option>
-              <option value="none">Sem responsável</option>
-            </select>
+            <div ref={responsavelRef} className="relative">
+              <div
+                role="combobox"
+                aria-expanded={responsavelOpen}
+                aria-haspopup="listbox"
+                className="flex min-w-[180px] cursor-pointer items-center justify-between gap-2 rounded border border-slate-600 bg-slate-700 px-2 py-1.5 text-slate-100"
+                onClick={() => setResponsavelOpen((o) => !o)}
+              >
+                <span className="truncate">{labelResponsavelSelecionado}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+              </div>
+              {responsavelOpen && (
+                <div className="absolute top-full left-0 z-50 mt-1 max-h-60 w-full min-w-[200px] overflow-hidden rounded border border-slate-600 bg-slate-700 shadow-lg">
+                  <div className="border-b border-slate-600 p-1">
+                    <Input
+                      placeholder="Procurar responsável..."
+                      value={responsavelSearch}
+                      onChange={(e) => setResponsavelSearch(e.target.value)}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      className="h-8 border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-400"
+                    />
+                  </div>
+                  <ul
+                    role="listbox"
+                    className="max-h-48 overflow-y-auto p-1"
+                  >
+                    {opcoesResponsavelFiltradas.length === 0 ? (
+                      <li className="px-2 py-1.5 text-sm text-slate-400">
+                        Nenhum responsável encontrado
+                      </li>
+                    ) : (
+                      opcoesResponsavelFiltradas.map((opt) => (
+                        <li
+                          key={opt.value}
+                          role="option"
+                          aria-selected={responsavelFilter === opt.value}
+                          className={`cursor-pointer rounded px-2 py-1.5 text-sm ${
+                            responsavelFilter === opt.value
+                              ? "bg-amber-600/80 text-white"
+                              : "text-slate-200 hover:bg-slate-600"
+                          }`}
+                          onClick={() => {
+                            setResponsavelFilter(opt.value)
+                            setResponsavelSearch("")
+                            setResponsavelOpen(false)
+                          }}
+                        >
+                          {opt.label}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
           <input
             value={search}
