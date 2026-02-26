@@ -696,7 +696,14 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                               <select
                                 id="estado"
                                 className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
-                                {...register("estado")}
+                                {...register("estado", {
+                                  onChange: (e) => {
+                                    if (e.target.value === 'concluido') {
+                                      const today = new Date().toISOString().slice(0, 10)
+                                      setValue('data_conclusao', today, { shouldDirty: true })
+                                    }
+                                  }
+                                })}
                                 defaultValue={ticket.estado}
                                 disabled={!canEditAllFields}
                               >

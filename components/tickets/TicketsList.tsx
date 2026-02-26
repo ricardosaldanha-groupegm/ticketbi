@@ -567,15 +567,16 @@ if (tickets.length === 0) {
                   const computedPriority = formatPriority(ticket.urgencia, ticket.importancia)
                   const colorClass = typeof computedPriority === "number" ? priorityColors[computedPriority] : undefined
                   const d = daysUntil(ticket.data_esperada)
+                  const isConcluido = ticket.estado === 'concluido'
                   return (
                     <TableRow key={ticket.id}>
                       <TableCell className="font-medium">
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
-                            {d != null && d < 0 && (
+                            {!isConcluido && d != null && d < 0 && (
                               <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" title={`${Math.abs(d)} dias em atraso`} />
                             )}
-                            {d != null && d >= 0 && d < 5 && (
+                            {!isConcluido && d != null && d >= 0 && d < 5 && (
                               <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" title={`Faltam ${d} dias`} />
                             )}
                             <span>{ticket.assunto}</span>
@@ -590,7 +591,9 @@ if (tickets.length === 0) {
                       <TableCell>{formatDate(ticket.data_pedido)}</TableCell>
                       <TableCell>{formatDate(ticket.data_esperada)}</TableCell>
                       <TableCell>
-                        {d == null ? (
+                        {isConcluido ? (
+                          <span className="text-slate-400 text-xs">—</span>
+                        ) : d == null ? (
                           <span className="text-slate-400 text-xs">sem data</span>
                         ) : d < 0 ? (
                           <span className="text-red-300 text-xs">{Math.abs(d)} dias em atraso</span>

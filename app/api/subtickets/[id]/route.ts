@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getCurrentUser, requireAuth } from '@/lib/auth'
 import { canEditSubticket, canDeleteSubticket } from '@/lib/rbac'
@@ -152,6 +152,14 @@ export async function PATCH(
       }
     }
 
+    // Auto-fill data_conclusao when changing to concluido (user can still override)
+    let dataConclusao = validatedData.data_conclusao && validatedData.data_conclusao.trim() !== ''
+      ? validatedData.data_conclusao
+      : null
+    if (validatedData.estado === 'concluido' && !dataConclusao && !(currentSubticket as any).data_conclusao) {
+      dataConclusao = new Date().toISOString()
+    }
+
     const normalized = {
       ...validatedData,
       data_inicio:
@@ -162,10 +170,7 @@ export async function PATCH(
           : null,
       data_esperada:
         validatedData.data_esperada && validatedData.data_esperada.trim() !== '' ? validatedData.data_esperada : null,
-      data_conclusao:
-        validatedData.data_conclusao && validatedData.data_conclusao.trim() !== ''
-          ? validatedData.data_conclusao
-          : null,
+      data_conclusao: dataConclusao,
     }
 
     // Update subticket

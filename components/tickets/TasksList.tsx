@@ -830,7 +830,17 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
             </div>
             <div className="space-y-2">
               <label className="text-slate-300">Estado</label>
-              <select value={editEstado} onChange={(e) => setEditEstado(e.target.value)} className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100">
+              <select
+                value={editEstado}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setEditEstado(v)
+                  if (v === 'concluido' && !editDataConclusao) {
+                    setEditDataConclusao(new Date().toISOString().slice(0, 10))
+                  }
+                }}
+                className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+              >
                 <option value="novo">Novo</option>
                 <option value="em_analise">Em análise</option>
                 <option value="em_curso">Em curso</option>
