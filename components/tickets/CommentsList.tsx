@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
-import { Send } from 'lucide-react'
+import { Send, ArrowDownNarrowWide, ArrowUpNarrowWide } from 'lucide-react'
 
 interface Comment {
   id: string
@@ -47,6 +47,7 @@ export default function CommentsList({ ticketId, subticketId, hideForm = false }
   const [filterTarget, setFilterTarget] = useState<string>('all') // 'all' | 'ticket' | subticketId
   const [searchText, setSearchText] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
   const {
     register,
     handleSubmit,
@@ -244,8 +245,14 @@ const fetchComments = useCallback(async () => {
     if (q) {
       items = items.filter((c) => (c.body || '').toLowerCase().includes(q))
     }
+    const dir = sortOrder === 'desc' ? -1 : 1
+    items = [...items].sort((a, b) => {
+      const ta = new Date(a.created_at).getTime()
+      const tb = new Date(b.created_at).getTime()
+      return dir * (ta - tb)
+    })
     return items
-  }, [comments, filterTarget, appliedSearch, subticketId])
+  }, [comments, filterTarget, appliedSearch, sortOrder, subticketId])
   const formatDate = (dateString: string) => {
     const d = new Date(dateString)
     if (Number.isNaN(d.getTime())) return ''
@@ -327,7 +334,18 @@ const fetchComments = useCallback(async () => {
       <CardContent className="space-y-4 text-slate-200">
 
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600"
+            onClick={() => setSortOrder((o) => (o === 'desc' ? 'asc' : 'desc'))}
+            title={sortOrder === 'desc' ? 'Mais recentes primeiro (clique para ordenar do mais antigo ao mais recente)' : 'Mais antigos primeiro (clique para ordenar do mais recente ao mais antigo)'}
+          >
+            {sortOrder === 'desc' ? <ArrowDownNarrowWide className="h-4 w-4 mr-1.5" /> : <ArrowUpNarrowWide className="h-4 w-4 mr-1.5" />}
+            {sortOrder === 'desc' ? 'Mais recentes primeiro' : 'Mais antigos primeiro'}
+          </Button>
           <Select value={filterTarget} onValueChange={setFilterTarget} disabled={!!subticketId}>
             <SelectTrigger className="w-56 bg-slate-700 border border-slate-600 text-slate-100" aria-label="Filtro">
               <SelectValue placeholder="Filtrar por..." />

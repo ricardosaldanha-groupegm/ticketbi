@@ -95,7 +95,7 @@ export async function GET(
       subticketComments = subComments || []
     }
 
-    const merged = [...(comments || []), ...subticketComments].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    const merged = [...(comments || []), ...subticketComments].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     return NextResponse.json(merged)
   } catch (error) {
