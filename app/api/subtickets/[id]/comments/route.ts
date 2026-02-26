@@ -94,7 +94,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       .from('comments')
       .select(`*, author:users!comments_author_id_fkey(name, email)`) 
       .eq('subticket_id', params.id)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

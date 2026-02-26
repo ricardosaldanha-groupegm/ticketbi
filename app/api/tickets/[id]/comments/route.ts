@@ -62,7 +62,7 @@ export async function GET(
         author:users!comments_author_id_fkey(name, email)
       `)
       .eq('ticket_id', params.id)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
