@@ -165,6 +165,8 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const [openInterestedEdit, setOpenInterestedEdit] = useState(false)
   const [interestedQuery, setInterestedQuery] = useState("")
   const canEditAllFields = currentRole === 'admin' || currentRole === 'bi'
+  const canViewInternalNotes =
+    currentRole === 'admin' || (currentRole === 'bi' && ticket?.gestor_id === currentUserId)
 
   const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
@@ -355,10 +357,16 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
       const headers: HeadersInit = { "Content-Type": "application/json" }
       if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
       if (currentRole) (headers as any)['X-User-Role'] = currentRole
+      // Remover notas internas do payload se o utilizador não tiver permissões para as ver/editar
+      const payload: any = { ...formData }
+      if (!canViewInternalNotes) {
+        delete payload.internal_notes
+      }
+
       const response = await fetch(`/api/tickets/${ticketId}`, {
         method: "PATCH",
         headers,
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
       if (!response.ok) {
         const error = await response.json()
@@ -811,10 +819,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                               <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} disabled={!canEditAllFields} />
                               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
                             </div>
-                            <div className="md:col-span-2 space-y-2">
-                              <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
-                              <Textarea id="internal_notes" rows={3} className="bg-slate-700 text-slate-100" {...register("internal_notes")} disabled={!canEditAllFields} />
-                            </div>
+                            {canViewInternalNotes && (
+                              <div className="md:col-span-2 space-y-2">
+                                <Label htmlFor="internal_notes" className="text-slate-300">Notas internas</Label>
+                                <Textarea
+                                  id="internal_notes"
+                                  rows={3}
+                                  className="bg-slate-700 text-slate-100"
+                                  {...register("internal_notes")}
+                                  disabled={!canEditAllFields}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
 

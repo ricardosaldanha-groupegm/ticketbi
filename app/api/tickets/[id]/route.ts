@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
-import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser } from '@/lib/rbac'
+import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser, canViewInternalNotes } from '@/lib/rbac'
 import { getTicketNotificationRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
@@ -165,7 +165,20 @@ export async function GET(
       total_retrabalhos_subtarefas: totalRetrabalhosSubtickets,
     }
 
-    return NextResponse.json(ticketWithRetrabalhos)
+    // Ocultar notas internas para utilizadores que não têm permissões
+    const authUser: AuthUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    }
+
+    const ticketForResponse: any = { ...ticketWithRetrabalhos }
+    if (!canViewInternalNotes(authUser, ticket as any)) {
+      delete ticketForResponse.internal_notes
+    }
+
+    return NextResponse.json(ticketForResponse)
   } catch (error) {
     console.error('Error fetching ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
