@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Paperclip, X } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
 import { supabase } from "@/lib/supabase"
@@ -48,6 +49,8 @@ type CreateTicketForm = z.infer<typeof createTicketSchema>
 
 export default function NewTicketPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [uploadingFiles, setUploadingFiles] = useState(false)
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
@@ -155,18 +158,64 @@ export default function NewTicketPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-      if (response.ok) {
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast({ title: "Erro", description: result.error || result.message || "Erro ao criar ticket", variant: "destructive" })
+        return
+      }
+
+      const ticketId = result?.id ?? result?.ticket?.id
+      const createdById = result?.created_by ?? currentUser?.id
+      if (!ticketId) {
         toast({ title: "Sucesso", description: "Ticket criado com sucesso!" })
         router.push("/tickets")
-      } else {
-        const error = await response.json()
-        toast({ title: "Erro", description: error.message || "Erro ao criar ticket", variant: "destructive" })
+        return
       }
-    } catch (error) {
+
+      // Anexar ficheiros ao ticket criado (usa created_by do ticket para garantir users.id válido)
+      if (attachedFiles.length > 0 && createdById) {
+        setUploadingFiles(true)
+        const headers: HeadersInit = { "Content-Type": "application/json", "X-User-Id": createdById }
+        for (const file of attachedFiles) {
+          try {
+            const fd = new FormData()
+            fd.append("file", file)
+            const uploadResp = await fetch("/api/uploads", { method: "POST", body: fd })
+            const uploaded = await uploadResp.json()
+            if (!uploadResp.ok) throw new Error(uploaded?.error || "Erro no upload")
+
+            const meta = {
+              filename: uploaded.filename || file.name,
+              mimetype: uploaded.mimetype || file.type,
+              size_bytes: uploaded.size ?? file.size,
+              storage_path: uploaded.path,
+            }
+            const attachResp = await fetch(`/api/tickets/${ticketId}/attachments`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify(meta),
+            })
+            if (!attachResp.ok) {
+              const errData = await attachResp.json().catch(() => ({}))
+              throw new Error(errData?.error || "Erro ao registar anexo")
+            }
+          } catch (fileErr: any) {
+            console.error("Error attaching file:", fileErr)
+            toast({ title: "Aviso", description: `Ticket criado, mas falha ao anexar "${file.name}": ${fileErr?.message || "erro desconhecido"}`, variant: "destructive" })
+          }
+        }
+        setUploadingFiles(false)
+      }
+
+      toast({ title: "Sucesso", description: attachedFiles.length > 0 ? "Ticket criado e anexos adicionados!" : "Ticket criado com sucesso!" })
+      router.push("/tickets")
+    } catch (error: any) {
       console.error("Error creating ticket:", error)
-      toast({ title: "Erro", description: "Erro interno do servidor", variant: "destructive" })
+      toast({ title: "Erro", description: error?.message || "Erro interno do servidor", variant: "destructive" })
     } finally {
       setIsLoading(false)
+      setUploadingFiles(false)
     }
   }
 
@@ -353,8 +402,61 @@ export default function NewTicketPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label className="text-slate-300">Anexos</Label>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    multiple
+                    id="attachments"
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = e.target.files ? Array.from(e.target.files) : []
+                      setAttachedFiles((prev) => [...prev, ...files])
+                      e.target.value = ""
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
+                    onClick={() => document.getElementById("attachments")?.click()}
+                  >
+                    <Paperclip className="h-4 w-4 mr-2" />
+                    Adicionar ficheiro(s)
+                  </Button>
+                  {attachedFiles.length > 0 && (
+                    <span className="text-sm text-slate-400">{attachedFiles.length} ficheiro(s) selecionado(s)</span>
+                  )}
+                </div>
+                {attachedFiles.length > 0 && (
+                  <ul className="space-y-1.5 rounded-md border border-slate-600 bg-slate-700/50 p-3">
+                    {attachedFiles.map((f, i) => (
+                      <li key={`${f.name}-${i}`} className="flex items-center justify-between text-sm text-slate-200">
+                        <span className="truncate">{f.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-slate-400 hover:text-red-400"
+                          onClick={() => setAttachedFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                          aria-label="Remover ficheiro"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="text-xs text-slate-400">Opcional: pode anexar ficheiros ao ticket. Serão associados após a criação.</p>
+            </div>
+
             <div className="flex gap-4">
-              <Button type="submit" disabled={isLoading} className="bg-amber-600 hover:bg-amber-700">{isLoading ? "A criar..." : "Criar Ticket"}</Button>
+              <Button type="submit" disabled={isLoading || uploadingFiles} className="bg-amber-600 hover:bg-amber-700">
+                {isLoading ? "A criar..." : uploadingFiles ? "A anexar ficheiros..." : "Criar Ticket"}
+              </Button>
               <Button type="button" variant="outline" onClick={() => router.back()} className="bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600">Cancelar</Button>
             </div>
           </form>
