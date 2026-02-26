@@ -125,6 +125,7 @@ export default function TicketsList() {
   const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none" | string>("me")
   const [search, setSearch] = useState<string>("")
   const [responsavelSearch, setResponsavelSearch] = useState<string>("")
+  const [semDataOuEmAtrasoFilter, setSemDataOuEmAtrasoFilter] = useState(false)
   const [responsavelOpen, setResponsavelOpen] = useState(false)
   const responsavelRef = useRef<HTMLDivElement>(null)
 
@@ -273,8 +274,21 @@ export default function TicketsList() {
       )
     }
 
+    if (semDataOuEmAtrasoFilter && (currentUserRole === "admin" || currentUserRole === "bi")) {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      arr = arr.filter((t) => {
+        const d = t.data_esperada
+        if (!d || d.trim() === "") return true
+        const parsed = new Date(d)
+        if (Number.isNaN(parsed.getTime())) return true
+        parsed.setHours(0, 0, 0, 0)
+        return parsed.getTime() < today.getTime()
+      })
+    }
+
     return arr
-  }, [tickets, estadoFilter, responsavelFilter, search, currentUserId, currentUserRole])
+  }, [tickets, estadoFilter, responsavelFilter, search, semDataOuEmAtrasoFilter, currentUserId, currentUserRole])
 
   const canDuplicate = (t: Ticket) => {
     if (!currentUserId) return false
@@ -444,6 +458,17 @@ if (tickets.length === 0) {
           ))}
         </div>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end text-sm">
+          {(currentUserRole === "admin" || currentUserRole === "bi") && (
+            <label className="inline-flex items-center gap-2 text-slate-200">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-amber-600"
+                checked={semDataOuEmAtrasoFilter}
+                onChange={(e) => setSemDataOuEmAtrasoFilter(e.target.checked)}
+              />
+              <span>Sem data ou em atraso</span>
+            </label>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-slate-300">Responsável:</span>
             <div ref={responsavelRef} className="relative">

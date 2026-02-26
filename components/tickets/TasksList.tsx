@@ -137,7 +137,6 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
   const [commentFiles, setCommentFiles] = useState<File[]>([])
   const [isCommentSubmitting, setIsCommentSubmitting] = useState(false)
   const [isCommentUploading, setIsCommentUploading] = useState(false)
-  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string } | null>(null)
 
   const loadTasks = async () => {
     try {
@@ -228,14 +227,6 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     } catch (_) {}
   }
   useEffect(() => { loadBIUsers() }, [])
-  // Resolve current dev user for comments
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try {
-      const stored = localStorage.getItem('dev-user')
-      if (stored) setCurrentUser(JSON.parse(stored))
-    } catch {}
-  }, [])
 
   const openCreate = () => {
     setNewTitle("")
@@ -399,7 +390,8 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
         payload.assignee_bi_id = editAssigneeId
       }
       const headers: HeadersInit = { 'Content-Type': 'application/json' }
-      if (currentUser?.id) (headers as any)['X-User-Id'] = currentUser.id
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
       const resp = await fetch(`/api/subtickets/${editTaskId}`, {
         method: 'PATCH',
         headers,
@@ -456,7 +448,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
   const sortIndicator = (key: typeof sortBy) => sortBy === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''
   const submitComment = async () => {
     if (!commentTaskId) return
-    if (!currentUser) {
+    if (!currentUserId) {
       toast({ title: 'Sessão', description: 'Autenticação necessária para comentar.', variant: 'destructive' })
       return
     }
@@ -478,12 +470,14 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     }
     try {
       setIsCommentSubmitting(true)
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'X-User-Id': currentUserId,
+      }
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
       const resp = await fetch(`/api/subtickets/${commentTaskId}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': currentUser.id,
-        },
+        headers,
         body: JSON.stringify({ body })
       })
       const data = await resp.json()
