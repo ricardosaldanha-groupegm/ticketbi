@@ -256,7 +256,7 @@ export default function LoginPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu nome completo"
+                    placeholder="Nome Profissional - primeiro e último"
                     required
                     className="bg-slate-800 border-slate-600 text-slate-100"
                   />
