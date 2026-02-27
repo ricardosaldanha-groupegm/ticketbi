@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser, canViewInternalNotes } from '@/lib/rbac'
-import { getTicketNotificationRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
+import { getTicketNotificationRecipients, getInternalNotesRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
  const entregaTipoValues = [
@@ -301,9 +301,11 @@ export async function PATCH(
       if (!canEditTicket(user, currentTicket, fieldsToUpdate)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
-      // Se tentar misturar gestor_id com outros campos, apenas admin pode
-      if (hasGestorUpdate && fieldsToUpdate.length > 0 && user.role !== 'admin') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      // Se tentar misturar gestor_id com outros campos, verificar se tem permissão
+      if (hasGestorUpdate && fieldsToUpdate.length > 0) {
+        if (!canAssignTicketManager(user)) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
       }
       if (
         Object.prototype.hasOwnProperty.call(validatedData, 'data_primeiro_contacto') &&
@@ -379,11 +381,17 @@ export async function PATCH(
     ;(async () => {
       try {
         const pedidoPor = (ticket as any).pedido_por || (currentTicket as any).pedido_por || ''
-        const recipients = await getTicketNotificationRecipients(
-          supabase,
-          params.id,
-          pedidoPor
-        )
+        
+        // Check if internal_notes was updated
+        const hasInternalNotesUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'internal_notes')
+        const internalNotesChanged = hasInternalNotesUpdate && 
+          updatePayload.internal_notes !== (currentTicket as any).internal_notes
+        
+        // Use different recipient lists based on whether internal_notes changed
+        const recipients = internalNotesChanged
+          ? await getInternalNotesRecipients(supabase, params.id)
+          : await getTicketNotificationRecipients(supabase, params.id, pedidoPor)
+        
         // Exclude the user who made the change
         const changerEmail = user.email
         const filteredRecipients = recipients.filter((r) => r.email !== changerEmail)

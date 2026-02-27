@@ -134,6 +134,54 @@ export async function getTicketNotificationRecipients(
 }
 
 /**
+ * Get recipients for internal notes notifications (only BI/Admin users from ticket context)
+ */
+export async function getInternalNotesRecipients(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  ticketId: string
+): Promise<WebhookRecipient[]> {
+  const recipients: WebhookRecipient[] = []
+
+  // Get ticket manager (gestor) if they are BI or Admin
+  const { data: ticketWithManager } = await supabase
+    .from('tickets')
+    .select('gestor:users!tickets_gestor_id_fkey(email, name, role)')
+    .eq('id', ticketId)
+    .maybeSingle()
+
+  const gestorUser = (ticketWithManager as any)?.gestor as { email: string; name: string; role: string } | null
+  if (gestorUser && gestorUser.email && (gestorUser.role === 'bi' || gestorUser.role === 'admin')) {
+    recipients.push({
+      email: gestorUser.email,
+      name: gestorUser.name || gestorUser.email,
+    })
+  }
+
+  // Get watchers/interessados who are BI or Admin
+  const { data: watchers } = await supabase
+    .from('ticket_watchers')
+    .select('user_id, users!ticket_watchers_user_id_fkey(email, name, role)')
+    .eq('ticket_id', ticketId)
+
+  if (watchers) {
+    for (const w of watchers) {
+      const user = (w as any).users as { email: string; name: string; role: string } | null
+      if (user && user.email && (user.role === 'bi' || user.role === 'admin')) {
+        // Avoid duplicates
+        if (!recipients.find((r) => r.email === user.email)) {
+          recipients.push({
+            email: user.email,
+            name: user.name || user.email,
+          })
+        }
+      }
+    }
+  }
+
+  return recipients
+}
+
+/**
  * Send webhook to n8n for ticket events
  */
 export async function sendTicketWebhook(data: TicketWebhookData): Promise<void> {
