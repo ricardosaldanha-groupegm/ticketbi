@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireAuth } from '@/lib/auth'
-import { canReadTicket, canEditTicket, canDeleteTicket, createAuthUser, AuthUser, canViewInternalNotes } from '@/lib/rbac'
+import { canReadTicket, canEditTicket, canDeleteTicket, canAssignTicketManager, createAuthUser, AuthUser, canViewInternalNotes } from '@/lib/rbac'
 import { getTicketNotificationRecipients, getInternalNotesRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
 
