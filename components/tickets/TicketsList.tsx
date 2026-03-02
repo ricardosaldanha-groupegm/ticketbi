@@ -10,7 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye, Trash, Copy, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Eye, Trash, Copy, ChevronDown, MoreVertical } from "lucide-react"
 
 interface Ticket {
   id: string
@@ -618,27 +624,39 @@ if (tickets.length === 0) {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          {canDuplicate(ticket) && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              aria-label="Duplicar"
-                              className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
-                              onClick={() => handleDuplicate(ticket)}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {canDelete(ticket) && (
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              aria-label="Eliminar"
-                              className="h-9 w-9 p-0 rounded-md"
-                              onClick={() => handleDelete(ticket)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
+                          {(canDuplicate(ticket) || canDelete(ticket)) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  aria-label="Mais ações"
+                                  className="h-9 w-9 p-0 rounded-md border-slate-500/50 bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:border-slate-400"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                                {canDuplicate(ticket) && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleDuplicate(ticket)}
+                                    className="cursor-pointer text-slate-200 hover:bg-slate-700 focus:bg-slate-700"
+                                  >
+                                    <Copy className="mr-2 h-4 w-4" />
+                                    <span>Duplicar</span>
+                                  </DropdownMenuItem>
+                                )}
+                                {canDelete(ticket) && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleDelete(ticket)}
+                                    className="cursor-pointer text-red-400 hover:bg-slate-700 focus:bg-slate-700 hover:text-red-300"
+                                  >
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    <span>Eliminar</span>
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           )}
                         </div>
                       </TableCell>

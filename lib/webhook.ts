@@ -6,7 +6,7 @@ interface WebhookRecipient {
 }
 
 interface TicketWebhookData {
-  event: 'comment' | 'status_change' | 'completion_date_change' | 'created'
+  event: 'comment' | 'status_change' | 'completion_date_change' | 'created' | 'manager_assigned'
   ticket: {
     id: string
     assunto: string
@@ -23,6 +23,8 @@ interface TicketWebhookData {
     oldStatus?: string
     newStatus?: string
     completionDate?: string
+    oldManagerName?: string
+    newManagerName?: string
   }
   changedBy: {
     id: string

@@ -451,6 +451,90 @@ export async function PATCH(
               })
             }
           }
+
+          // Manager assignment change notification
+          if (hasGestorUpdate) {
+            const oldGestorId = (currentTicket as any).gestor_id
+            const newGestorId = nextGestorId
+            
+            // Only notify if manager actually changed
+            if (oldGestorId !== newGestorId) {
+              // Get old manager name
+              let oldManagerName = 'Nenhum'
+              if (oldGestorId) {
+                const { data: oldManager } = await supabase
+                  .from('users')
+                  .select('name, email')
+                  .eq('id', oldGestorId)
+                  .maybeSingle()
+                if (oldManager) {
+                  oldManagerName = (oldManager as any).name || (oldManager as any).email || oldManagerName
+                }
+              }
+
+              // Get new manager name and email
+              let newManagerName = 'Nenhum'
+              let newManagerEmail: string | null = null
+              if (newGestorId) {
+                const { data: newManager } = await supabase
+                  .from('users')
+                  .select('name, email')
+                  .eq('id', newGestorId)
+                  .maybeSingle()
+                if (newManager) {
+                  newManagerName = (newManager as any).name || (newManager as any).email || newManagerName
+                  newManagerEmail = (newManager as any).email
+                }
+              }
+
+              // Build recipients list specifically for manager assignment
+              // Include: the new manager (if assigned) + pedido_por + watchers
+              const managerRecipients: Array<{ email: string; name: string }> = []
+              
+              // Add new manager if they exist and weren't the one who made the change
+              if (newManagerEmail && newManagerEmail !== changerEmail) {
+                managerRecipients.push({
+                  email: newManagerEmail,
+                  name: newManagerName,
+                })
+              }
+
+              // Add requester if they exist and aren't the changer
+              const requesterRecipient = recipients.find(
+                (r) => r.email === pedidoPorEmail && r.email !== changerEmail
+              )
+              if (requesterRecipient) {
+                managerRecipients.push(requesterRecipient)
+              }
+
+              // Add watchers (excluding changer and already added recipients)
+              const watcherRecipients = recipients.filter(
+                (r) =>
+                  r.email !== changerEmail &&
+                  r.email !== newManagerEmail &&
+                  r.email !== pedidoPorEmail
+              )
+              managerRecipients.push(...watcherRecipients)
+
+              if (managerRecipients.length > 0) {
+                await sendTicketWebhook({
+                  event: 'manager_assigned',
+                  ticket: ticketData,
+                  recipients: managerRecipients,
+                  eventDetails: {
+                    oldManagerName,
+                    newManagerName,
+                  },
+                  changedBy: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                  },
+                })
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('[Webhook] Error sending ticket update notification:', err)

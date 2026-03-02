@@ -8,6 +8,7 @@ Sistema completo de gestão de tickets para o departamento de BI com subtíquete
 - **Subtíquetes**: Divisão de tickets em tarefas menores atribuídas a membros da equipa BI
 - **Controlo de Permissões RBAC**: Sistema robusto de permissões baseado em roles
 - **Estados Sincronizados**: Regras automáticas de sincronização entre tickets e subtíquetes
+- **Notificações Automáticas**: Sistema completo de notificações via webhooks (n8n)
 - **Comentários e Anexos**: Comunicação e partilha de ficheiros
 - **Interface Moderna**: UI responsiva com Tailwind CSS e shadcn/ui
 
@@ -60,6 +61,7 @@ Sistema completo de gestão de tickets para o departamento de BI com subtíquete
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
    N8N_INTEGRATION_KEY=your_n8n_api_key
    N8N_ALLOWED_ORIGIN=https://app.n8n.cloud
+   N8N_WEBHOOK_URL_TICKET_NOTIFICATIONS=https://your-n8n.com/webhook/ticket-notifications
    ```
 
 5. **Execute o seed da base de dados**
@@ -205,6 +207,22 @@ O projeto é compatível com qualquer plataforma que suporte Next.js:
 - `POST /api/integrations/n8n/tickets` - Criar ticket via workflow n8n (enviar header `x-api-key` ou `Authorization: Bearer` com a chave configurada)
 - `DELETE /api/integrations/n8n/tickets` - Reverter ticket criado pelo n8n (body JSON `{ "ticketId": "<id>" }`)
 - Defina `N8N_ALLOWED_ORIGIN` se quiser limitar os pedidos ao domínio do seu n8n; por omissão, os pedidos de qualquer origem são aceites.
+
+## 📧 Sistema de Notificações
+
+O TicketBI possui um sistema completo de notificações via webhooks. Consulte [NOTIFICACOES.md](./NOTIFICACOES.md) para detalhes completos.
+
+**Eventos suportados:**
+- ✅ Ticket criado
+- ✅ Gestor atribuído/alterado
+- ✅ Mudança de estado
+- ✅ Data prevista de conclusão alterada
+- ✅ Novo comentário (público ou nota interna)
+
+**Configuração:**
+```env
+N8N_WEBHOOK_URL_TICKET_NOTIFICATIONS=https://seu-n8n.com/webhook/ticket-notifications
+```
 
 ## 🤝 Contribuição
 
