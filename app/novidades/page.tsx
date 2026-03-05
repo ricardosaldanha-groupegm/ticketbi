@@ -53,6 +53,17 @@ const releases: Release[] = [
       "Texto orientador aparece como placeholder (desaparece ao clicar para escrever) a explicar a importância de um objetivo bem descrito e a reduzir trocas de mensagens e retrabalhos",
     ],
   },
+  {
+    version: "v1.4",
+    date: "Março 2025",
+    title: "Explicações para Tipo de Entrega e Natureza",
+    highlights: [
+      "Ícone de ajuda junto aos campos Tipo de Entrega e Natureza com tooltip listando todas as opções e respetivas descrições, uma por linha",
+      "Descrição dinâmica abaixo de cada campo que mostra o significado da opção selecionada",
+      "Opção \"Interno\" no Tipo de Entrega visível apenas para utilizadores BI e Admin",
+      "Descrições atualizadas: reporte de erros em BI, PHC, Salesforce, Automação e Dados/Análises; Suporte no fim com \"outras áreas não descritas nas outras opções\"",
+    ],
+  },
 ]
 
 export default function NovidadesPage() {
