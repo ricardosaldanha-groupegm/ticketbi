@@ -1,4 +1,4 @@
-\"use client\"
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -44,39 +44,39 @@ export default function EsqueciPasswordPage() {
   }
 
   return (
-    <div className=\"min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4\">
-      <Card className=\"w-full max-w-md\">
-        <CardHeader className=\"text-center\">
-          <CardTitle className=\"text-2xl font-bold text-slate-100\">Recuperar Password</CardTitle>
-          <CardDescription className=\"text-slate-400\">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-slate-100">Recuperar Password</CardTitle>
+          <CardDescription className="text-slate-400">
             Introduza o seu email para receber um link de recuperação.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className=\"space-y-4\">
-            <div className=\"space-y-2\">
-              <Label htmlFor=\"email\" className=\"text-slate-200\">Email</Label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-200">Email</Label>
               <Input
-                id=\"email\"
-                type=\"email\"
+                id="email"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder=\"Introduza o seu email\"
+                placeholder="Introduza o seu email"
                 required
-                className=\"bg-slate-800 border-slate-600 text-slate-100\"
+                className="bg-slate-800 border-slate-600 text-slate-100"
               />
             </div>
             <Button
-              type=\"submit\"
-              className=\"w-full bg-amber-600 hover:bg-amber-700 text-white\"
+              type="submit"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
               disabled={loading}
             >
               {loading ? 'A enviar...' : 'Enviar link de recuperação'}
             </Button>
             <Button
-              type=\"button\"
-              variant=\"outline\"
-              className=\"w-full border-slate-600 text-slate-200 hover:bg-slate-800 mt-2\"
+              type="button"
+              variant="outline"
+              className="w-full border-slate-600 text-slate-200 hover:bg-slate-800 mt-2"
               onClick={() => router.push('/login')}
             >
               Voltar ao login

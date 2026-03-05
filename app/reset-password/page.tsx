@@ -1,4 +1,4 @@
-\"use client\"
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
 
   if (checking) {
     return (
-      <div className=\"min-h-screen flex items-center justify-center bg-slate-900 text-slate-200\">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-200">
         A validar link de recuperação...
       </div>
     )
@@ -63,17 +63,17 @@ export default function ResetPasswordPage() {
 
   if (!hasSession) {
     return (
-      <div className=\"min-h-screen flex items-center justify-center bg-slate-900 p-4\">
-        <Card className=\"w-full max-w-md bg-slate-800 border-slate-700\">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+        <Card className="w-full max-w-md bg-slate-800 border-slate-700">
           <CardHeader>
-            <CardTitle className=\"text-slate-100\">Link inválido ou expirado</CardTitle>
-            <CardDescription className=\"text-slate-400\">
+            <CardTitle className="text-slate-100">Link inválido ou expirado</CardTitle>
+            <CardDescription className="text-slate-400">
               O link de recuperação já não é válido. Peça um novo link de recuperação de password.
             </CardDescription>
           </CardHeader>
-          <CardContent className=\"space-y-4\">
+          <CardContent className="space-y-4">
             <Button
-              className=\"w-full bg-amber-600 hover:bg-amber-700\"
+              className="w-full bg-amber-600 hover:bg-amber-700"
               onClick={() => router.push('/esqueci-password')}
             >
               Pedir novo link
@@ -85,33 +85,33 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className=\"min-h-screen flex items-center justify-center bg-slate-900 p-4\">
-      <Card className=\"w-full max-w-md bg-slate-800 border-slate-700\">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+      <Card className="w-full max-w-md bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className=\"text-slate-100\">Definir nova password</CardTitle>
-          <CardDescription className=\"text-slate-400\">
+          <CardTitle className="text-slate-100">Definir nova password</CardTitle>
+          <CardDescription className="text-slate-400">
             Introduza a nova password para a sua conta.
           </CardDescription>
         </CardHeader>
-        <CardContent className=\"space-y-4\">
+        <CardContent className="space-y-4">
           <Input
-            type=\"password\"
-            placeholder=\"Nova password\"
+            type="password"
+            placeholder="Nova password"
             value={p1}
             onChange={(e) => setP1(e.target.value)}
-            className=\"bg-slate-700 border-slate-600 text-slate-100\"
+            className="bg-slate-700 border-slate-600 text-slate-100"
           />
           <Input
-            type=\"password\"
-            placeholder=\"Confirmar password\"
+            type="password"
+            placeholder="Confirmar password"
             value={p2}
             onChange={(e) => setP2(e.target.value)}
-            className=\"bg-slate-700 border-slate-600 text-slate-100\"
+            className="bg-slate-700 border-slate-600 text-slate-100"
           />
           <Button
             onClick={submit}
             disabled={loading}
-            className=\"w-full bg-amber-600 hover:bg-amber-700\"
+            className="w-full bg-amber-600 hover:bg-amber-700"
           >
             {loading ? 'A guardar...' : 'Guardar nova password'}
           </Button>
