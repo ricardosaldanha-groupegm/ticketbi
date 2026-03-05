@@ -14,6 +14,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import LogoutButton from './LogoutButton'
+import { Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface UserInfo {
   id: string
@@ -144,12 +146,6 @@ export default function Header() {
                   </NavigationMenuItem>
 
                   <NavigationMenuItem>
-                    <Link href="/novidades" className={navigationMenuTriggerStyle()}>
-                      Novidades
-                    </Link>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
                     <NavigationMenuTrigger>Minhas</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid w-[220px] gap-2">
@@ -165,6 +161,13 @@ export default function Header() {
                         </li>
                       </ul>
                     </NavigationMenuContent>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <Link href="/novidades" className={cn(navigationMenuTriggerStyle(), "flex items-center gap-1.5")}>
+                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                      Novidades
+                    </Link>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>

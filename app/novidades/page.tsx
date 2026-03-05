@@ -76,10 +76,10 @@ export default function NovidadesPage() {
               Ver ajuda
             </Link>
             <Link
-              href="/minhas-tarefas"
+              href="/tickets"
               className="px-2.5 py-1.5 rounded-md border border-amber-600/70 text-amber-300 hover:bg-amber-600/10 text-xs font-medium transition-colors"
             >
-              Ir para as minhas tarefas
+              Ir para os meus tickets
             </Link>
           </div>
         </header>
