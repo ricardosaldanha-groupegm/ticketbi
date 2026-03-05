@@ -164,7 +164,7 @@ export default function Header() {
                   </NavigationMenuItem>
 
                   <NavigationMenuItem>
-                    <Link href="/novidades" className={cn(navigationMenuTriggerStyle(), "flex items-center gap-1.5")}>
+                    <Link href="/novidades" className={cn(navigationMenuTriggerStyle(), "flex items-center gap-1.5 text-xs")}>
                       <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                       Novidades
                     </Link>
