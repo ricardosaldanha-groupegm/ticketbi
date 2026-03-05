@@ -214,6 +214,15 @@ export default function LoginPage() {
                     className="bg-slate-800 border-slate-600 text-slate-100"
                   />
                 </div>
+                <div className="text-right">
+                  <button
+                    type="button"
+                    className="text-sm text-amber-400 hover:text-amber-300"
+                    onClick={() => router.push('/esqueci-password')}
+                  >
+                    Esqueci-me da password
+                  </button>
+                </div>
                 <Button 
                   type="submit" 
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white"
