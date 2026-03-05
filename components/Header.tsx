@@ -144,6 +144,12 @@ export default function Header() {
                   </NavigationMenuItem>
 
                   <NavigationMenuItem>
+                    <Link href="/novidades" className={navigationMenuTriggerStyle()}>
+                      Novidades
+                    </Link>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
                     <NavigationMenuTrigger>Minhas</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid w-[220px] gap-2">

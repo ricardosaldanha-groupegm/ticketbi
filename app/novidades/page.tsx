@@ -13,7 +13,7 @@ type Release = {
 const releases: Release[] = [
   {
     version: "v1.0",
-    date: "Setembro 2024 (aprox.)",
+    date: "Setembro 2024",
     title: "Lançamento inicial do TicketBI",
     highlights: [
       "Criação de tickets para pedidos ao DSI (BI, PHC, Salesforce, Automação, Suporte, Dados/Análises)",
@@ -24,7 +24,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.1",
-    date: "Fevereiro 2025 (aprox.)",
+    date: "Fevereiro 2025",
     title: "Melhorias de usabilidade e documentação",
     highlights: [
       "Criação do tutorial detalhado para utilizadores em português e espanhol",
@@ -34,7 +34,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.2",
-    date: "Março 2025 (aprox.)",
+    date: "Março 2025",
     title: "Gestão de palavra‑passe e segurança",
     highlights: [
       "Funcionalidade \"Esqueci‑me da password\" com recuperação via email (Supabase Auth)",
@@ -76,16 +76,16 @@ export default function NovidadesPage() {
               Ver ajuda
             </Link>
             <Link
-              href="/login"
-              className="px-3 py-2 rounded-md bg-amber-600 hover:bg-amber-700 text-slate-900 text-xs md:text-sm font-medium transition-colors"
+              href="/minhas-tarefas"
+              className="px-2.5 py-1.5 rounded-md border border-amber-600/70 text-amber-300 hover:bg-amber-600/10 text-xs font-medium transition-colors"
             >
-              Ir para o TicketBI
+              Ir para as minhas tarefas
             </Link>
           </div>
         </header>
 
         <section className="space-y-8">
-          {releases.map((release, index) => (
+          {[...releases].slice().reverse().map((release, index) => (
             <article
               key={release.version}
               className="relative pl-6 md:pl-8 border-l border-slate-700/70 pb-6 last:pb-0"
@@ -113,18 +113,14 @@ export default function NovidadesPage() {
                 ))}
               </ul>
 
-              {index === 0 && (
-                <p className="mt-3 text-xs text-slate-500">
-                  Datas indicadas como aproximadas para dar contexto à evolução da aplicação.
-                </p>
-              )}
+              {index === 0 && null}
             </article>
           ))}
         </section>
 
         <footer className="mt-10 pt-4 border-t border-slate-800 text-xs text-slate-500 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <p>Esta página será atualizada sempre que forem lançadas novas funcionalidades relevantes.</p>
-          <p>Última atualização: Março 2025 (aprox.).</p>
+          <p>Última atualização: Março 2025.</p>
         </footer>
       </div>
     </div>
