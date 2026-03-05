@@ -274,13 +274,26 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     }
   }
 
+  const completedCount = useMemo(
+    () => tasks.filter((t) => t.estado === 'concluido').length,
+    [tasks]
+  )
+
+  const visibleTasks = useMemo(
+    () =>
+      hideCompleted
+        ? tasks.filter((t) => !['concluido', 'rejeitado', 'bloqueado'].includes(t.estado))
+        : tasks,
+    [tasks, hideCompleted]
+  )
+
   const timeline = useMemo(() => {
     const parse = (value: string | null) => {
       if (!value) return null
       const parsed = new Date(value)
       return Number.isNaN(parsed.getTime()) ? null : parsed
     }
-    const rows = tasks
+    const rows = visibleTasks
       .map((task) => {
         const start = parse(task.data_inicio_planeado) ?? parse(task.data_inicio)
         const end = parse(task.data_esperada) ?? parse(task.data_conclusao)
@@ -319,7 +332,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
       todayPercent = ((now.getTime() - domainStart.getTime()) / Math.max(1, domainEnd.getTime() - domainStart.getTime())) * 100
     }
     return { rows: items, domainStart, domainEnd, totalDays, todayPercent }
-  }, [tasks])
+  }, [visibleTasks])
 
   const canManageTasks = useMemo(() => {
     if (!currentUserRole) return false
@@ -411,8 +424,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     }
   }
   const sortedTasks = useMemo(() => {
-    const base = hideCompleted ? tasks.filter((t) => t.estado !== 'concluido') : tasks
-    const arr = [...base]
+    const arr = [...visibleTasks]
     const getDate = (v: string | null) => {
       if (!v) return null
       const d = new Date(v)
@@ -441,7 +453,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
       return dir * (ad.getTime() - bd.getTime())
     })
     return arr
-  }, [tasks, hideCompleted, sortBy, sortDir])
+  }, [visibleTasks, sortBy, sortDir])
 
   const toggleSort = (key: typeof sortBy) => {
     if (sortBy === key) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
@@ -608,15 +620,22 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
                   <option value="inicio_planeado:desc">Início planeado (mais tarde)</option>
                 </select>
               </div>
-              <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-amber-600"
-                  checked={!hideCompleted}
-                  onChange={(e) => setHideCompleted(!e.target.checked)}
-                />
-                <span>Mostrar tarefas concluídas</span>
-              </label>
+              <div className="flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-amber-600"
+                    checked={!hideCompleted}
+                    onChange={(e) => setHideCompleted(!e.target.checked)}
+                  />
+                  <span>Mostrar tarefas concluídas</span>
+                </label>
+                {completedCount > 0 && (
+                  <span className="text-[11px] text-slate-400">
+                    ({completedCount} concluída{completedCount > 1 ? 's' : ''})
+                  </span>
+                )}
+              </div>
             </div>
             <Table>
               <TableHeader>
