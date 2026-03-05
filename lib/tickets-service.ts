@@ -19,7 +19,7 @@ export const createTicketSchema = z.object({
   // Descrição detalhada do pedido
   descricao: z.string().min(1),
   // Objetivo de negócio do pedido
-  objetivo: z.string().min(1),
+  objetivo: z.string().optional(),
   // Email do gestor a atribuir ao ticket (opcional, usado sobretudo na integração n8n)
   // Aceita string vazia e trata como "sem gestor"
   // Deve corresponder a um `users.email` válido; caso contrário o backend devolve erro.

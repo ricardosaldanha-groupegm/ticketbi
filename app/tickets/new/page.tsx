@@ -35,7 +35,7 @@ const createTicketSchema = z.object({
   pedido_por: z.string().min(1, "Campo obrigatório"),
   assunto: z.string().min(1, "Campo obrigatório"),
   descricao: z.string().min(1, "Campo obrigatório"),
-  objetivo: z.string().min(1, "Campo obrigatório"),
+  objetivo: z.string().optional(),
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
@@ -63,7 +63,7 @@ export default function NewTicketPage() {
       pedido_por: "",
       assunto: "",
       descricao: "",
-      objetivo: "",
+      objetivo: "Descreva o objetivo final deste pedido (como vai usar a informação ou os resultados). Um objetivo claro ajuda o DSI a escolher a melhor forma de responder, evita trocas de mensagens desnecessárias e reduz retrabalhos.",
       urgencia: 1,
       importancia: 1,
       data_esperada: "",
@@ -322,10 +322,17 @@ export default function NewTicketPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="objetivo" className="text-slate-300">Objetivo do Pedido *</Label>
-              <Textarea id="objetivo" {...register("objetivo")} placeholder="Qual é o objetivo final que pretende alcançar com este pedido? Como vai utilizar a informação solicitada?" rows={3} className="bg-slate-700 border-slate-600 text-slate-100" />
-              {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
-              <p className="text-xs text-slate-400">Explique o objetivo final para ajudar o departamento de BI a escolher a melhor forma de responder ao seu pedido.</p>
+              <Label htmlFor="objetivo" className="text-slate-300">Objetivo do Pedido</Label>
+              <Textarea
+                id="objetivo"
+                {...register("objetivo")}
+                rows={3}
+                className="bg-slate-700 border-slate-600 text-slate-100"
+              />
+              <p className="text-xs text-slate-400">
+                Sempre que possível, descreva com cuidado o objetivo deste pedido. Um objetivo bem explicado ajuda o DSI a responder melhor,
+                evita trocas de mensagens desnecessárias e reduz retrabalhos.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
