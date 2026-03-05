@@ -63,7 +63,7 @@ export default function NewTicketPage() {
       pedido_por: "",
       assunto: "",
       descricao: "",
-      objetivo: "Descreva o objetivo final deste pedido (como vai usar a informação ou os resultados). Um objetivo claro ajuda o DSI a escolher a melhor forma de responder, evita trocas de mensagens desnecessárias e reduz retrabalhos.",
+      objetivo: "",
       urgencia: 1,
       importancia: 1,
       data_esperada: "",
@@ -326,6 +326,7 @@ export default function NewTicketPage() {
               <Textarea
                 id="objetivo"
                 {...register("objetivo")}
+                placeholder="Descreva o objetivo final deste pedido (como vai usar a informação ou os resultados). Um objetivo claro ajuda o DSI a escolher a melhor forma de responder, evita trocas de mensagens desnecessárias e reduz retrabalhos."
                 rows={3}
                 className="bg-slate-700 border-slate-600 text-slate-100"
               />

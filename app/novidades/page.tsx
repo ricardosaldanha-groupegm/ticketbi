@@ -44,6 +44,15 @@ const releases: Release[] = [
       "Atualização da página de ajuda e dos manuais PT/ES com informação sobre recuperação e alteração de palavra‑passe",
     ],
   },
+  {
+    version: "v1.3",
+    date: "Março 2025",
+    title: "Campo objetivo opcional na criação de ticket",
+    highlights: [
+      "O campo \"Objetivo do Pedido\" passou a ser opcional na criação de ticket",
+      "Texto orientador aparece como placeholder (desaparece ao clicar para escrever) a explicar a importância de um objetivo bem descrito e a reduzir trocas de mensagens e retrabalhos",
+    ],
+  },
 ]
 
 export default function NovidadesPage() {
