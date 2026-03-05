@@ -573,7 +573,7 @@ if (tickets.length === 0) {
                 {items.map((ticket) => {
                   const computedPriority = formatPriority(ticket.urgencia, ticket.importancia)
                   const colorClass = typeof computedPriority === "number" ? priorityColors[computedPriority] : undefined
-                  const d = daysUntil(ticket.data_esperada)
+                  const d = daysUntil(ticket.data_prevista_conclusao)
                   const isConcluido = ticket.estado === 'concluido'
                   return (
                     <TableRow key={ticket.id}>
