@@ -58,6 +58,25 @@ Este tutorial irá guiá-lo através das funcionalidades principais do sistema, 
 
 > **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente \`botpi@groupegm.com\``
     },
+    forgotPassword: {
+      title: 'Esqueci-me da palavra-passe',
+      content: `Se esqueceu a sua palavra-passe, pode solicitar um link de recuperação:
+
+1. Na página de login, clique em **"Esqueci-me da password"** (por baixo do campo da palavra-passe)
+2. Será redirecionado para a página **"Recuperar Password"**
+3. Introduza o seu **email profissional**
+4. Clique em **"Enviar link de recuperação"**
+5. Verifique o seu email (incluindo a pasta de **Spam**) — receberá um link para redefinir a palavra-passe
+6. Clique no link e defina uma nova palavra-passe
+7. Após definir a nova palavra-passe, poderá fazer login normalmente
+
+> **Importante:** O link de recuperação tem validade limitada. Se expirar, peça um novo link. O sistema não revela se o email existe ou não — por segurança, a mensagem é sempre a mesma.`
+    },
+    changePassword: {
+      title: 'Alterar palavra-passe',
+      content: `- **Primeiro acesso:** Em alguns casos, o sistema redireciona-o para uma página onde deve definir uma nova palavra-passe antes de continuar.
+- **Já autenticado:** Se precisar de alterar a palavra-passe estando já autenticado, o sistema pode solicitar essa alteração quando aplicável. Em alternativa, contacte o administrador.`
+    },
     firstTime: {
       title: 'Primeira Vez no Sistema',
       content: `Após o primeiro login, será redirecionado para a página principal onde pode:
@@ -121,6 +140,25 @@ Este tutorial le guiará a través de las funcionalidades principales del sistem
 4. Haga clic en **"Iniciar Sessão"**
 
 > **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente \`botpi@groupegm.com\``
+    },
+    forgotPassword: {
+      title: 'He olvidado mi contraseña',
+      content: `Si ha olvidado su contraseña, puede solicitar un enlace de recuperación:
+
+1. En la página de inicio de sesión, haga clic en **"Esqueci-me da password"** (debajo del campo de contraseña)
+2. Será redirigido a la página **"Recuperar Password"**
+3. Introduzca su **email profesional**
+4. Haga clic en **"Enviar link de recuperación"**
+5. Verifique su email (incluyendo la carpeta de **Spam**) — recibirá un enlace para restablecer la contraseña
+6. Haga clic en el enlace y defina una nueva contraseña
+7. Después de definir la nueva contraseña, podrá iniciar sesión normalmente
+
+> **Importante:** El enlace de recuperación tiene validez limitada. Si expira, solicite un nuevo enlace. El sistema no revela si el email existe o no — por seguridad, el mensaje es siempre el mismo.`
+    },
+    changePassword: {
+      title: 'Cambiar contraseña',
+      content: `- **Primer acceso:** En algunos casos, el sistema le redirige a una página donde debe definir una nueva contraseña antes de continuar.
+- **Ya autenticado:** Si necesita cambiar la contraseña estando ya autenticado, el sistema puede solicitar esa alteración cuando aplique. Alternativamente, contacte al administrador.`
     },
     firstTime: {
       title: 'Primera Vez en el Sistema',
@@ -316,6 +354,26 @@ export default function AjudaPage() {
               </h3>
               <div className="text-slate-300">
                 {renderMarkdown(content.access.login.content)}
+              </div>
+            </div>
+
+            {/* Esqueci-me da palavra-passe */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-slate-100 mb-3">
+                {content.access.forgotPassword.title}
+              </h3>
+              <div className="text-slate-300">
+                {renderMarkdown(content.access.forgotPassword.content)}
+              </div>
+            </div>
+
+            {/* Alterar palavra-passe */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-slate-100 mb-3">
+                {content.access.changePassword.title}
+              </h3>
+              <div className="text-slate-300">
+                {renderMarkdown(content.access.changePassword.content)}
               </div>
             </div>
 

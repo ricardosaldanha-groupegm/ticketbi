@@ -70,6 +70,28 @@ Após ter o seu pedido de acesso aprovado:
 
 > **Nota:** Se não recebeu o email de criação de conta, verifique a pasta de Spam e procure por emails com o assunto **"O Pedido de acesso ao TicketBI foi aprovado"** ou do remetente `botpi@groupegm.com`
 
+### Esqueci-me da palavra-passe
+
+Se esqueceu a sua palavra-passe, pode solicitar um link de recuperação:
+
+1. Na página de login, clique em **"Esqueci-me da password"** (ligação por baixo do campo da palavra-passe)
+2. Será redirecionado para a página **"Recuperar Password"**
+3. Introduza o seu **email profissional**
+4. Clique em **"Enviar link de recuperação"**
+5. Verifique o seu email (incluindo a pasta de **Spam**) — receberá um email com um link para redefinir a palavra-passe
+6. Clique no link e defina uma nova palavra-passe
+7. Após definir a nova palavra-passe, poderá fazer login normalmente
+
+> **Importante:**
+> - O link de recuperação tem validade limitada (normalmente 1 hora). Se expirar, peça um novo link.
+> - O sistema não revela se o email existe ou não — por segurança, a mensagem de confirmação é sempre a mesma.
+> - Se não receber o email, verifique a pasta de Spam e a lista de contactos seguros.
+
+### Alterar palavra-passe
+
+- **Primeiro acesso:** Em alguns casos (por exemplo, quando o administrador define que deve alterar a password), o sistema redireciona-o automaticamente para uma página onde pode definir uma nova palavra-passe antes de continuar.
+- **Já autenticado:** Se precisar de alterar a sua palavra-passe estando já autenticado, o sistema pode solicitar essa alteração quando aplicável. Em alternativa, contacte o administrador do sistema.
+
 ### Primeira Vez no Sistema
 
 Após o primeiro login, será redirecionado para a página principal onde pode:
@@ -422,6 +444,7 @@ Após o ticket passar para **Em Curso** ou estados posteriores, não pode mais e
 
 ### Resolução de Problemas
 
+- **Esqueceu a palavra-passe?** Na página de login, clique em **"Esqueci-me da password"** e siga as instruções para receber um link de recuperação por email
 - **Não pode ver um ticket?** Verifique se foi criado por si ou se é interessado
 - **Não pode comentar?** Verifique se tem permissões no ticket
 - **Erro ao anexar ficheiro?** Verifique o tamanho e formato do ficheiro
@@ -769,4 +792,4 @@ Se tiver dúvidas ou problemas:
 
 ---
 
-**Última atualização:** Fevereiro 2025
+**Última atualização:** Março 2025

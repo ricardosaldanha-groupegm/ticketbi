@@ -70,6 +70,28 @@ Después de que su solicitud de acceso sea aprobada:
 
 > **Nota:** Si no recibió el email de creación de cuenta, verifique la carpeta de Spam y busque emails con el asunto **"O Pedido de acesso ao TicketBI foi aprovado"** o del remitente `botpi@groupegm.com`
 
+### He olvidado mi contraseña
+
+Si ha olvidado su contraseña, puede solicitar un enlace de recuperación:
+
+1. En la página de inicio de sesión, haga clic en **"Esqueci-me da password"** (enlace debajo del campo de contraseña)
+2. Será redirigido a la página **"Recuperar Password"**
+3. Introduzca su **email profesional**
+4. Haga clic en **"Enviar link de recuperación"**
+5. Verifique su email (incluyendo la carpeta de **Spam**) — recibirá un email con un enlace para restablecer la contraseña
+6. Haga clic en el enlace y defina una nueva contraseña
+7. Después de definir la nueva contraseña, podrá iniciar sesión normalmente
+
+> **Importante:**
+> - El enlace de recuperación tiene validez limitada (normalmente 1 hora). Si expira, solicite un nuevo enlace.
+> - El sistema no revela si el email existe o no — por seguridad, el mensaje de confirmación es siempre el mismo.
+> - Si no recibe el email, verifique la carpeta de Spam y la lista de contactos seguros.
+
+### Cambiar contraseña
+
+- **Primer acceso:** En algunos casos (por ejemplo, cuando el administrador define que debe cambiar la contraseña), el sistema le redirige automáticamente a una página donde puede definir una nueva contraseña antes de continuar.
+- **Ya autenticado:** Si necesita cambiar su contraseña estando ya autenticado, el sistema puede solicitar esa alteración cuando aplique. Alternativamente, contacte al administrador del sistema.
+
 ### Primera Vez en el Sistema
 
 Después del primer inicio de sesión, será redirigido a la página principal donde puede:
@@ -422,6 +444,7 @@ Después de que el ticket pase a **Em Curso** o estados posteriores, ya no puede
 
 ### Resolución de Problemas
 
+- **¿Ha olvidado su contraseña?** En la página de inicio de sesión, haga clic en **"Esqueci-me da password"** y siga las instrucciones para recibir un enlace de recuperación por email
 - **¿No puede ver un ticket?** Verifique si fue creado por usted o si es interessado
 - **¿No puede comentar?** Verifique si tiene permisos en el ticket
 - **¿Error al adjuntar archivo?** Verifique el tamaño y formato del archivo
@@ -471,4 +494,4 @@ Si tiene dudas o problemas:
 
 ---
 
-**Última actualización:** Febrero 2025
+**Última actualización:** Marzo 2025
