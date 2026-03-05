@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 
 interface Task {
   id: string
+  ticket_id?: string | null
   titulo: string
   descricao?: string | null
   estado: string
@@ -162,6 +163,22 @@ export default function MinhasTarefasPage() {
     }
     return arr
   }, [withDays, estadoFilter, sortKey, search])
+
+  const groupedByTicket = useMemo(() => {
+    const groups = new Map<string | null, { assunto: string; tasks: typeof filteredSorted }>()
+    for (const t of filteredSorted) {
+      const tid = (t as any).ticket_id ?? null
+      const key = tid ?? '__none__'
+      const assunto = (t as any).ticket?.assunto ?? 'Sem ticket associado'
+      if (!groups.has(key)) groups.set(key, { assunto, tasks: [] })
+      groups.get(key)!.tasks.push(t)
+    }
+    return Array.from(groups.entries()).map(([key, g]) => ({
+      ticketId: key === '__none__' ? null : key,
+      assunto: g.assunto,
+      tasks: g.tasks,
+    }))
+  }, [filteredSorted])
 
   const timeline = useMemo(() => {
     const parse = (value: string | null) => {
@@ -323,26 +340,41 @@ export default function MinhasTarefasPage() {
           <div className="text-center text-muted-foreground py-10">Sem tarefas atribuídas</div>
         ) : (
           <div className="divide-y divide-slate-700">
-            {filteredSorted.map((t: any) => (
-              <div key={t.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-slate-100">{t.titulo}</div>
-                  <div className="text-xs text-slate-400">{t.ticket?.assunto ?? "Ticket"}</div>
-                </div>
-                <div className="flex items-center gap-4 text-sm">
-                  <Badge className={strongStatusColors[normalizeStatus(t.estado)] ?? "bg-slate-200 text-slate-800"}>
-                    {strongStatusLabels[normalizeStatus(t.estado)] ?? t.estado}
-                  </Badge>
-                  <div className="text-slate-300">Início: {formatDate(t.data_inicio_planeado ?? t.data_inicio)}</div>
-                  <div className="text-slate-300">Fim: {formatDate(t.data_esperada ?? t.data_conclusao)}</div>
-                  {typeof t._daysLeft === "number" ? (
-                    <div className={`px-2 py-0.5 rounded text-xs ${t._daysLeft < 0 ? "bg-red-500/20 text-red-300" : t._daysLeft <= 3 ? "bg-amber-500/20 text-amber-300" : "bg-emerald-500/20 text-emerald-300"}`}>
-                      {t._daysLeft < 0 ? `${Math.abs(t._daysLeft)} dias em atraso` : t._daysLeft === 0 ? "termina hoje" : `faltam ${t._daysLeft} dias`}
-                    </div>
-                  ) : (
-                    <div className="text-slate-400 text-xs">sem data fim</div>
+            {groupedByTicket.map((group) => (
+              <div key={group.ticketId ?? 'none'} className="py-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-amber-400">
+                    {group.assunto}
+                  </h3>
+                  {group.ticketId && (
+                    <a href={`/tickets/${group.ticketId}`} className="text-xs text-slate-400 hover:text-amber-400">
+                      Abrir ticket
+                    </a>
                   )}
-                  <a href={`/tickets/${(t as any).ticket_id ?? ""}`} className="text-amber-400 hover:underline">Abrir ticket</a>
+                </div>
+                <div className="space-y-2 pl-2 border-l-2 border-slate-600/50">
+                  {group.tasks.map((t: any) => (
+                    <div key={t.id} className="py-2 flex items-center justify-between pl-3">
+                      <div>
+                        <div className="font-medium text-slate-100">{t.titulo}</div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <Badge className={strongStatusColors[normalizeStatus(t.estado)] ?? "bg-slate-200 text-slate-800"}>
+                          {strongStatusLabels[normalizeStatus(t.estado)] ?? t.estado}
+                        </Badge>
+                        <div className="text-slate-300">Início: {formatDate(t.data_inicio_planeado ?? t.data_inicio)}</div>
+                        <div className="text-slate-300">Fim: {formatDate(t.data_esperada ?? t.data_conclusao)}</div>
+                        {typeof t._daysLeft === "number" ? (
+                          <div className={`px-2 py-0.5 rounded text-xs ${t._daysLeft < 0 ? "bg-red-500/20 text-red-300" : t._daysLeft <= 3 ? "bg-amber-500/20 text-amber-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+                            {t._daysLeft < 0 ? `${Math.abs(t._daysLeft)} dias em atraso` : t._daysLeft === 0 ? "termina hoje" : `faltam ${t._daysLeft} dias`}
+                          </div>
+                        ) : (
+                          <div className="text-slate-400 text-xs">sem data fim</div>
+                        )}
+                        <a href={`/tickets/${t.ticket_id ?? ""}`} className="text-amber-400 hover:underline text-xs">Abrir ticket</a>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
