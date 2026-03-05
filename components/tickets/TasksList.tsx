@@ -98,6 +98,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
   const [biUsers, setBiUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const [sortBy, setSortBy] = useState<'titulo' | 'estado' | 'prioridade' | 'responsavel' | 'inicio_planeado' | 'esperada'>('esperada')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const [hideCompleted, setHideCompleted] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
 
@@ -410,7 +411,8 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
     }
   }
   const sortedTasks = useMemo(() => {
-    const arr = [...tasks]
+    const base = hideCompleted ? tasks.filter((t) => t.estado !== 'concluido') : tasks
+    const arr = [...base]
     const getDate = (v: string | null) => {
       if (!v) return null
       const d = new Date(v)
@@ -439,7 +441,7 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
       return dir * (ad.getTime() - bd.getTime())
     })
     return arr
-  }, [tasks, sortBy, sortDir])
+  }, [tasks, hideCompleted, sortBy, sortDir])
 
   const toggleSort = (key: typeof sortBy) => {
     if (sortBy === key) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
@@ -580,30 +582,41 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
             <div className="py-8 text-center text-muted-foreground">Nenhuma tarefa encontrada</div>
           ) : (
             <>
-            <div className="mb-3 flex items-center justify-end gap-3 text-xs text-slate-300">
-              <label>Ordenar por:</label>
-              <select
-                value={`${sortBy}:${sortDir}`}
-                onChange={(e) => {
-                  const [k, d] = e.target.value.split(":") as any
-                  setSortBy(k)
-                  setSortDir(d)
-                }}
-                className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
-              >
-                <option value="esperada:asc">Fim esperado (mais cedo)</option>
-                <option value="esperada:desc">Fim esperado (mais tarde)</option>
-                <option value="titulo:asc">Título (A-Z)</option>
-                <option value="titulo:desc">Título (Z-A)</option>
-                <option value="estado:asc">Estado (A-Z)</option>
-                <option value="estado:desc">Estado (Z-A)</option>
-                <option value="prioridade:asc">Prioridade (1-9)</option>
-                <option value="prioridade:desc">Prioridade (9-1)</option>
-                <option value="responsavel:asc">Responsável (A-Z)</option>
-                <option value="responsavel:desc">Responsável (Z-A)</option>
-                <option value="inicio_planeado:asc">Início planeado (mais cedo)</option>
-                <option value="inicio_planeado:desc">Início planeado (mais tarde)</option>
-              </select>
+            <div className="mb-3 flex items-center justify-between gap-3 text-xs text-slate-300">
+              <div className="flex items-center gap-2">
+                <label>Ordenar por:</label>
+                <select
+                  value={`${sortBy}:${sortDir}`}
+                  onChange={(e) => {
+                    const [k, d] = e.target.value.split(":") as any
+                    setSortBy(k)
+                    setSortDir(d)
+                  }}
+                  className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
+                >
+                  <option value="esperada:asc">Fim esperado (mais cedo)</option>
+                  <option value="esperada:desc">Fim esperado (mais tarde)</option>
+                  <option value="titulo:asc">Título (A-Z)</option>
+                  <option value="titulo:desc">Título (Z-A)</option>
+                  <option value="estado:asc">Estado (A-Z)</option>
+                  <option value="estado:desc">Estado (Z-A)</option>
+                  <option value="prioridade:asc">Prioridade (1-9)</option>
+                  <option value="prioridade:desc">Prioridade (9-1)</option>
+                  <option value="responsavel:asc">Responsável (A-Z)</option>
+                  <option value="responsavel:desc">Responsável (Z-A)</option>
+                  <option value="inicio_planeado:asc">Início planeado (mais cedo)</option>
+                  <option value="inicio_planeado:desc">Início planeado (mais tarde)</option>
+                </select>
+              </div>
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-amber-600"
+                  checked={!hideCompleted}
+                  onChange={(e) => setHideCompleted(!e.target.checked)}
+                />
+                <span>Mostrar tarefas concluídas</span>
+              </label>
             </div>
             <Table>
               <TableHeader>
