@@ -37,10 +37,10 @@ export function getEntregaTipoOptions(includeInterno: boolean): string[] {
 
 export function getEntregaTipoTooltip(includeInterno: boolean): string {
   const opts = getEntregaTipoOptions(includeInterno)
-  return opts.map((v) => `${v}: ${entregaTipoDescriptions[v] ?? v}`).join(' | ')
+  return opts.map((v) => `${v}: ${entregaTipoDescriptions[v] ?? v}`).join('\n')
 }
 
 export function getNaturezaTooltip(): string {
   const ordem = ['Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno']
-  return ordem.map((v) => `${v}: ${naturezaDescriptions[v] ?? v}`).join(' | ')
+  return ordem.map((v) => `${v}: ${naturezaDescriptions[v] ?? v}`).join('\n')
 }
