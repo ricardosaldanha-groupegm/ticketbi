@@ -15,6 +15,7 @@ import { Paperclip, X } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import AuthenticatedLayout from "@/components/AuthenticatedLayout"
 import { supabase } from "@/lib/supabase"
+import { getEntregaTipoOptions, getEntregaTipoTooltip, getNaturezaTooltip, entregaTipoDescriptions, naturezaDescriptions } from "@/lib/field-labels"
 
 const entregaTipoValues = [
   'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
@@ -67,7 +68,7 @@ export default function NewTicketPage() {
       urgencia: 1,
       importancia: 1,
       data_esperada: "",
-      entrega_tipo: 'Interno',
+      entrega_tipo: 'BI',
       natureza: 'Novo',
       gestor_email: "",
     },
@@ -338,20 +339,37 @@ export default function NewTicketPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="entrega_tipo" className="text-slate-300">Por tipo de Entrega</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="entrega_tipo" className="text-slate-300">Por tipo de Entrega</Label>
+                  <span
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help"
+                    title={getEntregaTipoTooltip(currentUser?.role === "bi" || currentUser?.role === "admin")}
+                    aria-label="Ajuda sobre tipo de entrega"
+                  >i</span>
+                </div>
                 <Select value={watch("entrega_tipo") as any} onValueChange={(value) => setValue("entrega_tipo", value as any)}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar tipo de entrega" />
                   </SelectTrigger>
                   <SelectContent>
-                    {entregaTipoValues.map((v) => (
+                    {getEntregaTipoOptions(currentUser?.role === "bi" || currentUser?.role === "admin").map((v) => (
                       <SelectItem key={v} value={v}>{v}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {watch("entrega_tipo") && entregaTipoDescriptions[watch("entrega_tipo") as string] && (
+                  <p className="text-xs text-slate-400">{entregaTipoDescriptions[watch("entrega_tipo") as string]}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="natureza" className="text-slate-300">Por natureza</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="natureza" className="text-slate-300">Por natureza</Label>
+                  <span
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help"
+                    title={getNaturezaTooltip()}
+                    aria-label="Ajuda sobre natureza"
+                  >i</span>
+                </div>
                 <Select value={watch("natureza") as any} onValueChange={(value) => setValue("natureza", value as any)}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar natureza" />
@@ -362,6 +380,9 @@ export default function NewTicketPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {watch("natureza") && naturezaDescriptions[watch("natureza") as string] && (
+                  <p className="text-xs text-slate-400">{naturezaDescriptions[watch("natureza") as string]}</p>
+                )}
               </div>
             </div>
 

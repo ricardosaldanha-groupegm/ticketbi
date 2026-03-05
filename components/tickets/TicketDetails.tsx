@@ -21,6 +21,7 @@ import { ArrowLeft, Edit, Save, X } from "lucide-react"
 import TasksList from "./TasksList"
 import CommentsList from "./CommentsList"
 import AttachmentsList from "./AttachmentsList"
+import { getEntregaTipoOptions, getEntregaTipoTooltip, getNaturezaTooltip, entregaTipoDescriptions, naturezaDescriptions } from "@/lib/field-labels"
 
 interface Ticket {
   id: string
@@ -168,7 +169,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const canViewInternalNotes =
     currentRole === 'admin' || (currentRole === 'bi' && ticket?.gestor_id === currentUserId)
 
-  const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<UpdateTicketForm>({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue, watch } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
   })
 
@@ -774,17 +775,42 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                         <div className="space-y-3">
                           <h4 className="text-sm font-semibold text-slate-200">Classificação e Prioridade</h4>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-                            <div>
-                              <Label htmlFor="entrega_tipo" className="text-slate-300">Tipo de Entrega</Label>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor="entrega_tipo" className="text-slate-300">Tipo de Entrega</Label>
+                                <span
+                                  className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help"
+                                  title={getEntregaTipoTooltip(canEditAllFields)}
+                                  aria-label="Ajuda sobre tipo de entrega"
+                                >i</span>
+                              </div>
                               <select id="entrega_tipo" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("entrega_tipo")} defaultValue={(ticket as any).entrega_tipo ?? 'Interno'} disabled={!canEditAllFields}>
-                                {entregaTipoValues.map(v => (<option key={v} value={v}>{v}</option>))}
+                                {(() => {
+                                  const opts = getEntregaTipoOptions(canEditAllFields)
+                                  const currentVal = (ticket as any)?.entrega_tipo ?? 'Interno'
+                                  const options = opts.includes(currentVal) ? opts : [...opts, currentVal]
+                                  return options.map(v => (<option key={v} value={v}>{v}</option>))
+                                })()}
                               </select>
+                              {watch("entrega_tipo") && entregaTipoDescriptions[watch("entrega_tipo") as string] && (
+                                <p className="text-xs text-slate-400">{entregaTipoDescriptions[watch("entrega_tipo") as string]}</p>
+                              )}
                             </div>
-                            <div>
-                              <Label htmlFor="natureza" className="text-slate-300">Natureza</Label>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor="natureza" className="text-slate-300">Natureza</Label>
+                                <span
+                                  className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs cursor-help"
+                                  title={getNaturezaTooltip()}
+                                  aria-label="Ajuda sobre natureza"
+                                >i</span>
+                              </div>
                               <select id="natureza" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("natureza")} defaultValue={(ticket as any).natureza ?? 'Novo'} disabled={!canEditAllFields}>
                                 {naturezaValues.map(v => (<option key={v} value={v}>{v}</option>))}
                               </select>
+                              {watch("natureza") && naturezaDescriptions[watch("natureza") as string] && (
+                                <p className="text-xs text-slate-400">{naturezaDescriptions[watch("natureza") as string]}</p>
+                              )}
                             </div>
                             <div>
                               <Label htmlFor="urgencia" className="text-slate-300">Urgência (1-3)</Label>
