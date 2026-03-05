@@ -26,6 +26,7 @@ interface Ticket {
   pedido_por: string
   data_pedido: string
   data_esperada: string | null
+  data_prevista_conclusao: string | null
   prioridade: number
   urgencia: number
   importancia: number
@@ -284,7 +285,7 @@ export default function TicketsList() {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       arr = arr.filter((t) => {
-        const d = t.data_esperada
+        const d = t.data_prevista_conclusao
         if (!d || d.trim() === "") return true
         const parsed = new Date(d)
         if (Number.isNaN(parsed.getTime())) return true
@@ -376,8 +377,8 @@ export default function TicketsList() {
     const entries = Array.from(groups.entries()).map(([estado, items]) => {
       // Ordenar items dentro de cada grupo: primeiro por dias até ao fim (crescente), depois por prioridade (decrescente)
       const sortedItems = [...items].sort((a, b) => {
-        const daysA = daysUntil(a.data_esperada)
-        const daysB = daysUntil(b.data_esperada)
+        const daysA = daysUntil(a.data_prevista_conclusao)
+        const daysB = daysUntil(b.data_prevista_conclusao)
         const priorityA = formatPriority(a.urgencia, a.importancia)
         const priorityB = formatPriority(b.urgencia, b.importancia)
         
@@ -562,7 +563,7 @@ if (tickets.length === 0) {
                   <TableHead>Pedido por</TableHead>
                   <TableHead>Gestor</TableHead>
                   <TableHead>Data do pedido</TableHead>
-                  <TableHead>Data conclusão esperada</TableHead>
+                  <TableHead>Data prevista de conclusão</TableHead>
                   <TableHead>Dias p/ fim</TableHead>
                   <TableHead>Prioridade</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -595,7 +596,7 @@ if (tickets.length === 0) {
                       <TableCell>{ticket.pedido_por}</TableCell>
                       <TableCell>{ticket.gestor?.name ?? "-"}</TableCell>
                       <TableCell>{formatDate(ticket.data_pedido)}</TableCell>
-                      <TableCell>{formatDate(ticket.data_esperada)}</TableCell>
+                      <TableCell>{formatDate(ticket.data_prevista_conclusao)}</TableCell>
                       <TableCell>
                         {isConcluido ? (
                           <span className="text-slate-400 text-xs">—</span>
