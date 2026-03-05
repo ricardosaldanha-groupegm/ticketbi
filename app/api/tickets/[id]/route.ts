@@ -17,7 +17,7 @@ import { z } from 'zod'
   pedido_por: z.string().min(1, 'Campo obrigatorio').optional(),
   data_pedido: z.string().optional(),
   descricao: z.string().min(1, 'Campo obrigatorio'),
-  objetivo: z.string().min(1, 'Campo obrigatorio'),
+  objetivo: z.string().optional(),
   internal_notes: z.string().optional(),
   urgencia: z.number().min(1).max(3).optional(),
   importancia: z.number().min(1).max(3).optional(),

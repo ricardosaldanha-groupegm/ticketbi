@@ -63,7 +63,7 @@ const updateTicketSchema = z.object({
   pedido_por: z.string().min(1, "Campo obrigatorio").optional(),
   data_pedido: z.string().optional(),
   descricao: z.string().min(1, "Campo obrigatorio"),
-  objetivo: z.string().min(1, "Campo obrigatorio"),
+  objetivo: z.string().optional(),
   internal_notes: z.string().optional(),
   urgencia: z.number().int().min(1).max(3).optional(),
   importancia: z.number().int().min(1).max(3).optional(),
@@ -848,7 +848,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                               {errors.descricao && (<p className="text-sm text-red-400">{errors.descricao.message}</p>)}
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido *</Label>
+                              <Label htmlFor="objetivo" className="text-slate-300">Objetivo do pedido</Label>
                               <Textarea id="objetivo" rows={3} className="bg-slate-700 text-slate-100" {...register("objetivo")} disabled={!canEditAllFields} />
                               {errors.objetivo && (<p className="text-sm text-red-400">{errors.objetivo.message}</p>)}
                             </div>
