@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { isSupabaseConfigured } from '@/lib/tickets-service'
 
-// Estados excluídos (considerados "fechados")
-const CLOSED_TICKET_STATES = ['rejeitado', 'concluido', 'bloqueado']
+// Estados abertos - tickets (ticket_status inclui Standby e Aguardando 3ºs)
+const OPEN_TICKET_STATES = ['novo', 'em_analise', 'em_curso', 'em_validacao', 'Aguardando 3ºs', 'Standby']
+// Estados abertos - tarefas/subtickets (subticket_status não tem Standby/Aguardando 3ºs)
+const OPEN_SUBTICKET_STATES = ['novo', 'em_analise', 'em_curso', 'em_validacao']
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,12 +43,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ticketsCount: 0, tasksCount: 0 })
     }
 
-    // 1) Tickets abertos onde o utilizador é gestor (exclui rejeitado, concluido, bloqueado)
+    // 1) Tickets abertos onde o utilizador é gestor (estados: novo, em_analise, em_curso, em_validacao, Aguardando 3ºs, Standby)
     const { count: ticketsCount, error: ticketsError } = await supabase
       .from('tickets')
       .select('*', { count: 'exact', head: true })
       .eq('gestor_id', userId)
-      .not('estado', 'in', `(${CLOSED_TICKET_STATES.join(',')})`)
+      .in('estado', OPEN_TICKET_STATES)
 
     if (ticketsError) {
       console.error('Error counting tickets:', ticketsError)
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
       .from('subtickets')
       .select('*', { count: 'exact', head: true })
       .eq('assignee_bi_id', userId)
-      .not('estado', 'in', `(${CLOSED_TICKET_STATES.join(',')})`)
+      .in('estado', OPEN_SUBTICKET_STATES)
 
     if (tasksError) {
       console.error('Error counting tasks:', tasksError)
