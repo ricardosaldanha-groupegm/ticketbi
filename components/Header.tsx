@@ -27,6 +27,8 @@ interface UserInfo {
 export default function Header() {
   const [user, setUser] = useState<UserInfo | null>(null)
   const [pendingCount, setPendingCount] = useState<number>(0)
+  const [ticketsCount, setTicketsCount] = useState<number>(0)
+  const [tasksCount, setTasksCount] = useState<number>(0)
 
   useEffect(() => {
     let cancelled = false
@@ -101,6 +103,42 @@ export default function Header() {
       clearInterval(interval)
     }
   }, [user?.role])
+
+  // Fetch tickets/tasks counts for BI and admin (gestor + assignee)
+  useEffect(() => {
+    if (user?.role !== 'bi' && user?.role !== 'admin') {
+      setTicketsCount(0)
+      setTasksCount(0)
+      return
+    }
+
+    let cancelled = false
+    const fetchMyCounts = async () => {
+      try {
+        const headers: HeadersInit = {
+          'X-User-Id': user!.id,
+          'X-User-Role': user!.role,
+        }
+        const response = await fetch('/api/my-counts', { headers })
+        if (!response.ok) return
+        const data = await response.json()
+        if (!cancelled) {
+          setTicketsCount(data.ticketsCount ?? 0)
+          setTasksCount(data.tasksCount ?? 0)
+        }
+      } catch (error) {
+        console.error('Error fetching my counts:', error)
+      }
+    }
+
+    fetchMyCounts()
+    const interval = setInterval(fetchMyCounts, 30000)
+
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [user?.id, user?.role])
 
   if (!user) {
     return null
@@ -177,8 +215,26 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <div className="text-sm text-slate-300 flex items-center gap-2">
               <span className="text-amber-400">{user.name}</span>
+              {(user.role === 'bi' || user.role === 'admin') && (ticketsCount > 0 || tasksCount > 0) && (
+                <>
+                  {ticketsCount > 0 && (
+                    <Link href="/tickets" title="Tickets abertos (sou gestor)">
+                      <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/50 transition-colors">
+                        {ticketsCount > 99 ? '99+' : ticketsCount}
+                      </span>
+                    </Link>
+                  )}
+                  {tasksCount > 0 && (
+                    <Link href="/minhas-tarefas" title="Tarefas abertas (sou responsável)">
+                      <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-emerald-500/30 text-emerald-300 text-xs font-medium hover:bg-emerald-500/50 transition-colors">
+                        {tasksCount > 99 ? '99+' : tasksCount}
+                      </span>
+                    </Link>
+                  )}
+                </>
+              )}
               {user.role === 'admin' && pendingCount > 0 && (
-                <Link href="/admin/access-requests" className="relative">
+                <Link href="/admin/access-requests" className="relative" title="Pedidos de acesso pendentes">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors">
                     {pendingCount > 99 ? '99+' : pendingCount}
                   </span>
