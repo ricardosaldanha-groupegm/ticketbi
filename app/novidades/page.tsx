@@ -12,6 +12,18 @@ type Release = {
 
 const releases: Release[] = [
   {
+    version: "v1.5",
+    date: "Março 2026",
+    title: "Tickets recorrentes e melhorias no formulário de ticket",
+    highlights: [
+      "Nova página de Tickets Recorrentes para utilizadores BI e Admin, permitindo criar templates com frequência diária, semanal ou mensal",
+      "Geração automática de novos tickets recorrentes por cron, com cópia do ticket base e das subtarefas associadas ao template",
+      "Campo \"Por tipo de Entrega\" na criação de ticket deixou de vir preenchido por defeito e passou a obrigar a uma escolha explícita",
+      "Destaque visual a amarelo no formulário de edição quando faltam as datas \"Data prevista de conclusão\" e \"Data de primeiro contacto\" em tickets ainda abertos",
+      "Preparação da base de dados para rastrear tickets gerados por recorrência e evitar duplicações por template/data",
+    ],
+  },
+  {
     version: "v1.0",
     date: "Setembro 2024",
     title: "Lançamento inicial do TicketBI",
@@ -140,7 +152,7 @@ export default function NovidadesPage() {
 
         <footer className="mt-10 pt-4 border-t border-slate-800 text-xs text-slate-500 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <p>Esta página será atualizada sempre que forem lançadas novas funcionalidades relevantes.</p>
-          <p>Última atualização: Março 2025.</p>
+          <p>Última atualização: Março 2026.</p>
         </footer>
       </div>
     </div>
