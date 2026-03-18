@@ -36,7 +36,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.1",
-    date: "Fevereiro 2025",
+    date: "Fevereiro 2026",
     title: "Melhorias de usabilidade e documentação",
     highlights: [
       "Criação do tutorial detalhado para utilizadores em português e espanhol",
@@ -46,7 +46,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.2",
-    date: "Março 2025",
+    date: "Março 2026",
     title: "Gestão de palavra‑passe e segurança",
     highlights: [
       "Funcionalidade \"Esqueci‑me da password\" com recuperação via email (Supabase Auth)",
@@ -58,7 +58,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.3",
-    date: "Março 2025",
+    date: "Março 2026",
     title: "Campo objetivo opcional na criação de ticket",
     highlights: [
       "O campo \"Objetivo do Pedido\" passou a ser opcional na criação de ticket",
@@ -67,7 +67,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.4",
-    date: "Março 2025",
+    date: "Março 2026",
     title: "Explicações para Tipo de Entrega e Natureza",
     highlights: [
       "Ícone de ajuda junto aos campos Tipo de Entrega e Natureza com tooltip listando todas as opções e respetivas descrições, uma por linha",
