@@ -117,7 +117,9 @@ export default function NovidadesPage() {
         </header>
 
         <section className="space-y-8">
-          {releases.map((release, index) => (
+          {[...releases]
+            .sort((a, b) => Number(b.version.replace("v", "")) - Number(a.version.replace("v", "")))
+            .map((release, index) => (
             <article
               key={release.version}
               className="relative pl-6 md:pl-8 border-l border-slate-700/70 pb-6 last:pb-0"
