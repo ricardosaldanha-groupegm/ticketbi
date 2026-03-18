@@ -47,6 +47,8 @@ describe('tickets-service (memory mode)', () => {
       objetivo: 'Validate create/delete service helpers',
       urgencia: 2,
       importancia: 2,
+      entrega_tipo: 'BI' as const,
+      natureza: 'Novo' as const,
       data_esperada: undefined,
     }
 

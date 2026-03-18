@@ -45,6 +45,8 @@ const mockTicket = {
   id: 'ticket-1',
   created_by: 'requester-1',
   gestor_id: 'bi-1',
+  recurring_template_id: null,
+  recurring_instance_date: null,
   estado: 'novo' as const,
   assunto: 'Test Ticket',
   descricao: 'Test Description',
@@ -55,6 +57,10 @@ const mockTicket = {
   pedido_por: 'Test User',
   data_pedido: '2024-01-01',
   data_esperada: null,
+  data_primeiro_contacto: null,
+  data_prevista_conclusao: null,
+  data_conclusao: null,
+  data_inicio: null,
   internal_notes: null,
   created_at: '2024-01-01',
   updated_at: '2024-01-01',
@@ -170,8 +176,8 @@ describe('RBAC Functions', () => {
       expect(canDeleteTicket(mockAdmin, mockTicket)).toBe(true)
     })
 
-    it('should not allow BI user to delete tickets', () => {
-      expect(canDeleteTicket(mockBIUser, mockTicket)).toBe(false)
+    it('should allow BI user to delete tickets they manage', () => {
+      expect(canDeleteTicket(mockBIUser, mockTicket)).toBe(true)
     })
 
     it('should not allow requester to delete tickets', () => {
@@ -327,8 +333,8 @@ describe('RBAC Functions', () => {
       expect(canAssignTicketManager(mockAdmin)).toBe(true)
     })
 
-    it('should not allow BI user to assign ticket managers', () => {
-      expect(canAssignTicketManager(mockBIUser)).toBe(false)
+    it('should allow BI user to assign ticket managers', () => {
+      expect(canAssignTicketManager(mockBIUser)).toBe(true)
     })
 
     it('should not allow requester to assign ticket managers', () => {

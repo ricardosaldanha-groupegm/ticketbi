@@ -45,6 +45,29 @@ export const recurringTemplateUpdateSchema = recurringTemplateSchema.partial().e
 
 export type RecurringTemplateInput = z.infer<typeof recurringTemplateSchema>
 export type RecurringTemplateUpdateInput = z.infer<typeof recurringTemplateUpdateSchema>
+type RecurringTemplateRow = {
+  id: string
+  created_by: string
+  gestor_id: string | null
+  active: boolean
+  pedido_por: string
+  assunto: string
+  descricao: string | null
+  objetivo: string | null
+  urgencia: number
+  importancia: number
+  entrega_tipo: typeof entregaTipoValues[number]
+  natureza: typeof naturezaValues[number]
+  data_esperada: string | null
+  data_prevista_conclusao: string | null
+  frequency: typeof recurrenceFrequencies[number]
+  start_date: string
+  next_run_date: string
+  end_date: string | null
+  last_run_at: string | null
+  last_created_ticket_id: string | null
+  last_error: string | null
+}
 
 function normalizeDateOnly(value?: string | null) {
   if (!value) return null
@@ -232,7 +255,7 @@ export async function updateRecurringTemplate(user: AuthUser, templateId: string
     .from('ticket_recurring_templates')
     .select('*')
     .eq('id', templateId)
-    .maybeSingle()
+    .maybeSingle<RecurringTemplateRow>()
 
   if (loadError) {
     throw new Error(loadError.message || 'Erro ao carregar template recorrente')
@@ -335,25 +358,26 @@ export async function runDueRecurringTemplates(runDate = getTodayInTimezone()) {
 
   const results: Array<{ templateId: string; createdTicketId?: string; skipped?: boolean; error?: string }> = []
 
-  for (const template of dueTemplates ?? []) {
+  for (const template of (dueTemplates ?? []) as Array<RecurringTemplateRow & { subtasks?: any[] }>) {
     const instanceDate = template.next_run_date
     let nextRunDate = calculateNextRunDate(instanceDate, template.frequency)
     const shouldDeactivate = !!template.end_date && nextRunDate > template.end_date
 
     try {
-      const { data: existingTicket, error: existingError } = await supabase
+      const { data: existingTicketRaw, error: existingError } = await (supabase as any)
         .from('tickets')
         .select('id')
         .eq('recurring_template_id', template.id)
         .eq('recurring_instance_date', instanceDate)
         .maybeSingle()
+      const existingTicket = existingTicketRaw as { id: string } | null
 
       if (existingError) {
         throw new Error(existingError.message || 'Erro ao verificar ocorrência existente')
       }
 
       if (existingTicket?.id) {
-        const { error: updateExistingError } = await supabase
+        const { error: updateExistingError } = await (supabase as any)
           .from('ticket_recurring_templates')
           .update({
             last_run_at: new Date().toISOString(),
@@ -404,7 +428,7 @@ export async function runDueRecurringTemplates(runDate = getTodayInTimezone()) {
           retrabalhos: st.retrabalhos ?? 0,
         }))
 
-        const { error: subticketInsertError } = await supabase
+        const { error: subticketInsertError } = await (supabase as any)
           .from('subtickets')
           .insert(subticketsToInsert as any)
 
@@ -413,7 +437,7 @@ export async function runDueRecurringTemplates(runDate = getTodayInTimezone()) {
         }
       }
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('ticket_recurring_templates')
         .update({
           last_run_at: new Date().toISOString(),
@@ -430,7 +454,7 @@ export async function runDueRecurringTemplates(runDate = getTodayInTimezone()) {
 
       results.push({ templateId: template.id, createdTicketId: (ticket as any).id })
     } catch (error: any) {
-      await supabase
+      await (supabase as any)
         .from('ticket_recurring_templates')
         .update({
           last_run_at: new Date().toISOString(),
