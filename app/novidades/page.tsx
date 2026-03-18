@@ -25,7 +25,7 @@ const releases: Release[] = [
   },
   {
     version: "v1.0",
-    date: "Setembro 2024",
+    date: "Setembro 2025",
     title: "Lançamento inicial do TicketBI",
     highlights: [
       "Criação de tickets para pedidos ao DSI (BI, PHC, Salesforce, Automação, Suporte, Dados/Análises)",
@@ -117,7 +117,7 @@ export default function NovidadesPage() {
         </header>
 
         <section className="space-y-8">
-          {[...releases].slice().reverse().map((release, index) => (
+          {releases.map((release, index) => (
             <article
               key={release.version}
               className="relative pl-6 md:pl-8 border-l border-slate-700/70 pb-6 last:pb-0"
