@@ -22,6 +22,7 @@ import TasksList from "./TasksList"
 import CommentsList from "./CommentsList"
 import AttachmentsList from "./AttachmentsList"
 import { getEntregaTipoOptions, getEntregaTipoTooltip, getNaturezaTooltip, entregaTipoDescriptions, naturezaDescriptions } from "@/lib/field-labels"
+import { cn } from "@/lib/utils"
 
 interface Ticket {
   id: string
@@ -172,6 +173,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const { register, handleSubmit, control, formState: { errors }, reset, setValue, watch } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
   })
+  const watchedEstado = watch("estado")
+  const watchedDataPrevistaConclusao = watch("data_prevista_conclusao")
+  const watchedDataPrimeiroContacto = watch("data_primeiro_contacto")
+  const requiresAttentionByStatus = !["concluido", "bloqueado", "rejeitado"].includes(watchedEstado ?? ticket?.estado ?? "")
+  const shouldHighlightPlannedCompletionDate =
+    !!canEditAllFields &&
+    requiresAttentionByStatus &&
+    !watchedDataPrevistaConclusao
+  const shouldHighlightFirstContactDate =
+    !!canEditAllFields &&
+    requiresAttentionByStatus &&
+    !watchedDataPrimeiroContacto
 
   const fetchTicket = async () => {
     try {
@@ -876,14 +889,42 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             </div>
                             {(currentRole === 'admin' || currentRole === 'bi') && (
                               <div>
-                                <Label htmlFor="data_prevista_conclusao" className="text-slate-300">Data prevista de conclusão</Label>
-                                <input id="data_prevista_conclusao" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_prevista_conclusao")} />
+                                <Label
+                                  htmlFor="data_prevista_conclusao"
+                                  className={cn("text-slate-300", shouldHighlightPlannedCompletionDate && "text-yellow-300")}
+                                >
+                                  Data prevista de conclusão
+                                </Label>
+                                <input
+                                  id="data_prevista_conclusao"
+                                  type="date"
+                                  className={cn(
+                                    "w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100",
+                                    shouldHighlightPlannedCompletionDate &&
+                                      "border-yellow-400 bg-yellow-200 text-slate-950 ring-1 ring-yellow-400/70 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500"
+                                  )}
+                                  {...register("data_prevista_conclusao")}
+                                />
                               </div>
                             )}
                             {(currentRole === 'admin' || currentRole === 'bi') && (
                               <div>
-                                <Label htmlFor="data_primeiro_contacto" className="text-slate-300">Data de primeiro contacto</Label>
-                                <input id="data_primeiro_contacto" type="date" className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100" {...register("data_primeiro_contacto")} />
+                                <Label
+                                  htmlFor="data_primeiro_contacto"
+                                  className={cn("text-slate-300", shouldHighlightFirstContactDate && "text-yellow-300")}
+                                >
+                                  Data de primeiro contacto
+                                </Label>
+                                <input
+                                  id="data_primeiro_contacto"
+                                  type="date"
+                                  className={cn(
+                                    "w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100",
+                                    shouldHighlightFirstContactDate &&
+                                      "border-yellow-400 bg-yellow-200 text-slate-950 ring-1 ring-yellow-400/70 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500"
+                                  )}
+                                  {...register("data_primeiro_contacto")}
+                                />
                               </div>
                             )}
                             {(currentRole === 'admin' || currentRole === 'bi') && (
@@ -1145,8 +1186,3 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     </div>
   )
 }
-
-
-
-
-

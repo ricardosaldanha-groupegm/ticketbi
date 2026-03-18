@@ -40,7 +40,7 @@ const createTicketSchema = z.object({
   urgencia: z.number().min(1).max(3),
   importancia: z.number().min(1).max(3),
   data_esperada: z.string().optional(),
-  entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
+  entrega_tipo: z.enum(entregaTipoValues, { required_error: "Campo obrigatório" }),
   natureza: z.enum(naturezaValues).default('Novo'),
   // Email do Gestor (apenas preenchido por perfis BI/Admin) – string vazia é permitido e tratada como "sem gestor"
   gestor_email: z.union([z.string().email(), z.literal('')]).optional(),
@@ -68,7 +68,6 @@ export default function NewTicketPage() {
       urgencia: 1,
       importancia: 1,
       data_esperada: "",
-      entrega_tipo: 'BI',
       natureza: 'Novo',
       gestor_email: "",
     },
@@ -347,7 +346,7 @@ export default function NewTicketPage() {
                     aria-label="Ajuda sobre tipo de entrega"
                   >i</span>
                 </div>
-                <Select value={watch("entrega_tipo") as any} onValueChange={(value) => setValue("entrega_tipo", value as any)}>
+                <Select value={watch("entrega_tipo") as any} onValueChange={(value) => setValue("entrega_tipo", value as any, { shouldValidate: true })}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
                     <SelectValue placeholder="Selecionar tipo de entrega" />
                   </SelectTrigger>
@@ -357,6 +356,9 @@ export default function NewTicketPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.entrega_tipo && (
+                  <p className="text-sm text-red-400">{errors.entrega_tipo.message}</p>
+                )}
                 {watch("entrega_tipo") && entregaTipoDescriptions[watch("entrega_tipo") as string] && (
                   <p className="text-xs text-slate-400">{entregaTipoDescriptions[watch("entrega_tipo") as string]}</p>
                 )}

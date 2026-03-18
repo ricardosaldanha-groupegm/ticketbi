@@ -36,7 +36,7 @@ export const createTicketSchema = z.object({
   data_prevista_conclusao: z.string().optional(),
   // Tipo de entrega e natureza (strings pré-definidas)
   // Se não vier nada, assume "Interno" por omissão (compatível com integrações existentes)
-  entrega_tipo: z.enum(entregaTipoValues).default('Interno'),
+  entrega_tipo: z.enum(entregaTipoValues),
   natureza: z.enum(naturezaValues).default('Novo'),
 })
 
