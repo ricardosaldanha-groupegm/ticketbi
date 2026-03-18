@@ -40,7 +40,14 @@ export const createTicketSchema = z.object({
   natureza: z.enum(naturezaValues).default('Novo'),
 })
 
-export type CreateTicketInput = z.infer<typeof createTicketSchema>
+const createTicketInternalSchema = createTicketSchema.extend({
+  created_by_id: z.string().uuid().optional(),
+  gestor_id: z.string().uuid().nullable().optional(),
+  recurring_template_id: z.string().uuid().nullable().optional(),
+  recurring_instance_date: z.string().optional(),
+})
+
+export type CreateTicketInput = z.infer<typeof createTicketInternalSchema>
 type TicketInsert = Database['public']['Tables']['tickets']['Insert']
 
 function normalizeDateInput(value?: string | null): string | null {
@@ -89,6 +96,9 @@ export async function createTicket(data: CreateTicketInput) {
       created_at: now,
       updated_at: now,
       estado: 'novo',
+      gestor_id: data.gestor_id ?? null,
+      recurring_template_id: data.recurring_template_id ?? null,
+      recurring_instance_date: data.recurring_instance_date ?? null,
     }
     addTicket(ticket)
     return { ticket, source: 'memory' as const }
@@ -99,6 +109,10 @@ export async function createTicket(data: CreateTicketInput) {
   // Map pedido_por (nome) -> created_by (uuid)
   let createdById: string | null = null
   let gestorId: string | null = null
+
+  if (data.created_by_id) {
+    createdById = data.created_by_id
+  }
 
   const { data: userByName } = await supabase
     .from('users')
@@ -121,6 +135,7 @@ export async function createTicket(data: CreateTicketInput) {
 
   const normalizedDate = normalizeDateInput(data.data_esperada)
   const normalizedPrevistaConclusao = normalizeDateInput(data.data_prevista_conclusao)
+  const normalizedRecurringInstanceDate = normalizeDateInput(data.recurring_instance_date)
   const now = new Date().toISOString()
 
   if (!createdById) {
@@ -128,8 +143,12 @@ export async function createTicket(data: CreateTicketInput) {
   }
 
   // Se vier gestor_email (não vazio), tentar resolver para gestor_id
+  if (data.gestor_id) {
+    gestorId = data.gestor_id
+  }
+
   const rawGestorEmail = (data as any).gestor_email as string | undefined
-  const gestorEmail = rawGestorEmail && rawGestorEmail.trim() !== '' ? rawGestorEmail.trim() : undefined
+  const gestorEmail = !gestorId && rawGestorEmail && rawGestorEmail.trim() !== '' ? rawGestorEmail.trim() : undefined
 
   if (gestorEmail) {
     const { data: gestorUser, error: gestorError } = await supabase
@@ -176,6 +195,8 @@ export async function createTicket(data: CreateTicketInput) {
     created_by: createdById,
     entrega_tipo: data.entrega_tipo,
     natureza: data.natureza,
+    recurring_template_id: data.recurring_template_id ?? null,
+    recurring_instance_date: normalizedRecurringInstanceDate,
   }
 
   if (gestorId) {

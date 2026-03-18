@@ -197,6 +197,13 @@ export default function Header() {
                             Tarefas
                           </Link>
                         </li>
+                        {(user.role === 'bi' || user.role === 'admin') && (
+                          <li>
+                            <Link href="/tickets-recorrentes" className={navigationMenuTriggerStyle()}>
+                              Recorrentes
+                            </Link>
+                          </li>
+                        )}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>

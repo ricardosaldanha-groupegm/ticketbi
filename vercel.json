@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/internal/recurring-tickets/run",
+      "schedule": "5 6 * * *"
+    }
+  ]
+}

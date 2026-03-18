@@ -38,6 +38,8 @@ export type Database = {
           id: string
           created_by: string
           gestor_id: string | null
+          recurring_template_id: string | null
+          recurring_instance_date: string | null
           estado: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
           pedido_por: string
           data_pedido: string
@@ -60,6 +62,8 @@ export type Database = {
           id?: string
           created_by: string
           gestor_id?: string | null
+          recurring_template_id?: string | null
+          recurring_instance_date?: string | null
           estado?: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
           pedido_por: string
           data_pedido?: string
@@ -81,6 +85,8 @@ export type Database = {
           id?: string
           created_by?: string
           gestor_id?: string | null
+          recurring_template_id?: string | null
+          recurring_instance_date?: string | null
           estado?: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
           pedido_por?: string
           data_pedido?: string
@@ -137,6 +143,136 @@ export type Database = {
           urgencia?: number
           importancia?: number
           data_esperada?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      ticket_recurring_templates: {
+        Row: {
+          id: string
+          created_by: string
+          gestor_id: string | null
+          active: boolean
+          pedido_por: string
+          assunto: string
+          descricao: string | null
+          objetivo: string | null
+          urgencia: number
+          importancia: number
+          entrega_tipo: 'BI' | 'PHC' | 'Salesforce' | 'Automação' | 'Suporte' | 'Dados/Análises' | 'Interno'
+          natureza: 'Novo' | 'Correção' | 'Retrabalho' | 'Esclarecimento' | 'Ajuste' | 'Suporte' | 'Reunião/Discussão' | 'Interno'
+          data_esperada: string | null
+          data_prevista_conclusao: string | null
+          frequency: 'daily' | 'weekly' | 'monthly'
+          start_date: string
+          next_run_date: string
+          end_date: string | null
+          last_run_at: string | null
+          last_created_ticket_id: string | null
+          last_error: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          created_by: string
+          gestor_id?: string | null
+          active?: boolean
+          pedido_por: string
+          assunto: string
+          descricao?: string | null
+          objetivo?: string | null
+          urgencia?: number
+          importancia?: number
+          entrega_tipo: 'BI' | 'PHC' | 'Salesforce' | 'Automação' | 'Suporte' | 'Dados/Análises' | 'Interno'
+          natureza?: 'Novo' | 'Correção' | 'Retrabalho' | 'Esclarecimento' | 'Ajuste' | 'Suporte' | 'Reunião/Discussão' | 'Interno'
+          data_esperada?: string | null
+          data_prevista_conclusao?: string | null
+          frequency: 'daily' | 'weekly' | 'monthly'
+          start_date: string
+          next_run_date: string
+          end_date?: string | null
+          last_run_at?: string | null
+          last_created_ticket_id?: string | null
+          last_error?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          created_by?: string
+          gestor_id?: string | null
+          active?: boolean
+          pedido_por?: string
+          assunto?: string
+          descricao?: string | null
+          objetivo?: string | null
+          urgencia?: number
+          importancia?: number
+          entrega_tipo?: 'BI' | 'PHC' | 'Salesforce' | 'Automação' | 'Suporte' | 'Dados/Análises' | 'Interno'
+          natureza?: 'Novo' | 'Correção' | 'Retrabalho' | 'Esclarecimento' | 'Ajuste' | 'Suporte' | 'Reunião/Discussão' | 'Interno'
+          data_esperada?: string | null
+          data_prevista_conclusao?: string | null
+          frequency?: 'daily' | 'weekly' | 'monthly'
+          start_date?: string
+          next_run_date?: string
+          end_date?: string | null
+          last_run_at?: string | null
+          last_created_ticket_id?: string | null
+          last_error?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      ticket_recurring_template_subtasks: {
+        Row: {
+          id: string
+          template_id: string
+          assignee_bi_id: string
+          titulo: string
+          descricao: string | null
+          urgencia: number
+          importancia: number
+          estado: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
+          data_inicio: string | null
+          data_inicio_planeado: string | null
+          data_esperada: string | null
+          data_conclusao: string | null
+          retrabalhos: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          assignee_bi_id: string
+          titulo: string
+          descricao?: string | null
+          urgencia?: number
+          importancia?: number
+          estado?: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
+          data_inicio?: string | null
+          data_inicio_planeado?: string | null
+          data_esperada?: string | null
+          data_conclusao?: string | null
+          retrabalhos?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          assignee_bi_id?: string
+          titulo?: string
+          descricao?: string | null
+          urgencia?: number
+          importancia?: number
+          estado?: 'novo' | 'em_analise' | 'em_curso' | 'em_validacao' | 'concluido' | 'rejeitado' | 'bloqueado'
+          data_inicio?: string | null
+          data_inicio_planeado?: string | null
+          data_esperada?: string | null
+          data_conclusao?: string | null
+          retrabalhos?: number
           created_at?: string
           updated_at?: string
         }
