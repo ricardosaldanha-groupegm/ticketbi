@@ -23,6 +23,7 @@ interface Ticket {
   assunto: string
   descricao: string | null
   estado: string
+  created_at: string
   pedido_por: string
   data_pedido: string
   data_esperada: string | null
