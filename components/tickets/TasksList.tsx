@@ -222,12 +222,32 @@ export default function TasksList({ ticketId }: { ticketId: string }) {
 
   const loadBIUsers = async () => {
     try {
-      const resp = await fetch('/api/users')
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentUserRole) (headers as any)['X-User-Role'] = currentUserRole
+
+      const resp = await fetch('/api/users/bi', { headers })
       const data = await resp.json()
-      if (resp.ok && Array.isArray(data?.users)) setBiUsers(data.users)
+      if (resp.ok && Array.isArray(data)) {
+        setBiUsers(data)
+        return
+      }
+
+      const fallbackResp = await fetch(`/api/users-fresh?t=${Date.now()}`)
+      const fallbackData = await fallbackResp.json()
+      if (fallbackResp.ok && Array.isArray(fallbackData?.users)) {
+        const list = (fallbackData.users as any[])
+          .filter((u: any) => u?.role === 'bi' || u?.role === 'admin')
+          .slice()
+          .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+        setBiUsers(list)
+      }
     } catch (_) {}
   }
-  useEffect(() => { loadBIUsers() }, [])
+  useEffect(() => {
+    if (currentUserRole !== 'admin' && currentUserRole !== 'bi') return
+    loadBIUsers()
+  }, [currentUserId, currentUserRole])
 
   const openCreate = () => {
     setNewTitle("")

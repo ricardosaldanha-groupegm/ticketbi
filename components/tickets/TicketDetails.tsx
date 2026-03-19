@@ -270,13 +270,23 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
 
   const fetchBIUsers = async () => {
     try {
-      // apenas para admin/bi
       if (currentRole !== 'admin' && currentRole !== 'bi') return
-      const response = await fetch(`/api/users`)
+      const headers: HeadersInit = {}
+      if (currentUserId) (headers as any)['X-User-Id'] = currentUserId
+      if (currentRole) (headers as any)['X-User-Role'] = currentRole
+
+      const response = await fetch(`/api/users/bi`, { headers })
       const payload = await response.json()
-      if (!response.ok || !Array.isArray(payload?.users)) return
-      const list = (payload.users as any[])
-        .filter((u: any) => (u?.role === 'bi' || u?.role === 'admin'))
+      if (response.ok && Array.isArray(payload)) {
+        setBiUsers(payload)
+        return
+      }
+
+      const fallbackResponse = await fetch(`/api/users-fresh?t=${Date.now()}`)
+      const fallbackPayload = await fallbackResponse.json()
+      if (!fallbackResponse.ok || !Array.isArray(fallbackPayload?.users)) return
+      const list = (fallbackPayload.users as any[])
+        .filter((u: any) => u?.role === 'bi' || u?.role === 'admin')
         .slice()
         .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
       setBiUsers(list)
