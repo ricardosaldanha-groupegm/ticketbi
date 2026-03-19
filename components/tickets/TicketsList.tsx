@@ -213,11 +213,8 @@ export default function TicketsList() {
 
   // Responsáveis com pelo menos um ticket não concluído
   const responsaveisComTicketsNaoConcluidos = useMemo(() => {
-    const ticketsNaoConcluidos = tickets.filter((t) =>
-      t.gestor_id && estadosNaoConcluidos.includes(t.estado)
-    )
     const seen = new Map<string, { id: string; name: string }>()
-    for (const t of ticketsNaoConcluidos) {
+    for (const t of tickets) {
       if (t.gestor_id && !seen.has(t.gestor_id)) {
         seen.set(t.gestor_id, {
           id: t.gestor_id,
