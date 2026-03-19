@@ -12,6 +12,18 @@ type Release = {
 
 const releases: Release[] = [
   {
+    version: "v1.6",
+    date: "MarÃ§o 2026",
+    title: "Melhorias nos filtros e responsÃ¡veis dos tickets",
+    highlights: [
+      "O filtro de responsÃ¡vel na lista de tickets passou a incluir gestores mesmo quando sÃ³ tÃªm tickets concluÃ­dos, permitindo filtrar pelo Miguel Viera e outros casos equivalentes",
+      "Os dropdowns de responsÃ¡vel/gestor no detalhe do ticket passaram a carregar corretamente a lista de utilizadores BI/Admin",
+      "A pesquisa na lista de tickets passou tambÃ©m a procurar pelo nome do utilizador indicado em \"Pedido por\"",
+      "Novo filtro por intervalo de datas para limitar os tickets pela data de criaÃ§Ã£o",
+      "CorreÃ§Ã£o de tipagem associada ao novo filtro de data para garantir builds consistentes em produÃ§Ã£o",
+    ],
+  },
+  {
     version: "v1.5",
     date: "Março 2026",
     title: "Tickets recorrentes e melhorias no formulário de ticket",
