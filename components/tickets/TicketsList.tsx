@@ -132,6 +132,8 @@ export default function TicketsList() {
   const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none" | string>("me")
   const [search, setSearch] = useState<string>("")
   const [responsavelSearch, setResponsavelSearch] = useState<string>("")
+  const [createdFrom, setCreatedFrom] = useState<string>("")
+  const [createdTo, setCreatedTo] = useState<string>("")
   const [semDataOuEmAtrasoFilter, setSemDataOuEmAtrasoFilter] = useState(false)
   const [responsavelOpen, setResponsavelOpen] = useState(false)
   const responsavelRef = useRef<HTMLDivElement>(null)
@@ -252,6 +254,13 @@ export default function TicketsList() {
     return opcoesResponsavel.find((o) => o.value === responsavelFilter)?.label ?? responsavelFilter
   }, [opcoesResponsavel, responsavelFilter])
 
+  const parseDateOnly = (value: string | null | undefined) => {
+    if (!value) return null
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return null
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
+  }
+
   const filteredTickets = useMemo(() => {
     let arr = tickets
 
@@ -274,8 +283,29 @@ export default function TicketsList() {
       arr = arr.filter((t) =>
         (t.assunto || "").toLowerCase().includes(q) ||
         (t.descricao || "").toLowerCase().includes(q) ||
+        (t.pedido_por || "").toLowerCase().includes(q) ||
         (t.gestor?.name || "").toLowerCase().includes(q)
       )
+    }
+
+    if (createdFrom) {
+      const from = parseDateOnly(createdFrom)
+      if (from) {
+        arr = arr.filter((t) => {
+          const created = parseDateOnly(t.created_at)
+          return !!created && created.getTime() >= from.getTime()
+        })
+      }
+    }
+
+    if (createdTo) {
+      const to = parseDateOnly(createdTo)
+      if (to) {
+        arr = arr.filter((t) => {
+          const created = parseDateOnly(t.created_at)
+          return !!created && created.getTime() <= to.getTime()
+        })
+      }
     }
 
     if (semDataOuEmAtrasoFilter && (currentUserRole === "admin" || currentUserRole === "bi")) {
@@ -292,7 +322,7 @@ export default function TicketsList() {
     }
 
     return arr
-  }, [tickets, estadoFilter, responsavelFilter, search, semDataOuEmAtrasoFilter, currentUserId, currentUserRole])
+  }, [tickets, estadoFilter, responsavelFilter, search, createdFrom, createdTo, semDataOuEmAtrasoFilter, currentUserId, currentUserRole])
 
   const canDuplicate = (t: Ticket) => {
     if (!currentUserId) return false
@@ -439,7 +469,7 @@ if (tickets.length === 0) {
 
   return (
     <div className="space-y-6">
-      <div className="mb-2 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div className="mb-2 flex flex-col gap-3">
         <div className="flex items-center gap-3 text-sm flex-wrap">
           <span className="text-slate-300">Estado:</span>
           {allEstados.map((s) => (
@@ -534,9 +564,25 @@ if (tickets.length === 0) {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Procurar por assunto/descrição..."
-            className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100 min-w-[220px]"
+            placeholder="Procurar por assunto, descrição ou pedido por..."
+            className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100 min-w-[280px]"
             type="text"
+          />
+          <span className="text-slate-300">Criado entre:</span>
+          <input
+            type="date"
+            value={createdFrom}
+            onChange={(e) => setCreatedFrom(e.target.value)}
+            className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
+            aria-label="Data inicial de criação"
+          />
+          <span className="text-slate-400">e</span>
+          <input
+            type="date"
+            value={createdTo}
+            onChange={(e) => setCreatedTo(e.target.value)}
+            className="rounded border border-slate-600 bg-slate-700 px-2 py-1 text-slate-100"
+            aria-label="Data final de criação"
           />
         </div>
       </div>
