@@ -97,6 +97,7 @@ describe('ticket-planning', () => {
     )
 
     expect(result.scheduled.map((ticket) => ticket.id)).toEqual(['1'])
-    expect(result.unscheduled.map((ticket) => ticket.id)).toEqual(['2', '3'])
+    expect(result.unscheduled.map((ticket) => ticket.id)).toEqual(['2'])
+    expect(result.outOfRange.map((ticket) => ticket.id)).toEqual(['3'])
   })
 })

@@ -158,6 +158,7 @@ export function splitPlanningTicketsBySchedule<T extends PlanningCalendarTicket>
 ) {
   const scheduled: T[] = []
   const unscheduled: T[] = []
+  const outOfRange: T[] = []
 
   for (const ticket of tickets) {
     const start = normalizeDateOnly(ticket.data_inicio_planeada)
@@ -176,12 +177,12 @@ export function splitPlanningTicketsBySchedule<T extends PlanningCalendarTicket>
       continue
     }
 
-    unscheduled.push({
+    outOfRange.push({
       ...ticket,
       data_inicio_planeada: start,
       data_prevista_conclusao: end,
     })
   }
 
-  return { scheduled, unscheduled }
+  return { scheduled, unscheduled, outOfRange }
 }
