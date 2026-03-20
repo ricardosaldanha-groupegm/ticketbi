@@ -12,15 +12,27 @@ type Release = {
 
 const releases: Release[] = [
   {
-    version: "v1.6",
-    date: "MarÃ§o 2026",
-    title: "Melhorias nos filtros e responsÃ¡veis dos tickets",
+    version: "v1.7",
+    date: "Março 2026",
+    title: "Calendário de planeamento de tickets",
     highlights: [
-      "O filtro de responsÃ¡vel na lista de tickets passou a incluir gestores mesmo quando sÃ³ tÃªm tickets concluÃ­dos, permitindo filtrar pelo Miguel Viera e outros casos equivalentes",
-      "Os dropdowns de responsÃ¡vel/gestor no detalhe do ticket passaram a carregar corretamente a lista de utilizadores BI/Admin",
-      "A pesquisa na lista de tickets passou tambÃ©m a procurar pelo nome do utilizador indicado em \"Pedido por\"",
-      "Novo filtro por intervalo de datas para limitar os tickets pela data de criaÃ§Ã£o",
-      "CorreÃ§Ã£o de tipagem associada ao novo filtro de data para garantir builds consistentes em produÃ§Ã£o",
+      "Nova página de calendário para utilizadores BI e Admin com vista Mês e Semana sobre os tickets por concluir",
+      "Novo modelo de planeamento com duração prevista e data planeada de início, separado da data real de início do ticket",
+      "Os tickets planeados passaram a aparecer como barras contínuas entre o dia de início e o dia de fim previsto, facilitando a leitura da carga ao longo dos dias",
+      "Quando um ticket atravessa mais do que uma semana, a barra é interrompida no fim da linha e retomada na semana seguinte até à data prevista de conclusão",
+      "Tickets sem planeamento suficiente continuam visíveis numa área dedicada \"Sem planeamento\" para apoiar a gestão e distribuição do trabalho",
+    ],
+  },
+  {
+    version: "v1.6",
+    date: "Março 2026",
+    title: "Melhorias nos filtros e responsáveis dos tickets",
+    highlights: [
+      "O filtro de responsável na lista de tickets passou a incluir gestores mesmo quando só têm tickets concluídos, permitindo filtrar pelo Miguel Viera e outros casos equivalentes",
+      "Os dropdowns de responsável/gestor no detalhe do ticket passaram a carregar corretamente a lista de utilizadores BI/Admin",
+      "A pesquisa na lista de tickets passou também a procurar pelo nome do utilizador indicado em \"Pedido por\"",
+      "Novo filtro por intervalo de datas para limitar os tickets pela data de criação",
+      "Correção de tipagem associada ao novo filtro de data para garantir builds consistentes em produção",
     ],
   },
   {

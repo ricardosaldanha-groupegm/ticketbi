@@ -59,6 +59,8 @@ const mockTicket = {
   data_esperada: null,
   data_primeiro_contacto: null,
   data_prevista_conclusao: null,
+  data_inicio_planeada: null,
+  duracao_prevista: null,
   data_conclusao: null,
   data_inicio: null,
   internal_notes: null,

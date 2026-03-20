@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth'
 import { canReadTicket, canEditTicket, canDeleteTicket, canAssignTicketManager, createAuthUser, AuthUser, canViewInternalNotes } from '@/lib/rbac'
 import { getTicketNotificationRecipients, getInternalNotesRecipients, getPedidoPorEmail, getTicketUrl, sendTicketWebhook } from '@/lib/webhook'
 import { z } from 'zod'
+import { computePlanningFields, PlanningLastEdited, validatePlanningFields } from '@/lib/ticket-planning'
 
  const entregaTipoValues = [
   'BI', 'PHC', 'Salesforce', 'Automação', 'Suporte', 'Dados/Análises', 'Interno',
@@ -25,6 +26,9 @@ import { z } from 'zod'
   data_esperada: z.string().optional(),
   data_primeiro_contacto: z.string().optional(),
   data_prevista_conclusao: z.string().optional(),
+  data_inicio_planeada: z.string().optional(),
+  duracao_prevista: z.number().int().min(1).optional(),
+  planning_last_edited: z.enum(['duracao_prevista', 'data_inicio_planeada', 'data_prevista_conclusao']).optional(),
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
@@ -59,6 +63,8 @@ export async function GET(
         data_esperada: null,
         data_primeiro_contacto: null,
         data_prevista_conclusao: null,
+        data_inicio_planeada: null,
+        duracao_prevista: null,
         data_conclusao: null,
         data_inicio: null,
         internal_notes: null,
@@ -219,6 +225,8 @@ export async function PATCH(
         data_esperada: null,
         data_primeiro_contacto: null,
         data_prevista_conclusao: null,
+        data_inicio_planeada: null,
+        duracao_prevista: null,
         data_conclusao: null,
         data_inicio: null,
         internal_notes: null,
@@ -331,12 +339,50 @@ export async function PATCH(
     if (typeof updatePayload.data_prevista_conclusao === 'string' && updatePayload.data_prevista_conclusao.trim() === '') {
       updatePayload.data_prevista_conclusao = null
     }
+    if (typeof updatePayload.data_inicio_planeada === 'string' && updatePayload.data_inicio_planeada.trim() === '') {
+      updatePayload.data_inicio_planeada = null
+    }
     if (typeof updatePayload.data_conclusao === 'string' && updatePayload.data_conclusao.trim() === '') {
       updatePayload.data_conclusao = null
     }
     if (typeof updatePayload.data_inicio === 'string' && updatePayload.data_inicio.trim() === '') {
       updatePayload.data_inicio = null
     }
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'duracao_prevista') && updatePayload.duracao_prevista == null) {
+      updatePayload.duracao_prevista = null
+    }
+    const planningLastEdited = (updatePayload.planning_last_edited ?? null) as PlanningLastEdited | null
+    delete updatePayload.planning_last_edited
+
+    const hasPlanningFieldUpdate =
+      Object.prototype.hasOwnProperty.call(updatePayload, 'duracao_prevista') ||
+      Object.prototype.hasOwnProperty.call(updatePayload, 'data_inicio_planeada') ||
+      Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
+
+    if (hasPlanningFieldUpdate) {
+      const computedPlanning = computePlanningFields({
+        duracao_prevista: Object.prototype.hasOwnProperty.call(updatePayload, 'duracao_prevista')
+          ? updatePayload.duracao_prevista
+          : (currentTicket as any).duracao_prevista,
+        data_inicio_planeada: Object.prototype.hasOwnProperty.call(updatePayload, 'data_inicio_planeada')
+          ? updatePayload.data_inicio_planeada
+          : (currentTicket as any).data_inicio_planeada,
+        data_prevista_conclusao: Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
+          ? updatePayload.data_prevista_conclusao
+          : (currentTicket as any).data_prevista_conclusao,
+        lastEdited: planningLastEdited,
+      })
+
+      const planningError = validatePlanningFields(computedPlanning)
+      if (planningError) {
+        return NextResponse.json({ error: planningError }, { status: 400 })
+      }
+
+      updatePayload.duracao_prevista = computedPlanning.duracao_prevista
+      updatePayload.data_inicio_planeada = computedPlanning.data_inicio_planeada
+      updatePayload.data_prevista_conclusao = computedPlanning.data_prevista_conclusao
+    }
+
     const hasDataPrevistaUpdate = Object.prototype.hasOwnProperty.call(updatePayload, 'data_prevista_conclusao')
     if (
       hasDataPrevistaUpdate &&

@@ -52,6 +52,8 @@ export type Database = {
           data_esperada: string | null
           data_primeiro_contacto: string | null
           data_prevista_conclusao: string | null
+          data_inicio_planeada: string | null
+          duracao_prevista: number | null
           data_conclusao: string | null
           data_inicio: string | null
           internal_notes: string | null
@@ -75,6 +77,8 @@ export type Database = {
           data_esperada?: string | null
           data_primeiro_contacto?: string | null
           data_prevista_conclusao?: string | null
+          data_inicio_planeada?: string | null
+          duracao_prevista?: number | null
           data_conclusao?: string | null
           data_inicio?: string | null
           internal_notes?: string | null
@@ -98,6 +102,8 @@ export type Database = {
           data_esperada?: string | null
           data_primeiro_contacto?: string | null
           data_prevista_conclusao?: string | null
+          data_inicio_planeada?: string | null
+          duracao_prevista?: number | null
           data_conclusao?: string | null
           data_inicio?: string | null
           internal_notes?: string | null

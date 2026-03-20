@@ -204,6 +204,13 @@ export default function Header() {
                             </Link>
                           </li>
                         )}
+                        {(user.role === 'bi' || user.role === 'admin') && (
+                          <li>
+                            <Link href="/tickets-calendario" className={navigationMenuTriggerStyle()}>
+                              Calendário
+                            </Link>
+                          </li>
+                        )}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>

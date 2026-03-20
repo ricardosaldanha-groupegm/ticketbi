@@ -22,6 +22,7 @@ import TasksList from "./TasksList"
 import CommentsList from "./CommentsList"
 import AttachmentsList from "./AttachmentsList"
 import { getEntregaTipoOptions, getEntregaTipoTooltip, getNaturezaTooltip, entregaTipoDescriptions, naturezaDescriptions } from "@/lib/field-labels"
+import { computePlanningFields } from "@/lib/ticket-planning"
 import { cn } from "@/lib/utils"
 
 interface Ticket {
@@ -37,6 +38,8 @@ interface Ticket {
   data_pedido: string
   data_esperada: string | null
   data_prevista_conclusao: string | null
+  data_inicio_planeada: string | null
+  duracao_prevista: number | null
   data_primeiro_contacto: string | null
   data_conclusao: string | null
   data_inicio: string | null
@@ -71,6 +74,9 @@ const updateTicketSchema = z.object({
   estado: z.string().optional(),
   data_esperada: z.string().optional(),
   data_prevista_conclusao: z.string().optional(),
+  data_inicio_planeada: z.string().optional(),
+  duracao_prevista: z.number().int().min(1).optional(),
+  planning_last_edited: z.enum(["duracao_prevista", "data_inicio_planeada", "data_prevista_conclusao"]).optional(),
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
   data_primeiro_contacto: z.string().optional(),
@@ -170,11 +176,13 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
   const canViewInternalNotes =
     currentRole === 'admin' || (currentRole === 'bi' && ticket?.gestor_id === currentUserId)
 
-  const { register, handleSubmit, control, formState: { errors }, reset, setValue, watch } = useForm<UpdateTicketForm>({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue, watch, getValues } = useForm<UpdateTicketForm>({
     resolver: zodResolver(updateTicketSchema),
   })
   const watchedEstado = watch("estado")
   const watchedDataPrevistaConclusao = watch("data_prevista_conclusao")
+  const watchedDataInicioPlaneada = watch("data_inicio_planeada")
+  const watchedDuracaoPrevista = watch("duracao_prevista")
   const watchedDataPrimeiroContacto = watch("data_primeiro_contacto")
   const requiresAttentionByStatus = !["concluido", "bloqueado", "rejeitado"].includes(watchedEstado ?? ticket?.estado ?? "")
   const shouldHighlightPlannedCompletionDate =
@@ -185,6 +193,24 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
     !!canEditAllFields &&
     requiresAttentionByStatus &&
     !watchedDataPrimeiroContacto
+
+  const applyPlanningChange = (
+    lastEdited: "duracao_prevista" | "data_inicio_planeada" | "data_prevista_conclusao",
+    overrides: Partial<Pick<UpdateTicketForm, "duracao_prevista" | "data_inicio_planeada" | "data_prevista_conclusao">>,
+  ) => {
+    const current = getValues()
+    const computed = computePlanningFields({
+      duracao_prevista: overrides.duracao_prevista ?? current.duracao_prevista ?? null,
+      data_inicio_planeada: overrides.data_inicio_planeada ?? current.data_inicio_planeada ?? null,
+      data_prevista_conclusao: overrides.data_prevista_conclusao ?? current.data_prevista_conclusao ?? null,
+      lastEdited,
+    })
+
+    setValue("planning_last_edited", lastEdited, { shouldDirty: true })
+    setValue("duracao_prevista", computed.duracao_prevista ?? undefined, { shouldDirty: true })
+    setValue("data_inicio_planeada", computed.data_inicio_planeada ?? "", { shouldDirty: true })
+    setValue("data_prevista_conclusao", computed.data_prevista_conclusao ?? "", { shouldDirty: true })
+  }
 
   const fetchTicket = async () => {
     try {
@@ -232,9 +258,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         estado: data.estado ?? 'novo',
         data_esperada: toDateInputValue(data.data_esperada),
         data_prevista_conclusao: toDateInputValue(data.data_prevista_conclusao),
+        data_inicio_planeada: toDateInputValue((data as any).data_inicio_planeada),
+        duracao_prevista: (data as any).duracao_prevista ?? undefined,
         data_conclusao: toDateInputValue(data.data_conclusao),
         data_inicio: toDateInputValue(data.data_inicio),
         data_primeiro_contacto: toDateInputValue(data.data_primeiro_contacto),
+        planning_last_edited: undefined,
         entrega_tipo: (data as any).entrega_tipo ?? 'Interno',
         natureza: (data as any).natureza ?? 'Novo',
         retrabalhos_ticket: (data as any).retrabalhos_ticket ?? 0,
@@ -421,9 +450,12 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
         estado: ticket.estado ?? 'novo',
         data_esperada: toDateInputValue(ticket.data_esperada),
         data_prevista_conclusao: toDateInputValue(ticket.data_prevista_conclusao),
+        data_inicio_planeada: toDateInputValue((ticket as any).data_inicio_planeada),
+        duracao_prevista: (ticket as any).duracao_prevista ?? undefined,
         data_conclusao: toDateInputValue(ticket.data_conclusao),
         data_inicio: toDateInputValue(ticket.data_inicio),
         data_primeiro_contacto: toDateInputValue(ticket.data_primeiro_contacto),
+        planning_last_edited: undefined,
         retrabalhos_ticket: (ticket as any).retrabalhos_ticket ?? 0,
       })
     }
@@ -553,6 +585,18 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
               <div>
                 <p className="text-slate-500">Data prevista de conclusão</p>
                 <p>{formatDate(ticket.data_prevista_conclusao)}</p>
+              </div>
+            )}
+            {ticket.data_inicio_planeada && (
+              <div>
+                <p className="text-slate-500">Data planeada de início</p>
+                <p>{formatDate(ticket.data_inicio_planeada)}</p>
+              </div>
+            )}
+            {typeof ticket.duracao_prevista === "number" && (
+              <div>
+                <p className="text-slate-500">Duração prevista</p>
+                <p>{ticket.duracao_prevista} dia(s) úteis</p>
               </div>
             )}
             {ticket.data_conclusao && (
@@ -702,6 +746,7 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                      <input type="hidden" {...register("planning_last_edited")} />
                       <div className="space-y-6">
                         <div className="space-y-3">
                           <h4 className="text-sm font-semibold text-slate-200">Identificação</h4>
@@ -899,6 +944,39 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                             </div>
                             {(currentRole === 'admin' || currentRole === 'bi') && (
                               <div>
+                                <Label htmlFor="duracao_prevista" className="text-slate-300">Duração prevista (dias úteis)</Label>
+                                <input
+                                  id="duracao_prevista"
+                                  type="number"
+                                  min={1}
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                  {...register("duracao_prevista", {
+                                    setValueAs: (value) => value === "" ? undefined : Number(value),
+                                    onChange: (e) => {
+                                      const value = e.target.value === "" ? undefined : Number(e.target.value)
+                                      applyPlanningChange("duracao_prevista", { duracao_prevista: value })
+                                    },
+                                  })}
+                                />
+                              </div>
+                            )}
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
+                                <Label htmlFor="data_inicio_planeada" className="text-slate-300">Data planeada de início</Label>
+                                <input
+                                  id="data_inicio_planeada"
+                                  type="date"
+                                  className="w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100"
+                                  {...register("data_inicio_planeada", {
+                                    onChange: (e) => {
+                                      applyPlanningChange("data_inicio_planeada", { data_inicio_planeada: e.target.value || "" })
+                                    },
+                                  })}
+                                />
+                              </div>
+                            )}
+                            {(currentRole === 'admin' || currentRole === 'bi') && (
+                              <div>
                                 <Label
                                   htmlFor="data_prevista_conclusao"
                                   className={cn("text-slate-300", shouldHighlightPlannedCompletionDate && "text-yellow-300")}
@@ -913,7 +991,11 @@ export default function TicketDetails({ ticketId }: { ticketId: string }) {
                                     shouldHighlightPlannedCompletionDate &&
                                       "border-yellow-400 bg-yellow-200 text-slate-950 ring-1 ring-yellow-400/70 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500"
                                   )}
-                                  {...register("data_prevista_conclusao")}
+                                  {...register("data_prevista_conclusao", {
+                                    onChange: (e) => {
+                                      applyPlanningChange("data_prevista_conclusao", { data_prevista_conclusao: e.target.value || "" })
+                                    },
+                                  })}
                                 />
                               </div>
                             )}
