@@ -62,6 +62,11 @@ const naturezaValues = [
   'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
 ] as const
 
+const planningLastEditedSchema = z.preprocess(
+  (value) => value === "" ? undefined : value,
+  z.enum(["duracao_prevista", "data_inicio_planeada", "data_prevista_conclusao"]).optional(),
+)
+
 const updateTicketSchema = z.object({
   assunto: z.string().min(1, "Campo obrigatorio").optional(),
   pedido_por: z.string().min(1, "Campo obrigatorio").optional(),
@@ -76,7 +81,7 @@ const updateTicketSchema = z.object({
   data_prevista_conclusao: z.string().optional(),
   data_inicio_planeada: z.string().optional(),
   duracao_prevista: z.number().int().min(1).optional(),
-  planning_last_edited: z.enum(["duracao_prevista", "data_inicio_planeada", "data_prevista_conclusao"]).optional(),
+  planning_last_edited: planningLastEditedSchema,
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
   data_primeiro_contacto: z.string().optional(),

@@ -13,7 +13,12 @@ import { computePlanningFields, PlanningLastEdited, validatePlanningFields } fro
   'Novo', 'Correção', 'Retrabalho', 'Esclarecimento', 'Ajuste', 'Suporte', 'Reunião/Discussão', 'Interno',
 ] as const
 
- const updateTicketSchema = z.object({
+const planningLastEditedSchema = z.preprocess(
+  (value) => value === '' ? undefined : value,
+  z.enum(['duracao_prevista', 'data_inicio_planeada', 'data_prevista_conclusao']).optional(),
+)
+
+const updateTicketSchema = z.object({
   assunto: z.string().min(1, 'Campo obrigatorio').optional(),
   pedido_por: z.string().min(1, 'Campo obrigatorio').optional(),
   data_pedido: z.string().optional(),
@@ -28,13 +33,45 @@ import { computePlanningFields, PlanningLastEdited, validatePlanningFields } fro
   data_prevista_conclusao: z.string().optional(),
   data_inicio_planeada: z.string().optional(),
   duracao_prevista: z.number().int().min(1).optional(),
-  planning_last_edited: z.enum(['duracao_prevista', 'data_inicio_planeada', 'data_prevista_conclusao']).optional(),
+  planning_last_edited: planningLastEditedSchema,
   data_conclusao: z.string().optional(),
   data_inicio: z.string().optional(),
   entrega_tipo: z.enum(entregaTipoValues).optional(),
   natureza: z.enum(naturezaValues).optional(),
   retrabalhos_ticket: z.number().int().min(0).optional(),
 });
+
+const ticketStatusAliases: Record<string, string> = {
+  novo: 'novo',
+  'em analise': 'em_analise',
+  'em análise': 'em_analise',
+  em_analise: 'em_analise',
+  em_curso: 'em_curso',
+  'em curso': 'em_curso',
+  'em validacao': 'em_validacao',
+  'em validação': 'em_validacao',
+  em_validacao: 'em_validacao',
+  concluido: 'concluido',
+  concluído: 'concluido',
+  rejeitado: 'rejeitado',
+  bloqueado: 'bloqueado',
+  'aguardando 3os': 'Aguardando 3ºs',
+  'aguardando 3ºs': 'Aguardando 3ºs',
+  'aguardando terceiros': 'Aguardando 3ºs',
+  standby: 'Standby',
+}
+
+function normalizeTicketStatus(value: unknown) {
+  if (typeof value !== 'string') return value
+
+  const normalizedKey = value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  return ticketStatusAliases[normalizedKey] ?? value
+}
 // GET /api/tickets/[id] - Get single ticket
 export async function GET(
   request: NextRequest,
@@ -347,6 +384,9 @@ export async function PATCH(
     }
     if (typeof updatePayload.data_inicio === 'string' && updatePayload.data_inicio.trim() === '') {
       updatePayload.data_inicio = null
+    }
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'estado')) {
+      updatePayload.estado = normalizeTicketStatus(updatePayload.estado)
     }
     if (Object.prototype.hasOwnProperty.call(updatePayload, 'duracao_prevista') && updatePayload.duracao_prevista == null) {
       updatePayload.duracao_prevista = null
