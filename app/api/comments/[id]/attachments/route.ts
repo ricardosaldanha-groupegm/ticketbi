@@ -21,11 +21,13 @@ const payloadSchema = z.object({
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = createServerSupabaseClient()
-    let user: AuthUser | null = null
-    try {
-      user = await requireAuth()
-    } catch (_) {
-      user = await resolveAuthUser(request, supabase)
+    let user: AuthUser | null = await resolveAuthUser(request, supabase)
+    if (!user) {
+      try {
+        user = await requireAuth()
+      } catch (_) {
+        user = null
+      }
     }
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

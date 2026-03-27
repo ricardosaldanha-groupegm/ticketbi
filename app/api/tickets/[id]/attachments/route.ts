@@ -29,15 +29,17 @@ export async function GET(
 
     // Production mode - use Supabase with auth (fallback to header in preview/dev)
     const supabase = createServerSupabaseClient()
-    let user: AuthUser | null = null
-    try {
-      user = await requireAuth()
-    } catch (_) {
-      user = await resolveAuthUser(request, supabase)
-      if (!user) {
-        // Soft-fail to empty list to avoid breaking UI when unauthenticated
-        return NextResponse.json([])
+    let user: AuthUser | null = await resolveAuthUser(request, supabase)
+    if (!user) {
+      try {
+        user = await requireAuth()
+      } catch (_) {
+        user = null
       }
+    }
+    if (!user) {
+      // Soft-fail to empty list to avoid breaking UI when unauthenticated
+      return NextResponse.json([])
     }
     
     // First check if user can read the ticket
@@ -94,14 +96,16 @@ export async function POST(
 ) {
   try {
     const supabase = createServerSupabaseClient()
-    let user: AuthUser | null = null
-    try {
-      user = await requireAuth()
-    } catch (_) {
-      user = await resolveAuthUser(request, supabase)
-      if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    let user: AuthUser | null = await resolveAuthUser(request, supabase)
+    if (!user) {
+      try {
+        user = await requireAuth()
+      } catch (_) {
+        user = null
       }
+    }
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
     const body = await request.json()

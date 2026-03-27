@@ -19,16 +19,19 @@ export async function GET(
   try {
     const supabase = createServerSupabaseClient()
     let user: any = null
-    try {
-      user = await requireAuth()
-    } catch (_) {
-      const hdrId = request.headers.get('x-user-id')
-      if (hdrId) {
-        const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
-        if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
-      }
-      if (!user) return NextResponse.json([])
+    const hdrId = request.headers.get('x-user-id')
+    if (hdrId) {
+      const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
+      if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
     }
+    if (!user) {
+      try {
+        user = await requireAuth()
+      } catch (_) {
+        user = null
+      }
+    }
+    if (!user) return NextResponse.json([])
     
     // First check if user can read the subticket
     const { data: subticket, error: subticketError } = await supabase
@@ -74,16 +77,19 @@ export async function POST(
   try {
     const supabase = createServerSupabaseClient()
     let user: any = null
-    try {
-      user = await requireAuth()
-    } catch (_) {
-      const hdrId = request.headers.get('x-user-id')
-      if (hdrId) {
-        const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
-        if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
-      }
-      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const hdrId = request.headers.get('x-user-id')
+    if (hdrId) {
+      const { data: dbUser } = await supabase.from('users').select('*').eq('id', hdrId).maybeSingle()
+      if (dbUser) user = { id: (dbUser as any).id, role: (dbUser as any).role, email: (dbUser as any).email }
     }
+    if (!user) {
+      try {
+        user = await requireAuth()
+      } catch (_) {
+        user = null
+      }
+    }
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     
     const body = await request.json()
     const validatedData = createAttachmentSchema.parse(body)

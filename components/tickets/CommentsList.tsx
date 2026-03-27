@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
-import { Send, ArrowDownNarrowWide, ArrowUpNarrowWide } from 'lucide-react'
+import { Send, ArrowDownNarrowWide, ArrowUpNarrowWide, Paperclip } from 'lucide-react'
 
 interface Comment {
   id: string
@@ -198,7 +198,11 @@ const fetchComments = useCallback(async () => {
             // non-fatal; just inform
             const e = await linkResp.json().catch(() => ({} as any))
             console.warn('Falha a associar anexos ao comentário:', e)
-            toast({ title: 'Aviso', description: 'Comentário enviado, mas falhou o upload do anexo.', variant: 'destructive' })
+            toast({
+              title: 'Aviso',
+              description: e?.error || 'Comentário enviado, mas falhou a associação do anexo.',
+              variant: 'destructive'
+            })
           }
         } catch {}
       }
@@ -372,20 +376,49 @@ const fetchComments = useCallback(async () => {
         { !hideForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Input ref={fileInputRef} type="file" multiple className="bg-slate-700 border border-slate-600 text-slate-100 file:text-slate-100" onChange={(e) => setFiles(Array.from(e.target.files || []))} />
+            <Input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => setFiles(Array.from(e.target.files || []))}
+            />
             <Textarea
               {...register('body')}
               placeholder="Escreva um comentario..."
               rows={3}
               className="bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-400" />
+            {files.length > 0 && (
+              <p className="text-sm text-slate-400">
+                {files.length === 1
+                  ? `1 ficheiro selecionado: ${files[0].name}`
+                  : `${files.length} ficheiros selecionados`}
+              </p>
+            )}
             {errors.body && (
               <p className="text-sm text-red-500 mt-1">{errors.body.message}</p>
             )}
           </div>
-          <Button type="submit" disabled={submitting || uploading} className="bg-amber-600 hover:bg-amber-700 text-white">
-            <Send className="h-4 w-4 mr-2" />
-            {submitting ? 'A enviar...' : 'Enviar Comentario'}
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button
+              type="submit"
+              disabled={submitting || uploading}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {submitting ? 'A enviar...' : 'Enviar Comentario'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={submitting || uploading}
+              className="border-amber-500/50 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:text-amber-200"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="h-4 w-4 mr-2" />
+              anexar ficheiros ao comentário
+            </Button>
+          </div>
         </form>
         )}
 
