@@ -12,6 +12,15 @@ type Release = {
 
 const releases: Release[] = [
   {
+    version: "v1.8",
+    date: "Abril 2026",
+    title: "Filtro de responsável inclui interessados",
+    highlights: [
+      "Novo pisco (selecionado por defeito) na lista de tickets para incluir também os tickets onde o responsável selecionado é utilizador interessado",
+      "Ex.: ao selecionar o gestor \"Ricardo Saldanha\", passam a aparecer os tickets atribuídos a esse gestor e os tickets onde ele está como interessado",
+    ],
+  },
+  {
     version: "v1.7",
     date: "Março 2026",
     title: "Calendário de planeamento de tickets",
