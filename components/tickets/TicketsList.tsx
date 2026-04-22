@@ -33,6 +33,7 @@ interface Ticket {
   importancia: number
   gestor_id?: string | null
   gestor?: { name: string; email: string } | null
+  watchers?: { user_id: string }[] | null
 }
 
 interface TicketsResponse {
@@ -131,6 +132,7 @@ export default function TicketsList() {
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   const [estadoFilter, setEstadoFilter] = useState<string[]>(defaultEstados)
   const [responsavelFilter, setResponsavelFilter] = useState<"me" | "all" | "none" | string>("me")
+  const [includeInterested, setIncludeInterested] = useState(true)
   const [search, setSearch] = useState<string>("")
   const [responsavelSearch, setResponsavelSearch] = useState<string>("")
   const [createdFrom, setCreatedFrom] = useState<string>("")
@@ -269,14 +271,28 @@ export default function TicketsList() {
       arr = arr.filter((t) => estadoFilter.includes(t.estado))
     }
 
+    const isWatcher = (t: Ticket, userId: string) => {
+      const watchers = t.watchers || []
+      return Array.isArray(watchers) && watchers.some((w) => w?.user_id === userId)
+    }
+
     if (responsavelFilter === "me" && currentUserId) {
       if (currentUserRole === "admin" || currentUserRole === "bi") {
-        arr = arr.filter((t) => t.gestor_id === currentUserId)
+        arr = arr.filter((t) => {
+          if (t.gestor_id === currentUserId) return true
+          if (includeInterested && isWatcher(t, currentUserId)) return true
+          return false
+        })
       }
     } else if (responsavelFilter === "none") {
       arr = arr.filter((t) => !t.gestor_id)
     } else if (responsavelFilter && !["me", "all"].includes(responsavelFilter)) {
-      arr = arr.filter((t) => t.gestor_id === responsavelFilter)
+      const selectedId = responsavelFilter
+      arr = arr.filter((t) => {
+        if (t.gestor_id === selectedId) return true
+        if (includeInterested && isWatcher(t, selectedId)) return true
+        return false
+      })
     }
 
     const q = search.trim().toLowerCase()
@@ -323,7 +339,7 @@ export default function TicketsList() {
     }
 
     return arr
-  }, [tickets, estadoFilter, responsavelFilter, search, createdFrom, createdTo, semDataOuEmAtrasoFilter, currentUserId, currentUserRole])
+  }, [tickets, estadoFilter, responsavelFilter, includeInterested, search, createdFrom, createdTo, semDataOuEmAtrasoFilter, currentUserId, currentUserRole])
 
   const canDuplicate = (t: Ticket) => {
     if (!currentUserId) return false
@@ -502,6 +518,17 @@ if (tickets.length === 0) {
                 onChange={(e) => setSemDataOuEmAtrasoFilter(e.target.checked)}
               />
               <span>Sem data ou em atraso</span>
+            </label>
+          )}
+          {(currentUserRole === "admin" || currentUserRole === "bi") && (
+            <label className="inline-flex items-center gap-2 text-slate-200">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-amber-600"
+                checked={includeInterested}
+                onChange={(e) => setIncludeInterested(e.target.checked)}
+              />
+              <span>Incluir tickets onde o responsável é interessado</span>
             </label>
           )}
           <div className="flex items-center gap-2">

@@ -72,7 +72,8 @@ export async function GET(request: NextRequest) {
         .select(`
           *,
           created_by_user:users!tickets_created_by_fkey(name, email),
-          gestor:users!tickets_gestor_id_fkey(name, email)
+          gestor:users!tickets_gestor_id_fkey(name, email),
+          watchers:ticket_watchers(user_id)
         `)
         .eq('created_by', userId)
         .order('created_at', { ascending: false })
@@ -88,7 +89,8 @@ export async function GET(request: NextRequest) {
           .select(`
             *,
             created_by_user:users!tickets_created_by_fkey(name, email),
-            gestor:users!tickets_gestor_id_fkey(name, email)
+            gestor:users!tickets_gestor_id_fkey(name, email),
+            watchers:ticket_watchers(user_id)
           `)
           .in('pedido_por', pedidoPorValues as any)
           .order('created_at', { ascending: false })
@@ -112,7 +114,8 @@ export async function GET(request: NextRequest) {
         .select(`
           *,
           created_by_user:users!tickets_created_by_fkey(name, email),
-          gestor:users!tickets_gestor_id_fkey(name, email)
+          gestor:users!tickets_gestor_id_fkey(name, email),
+          watchers:ticket_watchers(user_id)
         `)
         .eq('gestor_id', userId)
         .order('created_at', { ascending: false })
@@ -134,7 +137,8 @@ export async function GET(request: NextRequest) {
           .select(`
             *,
             created_by_user:users!tickets_created_by_fkey(name, email),
-            gestor:users!tickets_gestor_id_fkey(name, email)
+            gestor:users!tickets_gestor_id_fkey(name, email),
+            watchers:ticket_watchers(user_id)
           `)
           .in('id', ticketIdsFromSubs)
           .order('created_at', { ascending: false })
@@ -149,7 +153,8 @@ export async function GET(request: NextRequest) {
           .select(`
             *,
             created_by_user:users!tickets_created_by_fkey(name, email),
-            gestor:users!tickets_gestor_id_fkey(name, email)
+            gestor:users!tickets_gestor_id_fkey(name, email),
+            watchers:ticket_watchers(user_id)
           `)
           .in('id', ticketIdsFromWatch)
           .order('created_at', { ascending: false })
@@ -168,7 +173,8 @@ export async function GET(request: NextRequest) {
         .select(`
           *,
           created_by_user:users!tickets_created_by_fkey(name, email),
-          gestor:users!tickets_gestor_id_fkey(name, email)
+          gestor:users!tickets_gestor_id_fkey(name, email),
+          watchers:ticket_watchers(user_id)
         `)
         .order('created_at', { ascending: false })
       error = e
